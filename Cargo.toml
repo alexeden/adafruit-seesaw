@@ -3,7 +3,7 @@ authors = ["Alex Eden <alexandereden91@gmail.com>"]
 edition = "2021"
 name = "adafruit-seesaw"
 readme = "README.md"
-version = "0.1.0"
+version = "0.0.1"
 
 [dependencies]
 embedded-hal = "0.2"
