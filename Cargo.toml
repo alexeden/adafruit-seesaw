@@ -1,11 +1,11 @@
 [package]
 authors = ["Alex Eden <alexandereden91@gmail.com>"]
-description = "[WIP] cEmbedded rust implementation of the Adafruit Seesaw library."
+description = "[WIP] Embedded rust implementation of the Adafruit Seesaw library."
 edition = "2021"
 license = "MIT/Apache-2.0"
 name = "adafruit-seesaw"
 readme = "README.md"
-version = "0.0.2"
+version = "0.0.3"
 
 [dependencies]
 embedded-hal = "0.2"

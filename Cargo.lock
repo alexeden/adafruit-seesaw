@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "adafruit-seesaw"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "embedded-hal",
 ]
