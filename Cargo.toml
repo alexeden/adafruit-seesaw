@@ -1,6 +1,8 @@
 [package]
 authors = ["Alex Eden <alexandereden91@gmail.com>"]
+description = "Embedded rust implementation of the Adafruit Seesaw library."
 edition = "2021"
+license = "MIT/Apache-2.0"
 name = "adafruit-seesaw"
 readme = "README.md"
 version = "0.0.1"
