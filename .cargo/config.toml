@@ -1,0 +1,19 @@
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+# runner = "arm-none-eabi-gdb"
+# runner = "probe-run --connect-under-reset --chip nRF52840_xxAA"
+runner = "probe-run --chip STM32F405rgt"
+
+[target.thumbv7em-none-eabihf]
+rustflags = [
+    "-C",
+    "link-arg=-Tlink.x", # Link
+    "-C",
+    "link-arg=--nmagic", # Magic
+]
+
+[build]
+target = "thumbv7em-none-eabihf"
+
+# P sure the below does nothing
+[stable]
+build-std = ["core"]
