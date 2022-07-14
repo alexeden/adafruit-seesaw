@@ -6,6 +6,7 @@ license = "MIT/Apache-2.0"
 name = "adafruit-seesaw"
 readme = "README.md"
 version = "0.0.3"
+exclude = [".cargo", "memory.x"]
 
 [dependencies]
 embedded-hal = "0.2"
