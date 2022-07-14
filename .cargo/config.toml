@@ -5,9 +5,4 @@ target = "thumbv7em-none-eabihf"
 runner = "probe-run --chip STM32F405rgt"
 
 [target.thumbv7em-none-eabihf]
-rustflags = [
-    "-C",
-    "link-arg=-Tlink.x", # Link
-    "-C",
-    "link-arg=--nmagic", # Magic
-]
+rustflags = ["-C", "link-arg=-Tlink.x", "-C", "link-arg=--nmagic"]
