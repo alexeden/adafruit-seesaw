@@ -30,7 +30,10 @@ fn main() -> ! {
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let mut ss_bus = SeesawBus::new(i2c, delay);
     let encoder = RotaryEncoder(DEFAULT_ADDR);
-    // encoder.
+    let temp = encoder.temp(&mut ss_bus).expect("Failed to get temp");
+    rprintln!("Temp {:?}", temp);
+
+    encoder.reset(&mut ss_bus).expect("Failed to reset device");
     let hardware_id = encoder
         .hardware_id(&mut ss_bus)
         .expect("Failed to get hardware ID");
@@ -39,9 +42,11 @@ fn main() -> ! {
         .product_info(&mut ss_bus)
         .expect("Failed to get version");
     rprintln!("Version {:?}", version);
+    let temp = encoder.temp(&mut ss_bus).expect("Failed to get temp");
+    rprintln!("Temp {:?}", temp);
 
     let options = encoder.options(&mut ss_bus).expect("Failed to get options");
-    rprintln!("Options {:x}", options);
+    rprintln!("Options {:032b}", options);
 
     loop {}
 }
