@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "adafruit-seesaw"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
