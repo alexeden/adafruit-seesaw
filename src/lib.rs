@@ -5,7 +5,6 @@
 /// ices e.g. each _device_ has a `SeesawBus` (maybe mutexed?)
 /// There's no reason for the bus (current called `Seesaw`) struct to own
 /// all the device/board stuff as part of its type
-use core::fmt::Debug;
 use embedded_hal::blocking::{
     delay::DelayUs,
     i2c::{SevenBitAddress, Write, WriteRead},
@@ -44,11 +43,14 @@ where
         }
     }
 
-    fn read<R: Readable + Writable, const N: usize>(
+    fn read<R, const N: usize>(
         &mut self,
         addr: SevenBitAddress,
         reg: R,
-    ) -> Result<[u8; N], SeesawError<E>> {
+    ) -> Result<[u8; N], SeesawError<E>>
+    where
+        R: Readable + Writable,
+    {
         let mut buffer = [0u8; N];
         self.bus
             .write(addr, &[reg.module(), reg.function()])
@@ -60,7 +62,39 @@ where
             .map(|_| buffer)
     }
 
-    fn write<R: Writable, const N: usize>(
+    fn read_u8<R: Readable + Writable>(
+        &mut self,
+        addr: SevenBitAddress,
+        reg: R,
+    ) -> Result<u8, SeesawError<E>> {
+        self.read::<_, 1>(addr, reg).map(|buf| buf[0])
+    }
+
+    fn read_i32<R: Readable + Writable>(
+        &mut self,
+        addr: SevenBitAddress,
+        reg: R,
+    ) -> Result<i32, SeesawError<E>> {
+        self.read::<_, 4>(addr, reg).map(i32::from_be_bytes)
+    }
+
+    fn read_u16<R: Readable + Writable>(
+        &mut self,
+        addr: SevenBitAddress,
+        reg: R,
+    ) -> Result<u16, SeesawError<E>> {
+        self.read::<_, 2>(addr, reg).map(u16::from_be_bytes)
+    }
+
+    fn read_u32<R: Readable + Writable>(
+        &mut self,
+        addr: SevenBitAddress,
+        reg: R,
+    ) -> Result<u32, SeesawError<E>> {
+        self.read::<_, 4>(addr, reg).map(u32::from_be_bytes)
+    }
+
+    fn write<R, const N: usize>(
         &mut self,
         addr: SevenBitAddress,
         reg: R,
@@ -68,6 +102,7 @@ where
     ) -> Result<(), SeesawError<E>>
     where
         [(); N + 2]: Sized,
+        R: Writable,
     {
         let mut buffer = [0u8; N + 2];
         buffer[0] = reg.module();
@@ -78,5 +113,41 @@ where
             .write(addr, &buffer)
             .map(|_| self.delay_us(self.delay_time))
             .map_err(SeesawError::I2c)
+    }
+
+    fn write_u8<R: Writable>(
+        &mut self,
+        addr: SevenBitAddress,
+        reg: R,
+        value: u8,
+    ) -> Result<(), SeesawError<E>> {
+        self.write(addr, reg, &[value])
+    }
+
+    fn write_u16<R: Writable>(
+        &mut self,
+        addr: SevenBitAddress,
+        reg: R,
+        value: u16,
+    ) -> Result<(), SeesawError<E>> {
+        self.write(addr, reg, &u16::to_be_bytes(value))
+    }
+
+    fn write_i32<R: Writable>(
+        &mut self,
+        addr: SevenBitAddress,
+        reg: R,
+        value: i32,
+    ) -> Result<(), SeesawError<E>> {
+        self.write(addr, reg, &i32::to_be_bytes(value))
+    }
+
+    fn write_u32<R: Writable>(
+        &mut self,
+        addr: SevenBitAddress,
+        reg: R,
+        value: u32,
+    ) -> Result<(), SeesawError<E>> {
+        self.write(addr, reg, &u32::to_be_bytes(value))
     }
 }
