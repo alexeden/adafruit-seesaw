@@ -2,7 +2,7 @@
 #![no_main]
 use adafruit_seesaw::{
     devices::{RotaryEncoder, SeesawDevice},
-    modules::{encoder::EncoderModule, neopixel::NeopixelModule, status::StatusModule},
+    modules::{encoder::EncoderModule, neopixel::NeopixelModule},
     SeesawBus,
 };
 use cortex_m::asm;
@@ -32,35 +32,16 @@ fn main() -> ! {
     let encoder =
         RotaryEncoder::begin_default(&mut bus).expect("Failed to connect to rotary encoder");
 
-    let version = encoder
-        .product_info(&mut bus)
-        .expect("Failed to get version");
-    rprintln!("Version {:?}", version);
-    let temp = encoder.temp(&mut bus).expect("Failed to get temp");
-    rprintln!("Temp {:?}", temp);
-
-    let options = encoder
-        .capabilities(&mut bus)
-        .expect("Failed to get options");
-    rprintln!("Options {:?}", options);
-
-    encoder
-        .set_neopixel_color(&mut bus, 0xFF, 0x00, 0xFF)
-        .and_then(|_| encoder.sync_neopixel(&mut bus))
-        .expect("Failed to set neopixel color");
-
     loop {
-        // let _delta = encoder.delta().expect("Failed to get delta");
         let position = encoder.position(&mut bus).expect("Failed to get position");
         let c = color_wheel(((position & 0xFF) as u8).wrapping_mul(3));
         let Color(r, g, b) = c.set_brightness(255);
 
         encoder
             .set_neopixel_color(&mut bus, r, g, b)
-            .expect("Failed to set color");
-        encoder
-            .sync_neopixel(&mut bus)
-            .expect("Failed to sync neopixel");
+            .and_then(|_| encoder.sync_neopixel(&mut bus))
+            .expect("Failed to set neopixel");
+
         if let Ok(true) = encoder.button(&mut bus) {
             encoder
                 .set_position(&mut bus, 0)
