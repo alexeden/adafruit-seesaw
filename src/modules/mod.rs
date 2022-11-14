@@ -1,8 +1,10 @@
+pub mod gpio;
 pub mod status;
 
 pub type Reg = [u8; 2];
 
 pub const SEESAW_HW_ID: u8 = 0x55;
+
 const STATUS_MODULE_ID: u8 = 0x00;
 const GPIO_MODULE_ID: u8 = 0x01;
 const SERCOM0_MODULE_ID: u8 = 0x02;

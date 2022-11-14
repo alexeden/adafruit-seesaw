@@ -1,4 +1,8 @@
-use crate::{bus::BusRead, error::SeesawError, modules::status::StatusModule};
+use crate::{
+    bus::BusRead,
+    error::SeesawError,
+    modules::{gpio::GpioModule, status::StatusModule},
+};
 use embedded_hal::blocking::i2c::SevenBitAddress;
 
 pub trait Addressable {
@@ -19,6 +23,7 @@ where
 }
 
 pub struct RotaryEncoder(SevenBitAddress);
+impl GpioModule for RotaryEncoder {}
 impl Addressable for RotaryEncoder {
     fn addr(&self) -> SevenBitAddress {
         self.0

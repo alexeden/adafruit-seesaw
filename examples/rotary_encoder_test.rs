@@ -32,10 +32,7 @@ fn main() -> ! {
     let mut ss_bus = SeesawBus::new(i2c, delay);
     let encoder = RotaryEncoder::begin(&mut ss_bus, DEFAULT_ADDR)
         .expect("Failed to connect to rotary encoder");
-    let temp = encoder.temp(&mut ss_bus).expect("Failed to get temp");
-    rprintln!("Temp {:?}", temp);
 
-    encoder.reset(&mut ss_bus).expect("Failed to reset device");
     let hardware_id = encoder
         .hardware_id(&mut ss_bus)
         .expect("Failed to get hardware ID");
