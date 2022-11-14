@@ -2,7 +2,7 @@
 #![no_main]
 use adafruit_seesaw::{
     devices::{RotaryEncoder, SeesawDevice},
-    modules::status::StatusModule,
+    modules::{neopixel::NeopixelModule, status::StatusModule},
     SeesawBus,
 };
 use cortex_m_rt::entry;
@@ -28,27 +28,31 @@ fn main() -> ! {
     let delay = cp.SYST.delay(&clocks);
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
-    let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
-    let mut ss_bus = SeesawBus::new(i2c, delay);
-    let encoder = RotaryEncoder::begin(&mut ss_bus, DEFAULT_ADDR)
-        .expect("Failed to connect to rotary encoder");
+    let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
+    let mut bus = SeesawBus::new(i2c, delay);
+    let encoder =
+        RotaryEncoder::begin(&mut bus, DEFAULT_ADDR).expect("Failed to connect to rotary encoder");
 
     let hardware_id = encoder
-        .hardware_id(&mut ss_bus)
+        .hardware_id(&mut bus)
         .expect("Failed to get hardware ID");
     rprintln!("Hardware ID: {:?}", hardware_id);
     let version = encoder
-        .product_info(&mut ss_bus)
+        .product_info(&mut bus)
         .expect("Failed to get version");
     rprintln!("Version {:?}", version);
-    let temp = encoder.temp(&mut ss_bus).expect("Failed to get temp");
+    let temp = encoder.temp(&mut bus).expect("Failed to get temp");
     rprintln!("Temp {:?}", temp);
 
     let options = encoder
-        .capabilities(&mut ss_bus)
+        .capabilities(&mut bus)
         .expect("Failed to get options");
     rprintln!("Options {:?}", options);
 
+    encoder
+        .set_neopixel_color(&mut bus, 0xFF, 0x00, 0xFF)
+        .and_then(|_| encoder.sync_neopixel(&mut bus))
+        .expect("Failed to set neopixel color");
     loop {}
 }
 

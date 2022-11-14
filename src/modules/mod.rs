@@ -1,4 +1,5 @@
 pub mod gpio;
+pub mod neopixel;
 pub mod status;
 
 pub type Reg = [u8; 2];

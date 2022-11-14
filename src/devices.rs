@@ -1,7 +1,7 @@
 use crate::{
     bus::BusRead,
     error::SeesawError,
-    modules::{gpio::GpioModule, status::StatusModule},
+    modules::{gpio::GpioModule, neopixel::NeopixelModule, status::StatusModule},
 };
 use embedded_hal::blocking::i2c::SevenBitAddress;
 
@@ -24,6 +24,9 @@ where
 
 pub struct RotaryEncoder(SevenBitAddress);
 impl GpioModule for RotaryEncoder {}
+impl NeopixelModule for RotaryEncoder {
+    const PIN: u8 = 6;
+}
 impl Addressable for RotaryEncoder {
     fn addr(&self) -> SevenBitAddress {
         self.0
@@ -36,6 +39,9 @@ impl SeesawDevice for RotaryEncoder {
         addr: SevenBitAddress,
     ) -> Result<Self, SeesawError<E>> {
         let mut device = RotaryEncoder(addr);
-        device.reset_and_begin(bus).map(|_| device)
+        device
+            .reset_and_begin(bus)
+            .and_then(|_| device.enable_neopixel(bus))
+            .map(|_| device)
     }
 }
