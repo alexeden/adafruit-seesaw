@@ -12,6 +12,7 @@ use embedded_hal::blocking::{
 };
 pub(crate) mod bus;
 use error::SeesawError;
+use modules::Reg;
 pub mod devices;
 pub mod error;
 pub mod modules;
@@ -53,16 +54,14 @@ where
     fn write<const N: usize>(
         &mut self,
         addr: SevenBitAddress,
-        mod_reg: u8,
-        fn_reg: u8,
+        reg: &Reg,
         bytes: &[u8; N],
     ) -> Result<(), SeesawError<E>>
     where
         [(); N + 2]: Sized,
     {
         let mut buffer = [0u8; N + 2];
-        buffer[0] = mod_reg;
-        buffer[1] = fn_reg;
+        buffer[0..2].copy_from_slice(reg);
         buffer[2..].copy_from_slice(bytes);
 
         self.bus
@@ -80,12 +79,11 @@ where
     fn read<const N: usize>(
         &mut self,
         addr: SevenBitAddress,
-        mod_reg: u8,
-        fn_reg: u8,
+        reg: &Reg,
     ) -> Result<[u8; N], SeesawError<E>> {
         let mut buffer = [0u8; N];
         self.bus
-            .write(addr, &[mod_reg, fn_reg])
+            .write(addr, reg)
             .and_then(|_| {
                 self.delay_us(self.delay_time);
                 self.bus.write_read(addr, &[], &mut buffer)

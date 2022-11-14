@@ -1,6 +1,10 @@
 #![no_std]
 #![no_main]
-use adafruit_seesaw::{devices::RotaryEncoder, modules::status::StatusModule, SeesawBus};
+use adafruit_seesaw::{
+    devices::{RotaryEncoder, SeesawDevice},
+    modules::status::StatusModule,
+    SeesawBus,
+};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{
@@ -26,7 +30,8 @@ fn main() -> ! {
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let mut ss_bus = SeesawBus::new(i2c, delay);
-    let encoder = RotaryEncoder(DEFAULT_ADDR);
+    let encoder = RotaryEncoder::begin(&mut ss_bus, DEFAULT_ADDR)
+        .expect("Failed to connect to rotary encoder");
     let temp = encoder.temp(&mut ss_bus).expect("Failed to get temp");
     rprintln!("Temp {:?}", temp);
 
@@ -42,8 +47,10 @@ fn main() -> ! {
     let temp = encoder.temp(&mut ss_bus).expect("Failed to get temp");
     rprintln!("Temp {:?}", temp);
 
-    let options = encoder.options(&mut ss_bus).expect("Failed to get options");
-    rprintln!("Options {:032b}", options);
+    let options = encoder
+        .capabilities(&mut ss_bus)
+        .expect("Failed to get options");
+    rprintln!("Options {:?}", options);
 
     loop {}
 }
