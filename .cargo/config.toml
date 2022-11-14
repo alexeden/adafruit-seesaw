@@ -6,3 +6,6 @@ runner = "probe-run --chip STM32F405rgt"
 
 [target.thumbv7em-none-eabihf]
 rustflags = ["-C", "link-arg=-Tlink.x", "-C", "link-arg=--nmagic"]
+
+[unstable]
+build-std = ["core"]

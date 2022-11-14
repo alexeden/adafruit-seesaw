@@ -1,6 +1,6 @@
 #![no_std]
 #![no_main]
-use adafruit_seesaw::Seesaw;
+use adafruit_seesaw::SeesawBus;
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{
@@ -23,7 +23,7 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
-    let _ss = Seesaw::new(i2c, delay);
+    let _ss_bus = SeesawBus::new(i2c, delay);
 
     loop {}
 }
