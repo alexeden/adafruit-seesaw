@@ -1,9 +1,4 @@
-use crate::{bus::BusRead, error::SeesawError};
-use embedded_hal::blocking::i2c::SevenBitAddress;
-
-pub trait Addressable {
-    fn addr(&self) -> SevenBitAddress;
-}
+use crate::{bus::BusRead, devices::Addressable, error::SeesawError};
 
 pub trait StatusModule: Addressable {
     const MOD_REG: u8 = 0x00;
@@ -59,12 +54,5 @@ impl From<u32> for ProductDateCode {
             month: ((vers >> 7) & 0xF) as u8,
             day: ((vers >> 11) & 0x1F) as u8,
         }
-    }
-}
-
-pub struct RotaryEncoder(pub SevenBitAddress);
-impl Addressable for RotaryEncoder {
-    fn addr(&self) -> SevenBitAddress {
-        self.0
     }
 }

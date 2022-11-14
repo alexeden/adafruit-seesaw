@@ -12,6 +12,7 @@ use embedded_hal::blocking::{
 };
 pub(crate) mod bus;
 use error::SeesawError;
+pub mod devices;
 pub mod error;
 pub mod modules;
 
