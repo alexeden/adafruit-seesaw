@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 use adafruit_seesaw::{
-    devices::{RotaryEncoder, SeesawDevice},
+    devices::{rotary_encoder::RotaryEncoder, SeesawDevice},
     modules::{encoder::EncoderModule, neopixel::NeopixelModule, status::StatusModule},
     SeesawBus,
 };

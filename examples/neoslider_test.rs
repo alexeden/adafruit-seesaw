@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 use adafruit_seesaw::{
-    devices::{NeoSlider, SeesawDevice},
+    devices::{neoslider::NeoSlider, SeesawDevice},
     modules::status::StatusModule,
     SeesawBus,
 };

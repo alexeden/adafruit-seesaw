@@ -1,7 +1,6 @@
 use crate::{bus::Bus, error::SeesawError, modules::status::StatusModule};
 use embedded_hal::blocking::i2c::SevenBitAddress;
 
-pub mod arcade_button_1x4;
 pub mod neokey_1x4;
 pub mod neoslider;
 pub mod rotary_encoder;
