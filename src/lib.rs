@@ -1,11 +1,7 @@
 #![no_std]
 #![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
 #![feature(generic_const_exprs)]
-use bus::{BusRead, BusWrite};
-/// Try making the bus a distinct thing instead of the parent wrapper around dev
-/// ices e.g. each _device_ has a `SeesawBus` (maybe mutexed?)
-/// There's no reason for the bus (current called `Seesaw`) struct to own
-/// all the device/board stuff as part of its type
+use bus::Bus;
 use embedded_hal::blocking::{
     delay::DelayUs,
     i2c::{SevenBitAddress, Write, WriteRead},
@@ -46,7 +42,7 @@ where
     }
 }
 
-impl<I2C, DELAY, E> BusWrite<E> for SeesawBus<I2C, DELAY>
+impl<I2C, DELAY, E> Bus<E> for SeesawBus<I2C, DELAY>
 where
     DELAY: DelayUs<u32>,
     I2C: WriteRead<Error = E> + Write<Error = E>,
@@ -69,13 +65,7 @@ where
             .map(|_| self.delay_us(self.delay_time))
             .map_err(SeesawError::I2c)
     }
-}
 
-impl<I2C, DELAY, E> BusRead<E> for SeesawBus<I2C, DELAY>
-where
-    DELAY: DelayUs<u32>,
-    I2C: WriteRead<Error = E> + Write<Error = E>,
-{
     fn read<const N: usize>(
         &mut self,
         addr: SevenBitAddress,

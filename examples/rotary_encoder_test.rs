@@ -2,7 +2,7 @@
 #![no_main]
 use adafruit_seesaw::{
     devices::{RotaryEncoder, SeesawDevice},
-    modules::{encoder::EncoderModule, neopixel::NeopixelModule},
+    modules::{encoder::EncoderModule, neopixel::NeopixelModule, status::StatusModule},
     SeesawBus,
 };
 use cortex_m::asm;
@@ -31,6 +31,13 @@ fn main() -> ! {
     let mut bus = SeesawBus::new(i2c, delay);
     let encoder =
         RotaryEncoder::begin_default(&mut bus).expect("Failed to connect to rotary encoder");
+
+    rprintln!(
+        "{:#?}",
+        encoder
+            .capabilities(&mut bus)
+            .expect("Failed to get options")
+    );
 
     loop {
         let position = encoder.position(&mut bus).expect("Failed to get position");

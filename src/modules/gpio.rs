@@ -1,8 +1,6 @@
-use num_enum::IntoPrimitive;
-
-use crate::{bus::BusRead, devices::Addressable, error::SeesawError};
-
 use super::{Reg, GPIO_MODULE_ID};
+use crate::{bus::Bus, devices::Addressable, error::SeesawError};
+use num_enum::IntoPrimitive;
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register sets the direction of the
@@ -101,11 +99,7 @@ pub enum InterruptMode {
 }
 
 pub trait GpioModule: Addressable {
-    fn digital_read<E, BUS: BusRead<E>>(
-        &self,
-        bus: &mut BUS,
-        pin: u8,
-    ) -> Result<bool, SeesawError<E>> {
+    fn digital_read<E, B: Bus<E>>(&self, bus: &mut B, pin: u8) -> Result<bool, SeesawError<E>> {
         self.digital_read_bulk(bus)
             .map(|pins| match pins >> pin & 0x1 {
                 1 => false,
@@ -113,22 +107,22 @@ pub trait GpioModule: Addressable {
             })
     }
 
-    fn digital_read_bulk<E, BUS: BusRead<E>>(&self, bus: &mut BUS) -> Result<u32, SeesawError<E>> {
+    fn digital_read_bulk<E, B: Bus<E>>(&self, bus: &mut B) -> Result<u32, SeesawError<E>> {
         bus.read_u32(self.addr(), GPIO)
     }
 
-    fn set_pin_mode<E, BUS: BusRead<E>>(
+    fn set_pin_mode<E, B: Bus<E>>(
         &mut self,
-        bus: &mut BUS,
+        bus: &mut B,
         pin: u8,
         mode: PinMode,
     ) -> Result<(), SeesawError<E>> {
         self.set_pin_mode_bulk(bus, 1 << pin, mode)
     }
 
-    fn set_pin_mode_bulk<E, BUS: BusRead<E>>(
+    fn set_pin_mode_bulk<E, B: Bus<E>>(
         &mut self,
-        bus: &mut BUS,
+        bus: &mut B,
         pins: u32,
         mode: PinMode,
     ) -> Result<(), SeesawError<E>> {

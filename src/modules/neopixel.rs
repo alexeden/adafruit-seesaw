@@ -1,6 +1,5 @@
-use crate::{bus::BusRead, devices::Addressable, error::SeesawError};
-
 use super::{Reg, NEOPIXEL_MODULE_ID};
+use crate::{bus::Bus, devices::Addressable, error::SeesawError};
 
 /// WO - 8 bits
 /// Not documented.
@@ -40,7 +39,7 @@ pub trait NeopixelModule: Addressable {
     /// The number of neopixels on the device
     const N_LEDS: u16 = 1;
 
-    fn enable_neopixel<E, BUS: BusRead<E>>(&mut self, bus: &mut BUS) -> Result<(), SeesawError<E>> {
+    fn enable_neopixel<E, B: Bus<E>>(&mut self, bus: &mut B) -> Result<(), SeesawError<E>> {
         bus.write_u8(self.addr(), SET_PIN, Self::PIN)
             .and_then(|_| {
                 bus.delay_us(10_000);
@@ -49,9 +48,9 @@ pub trait NeopixelModule: Addressable {
             .map(|_| bus.delay_us(10_000))
     }
 
-    fn set_speed<E, BUS: BusRead<E>>(
+    fn set_speed<E, B: Bus<E>>(
         &self,
-        bus: &mut BUS,
+        bus: &mut B,
         speed: NeopixelSpeed,
     ) -> Result<(), SeesawError<E>> {
         bus.write_u8(
@@ -65,9 +64,9 @@ pub trait NeopixelModule: Addressable {
         .map(|_| bus.delay_us(10_000))
     }
 
-    fn set_neopixel_color<E, BUS: BusRead<E>>(
+    fn set_neopixel_color<E, B: Bus<E>>(
         &self,
-        bus: &mut BUS,
+        bus: &mut B,
         r: u8,
         g: u8,
         b: u8,
@@ -75,9 +74,9 @@ pub trait NeopixelModule: Addressable {
         self.set_nth_neopixel_color(bus, 0, r, g, b)
     }
 
-    fn set_nth_neopixel_color<E, BUS: BusRead<E>>(
+    fn set_nth_neopixel_color<E, B: Bus<E>>(
         &self,
-        bus: &mut BUS,
+        bus: &mut B,
         n: u16,
         r: u8,
         g: u8,
@@ -88,9 +87,9 @@ pub trait NeopixelModule: Addressable {
         bus.write(self.addr(), SET_BUF, &[zero, one, r, g, b, 0x00])
     }
 
-    fn set_neopixel_colors<E, BUS: BusRead<E>>(
+    fn set_neopixel_colors<E, B: Bus<E>>(
         &self,
-        bus: &mut BUS,
+        bus: &mut B,
         colors: &[(u8, u8, u8); Self::N_LEDS as usize],
     ) -> Result<(), SeesawError<E>>
     where
@@ -108,7 +107,7 @@ pub trait NeopixelModule: Addressable {
         })
     }
 
-    fn sync_neopixel<E, BUS: BusRead<E>>(&self, bus: &mut BUS) -> Result<(), SeesawError<E>> {
+    fn sync_neopixel<E, B: Bus<E>>(&self, bus: &mut B) -> Result<(), SeesawError<E>> {
         bus.write(self.addr(), SHOW, &[]).map(|_| bus.delay_us(125))
     }
 }
