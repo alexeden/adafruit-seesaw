@@ -26,7 +26,7 @@ impl NeopixelModule for NeoKey1x4 {
 }
 
 impl SeesawDevice for NeoKey1x4 {
-    const DEFAULT_ADDR: u8 = 0x36;
+    const DEFAULT_ADDR: u8 = 0x30;
 
     fn begin<E, B: Bus<E>>(bus: &mut B, addr: SevenBitAddress) -> Result<Self, SeesawError<E>> {
         let mut device = NeoKey1x4(addr);
@@ -35,5 +35,23 @@ impl SeesawDevice for NeoKey1x4 {
             .and_then(|_| device.enable_neopixel(bus))
             .and_then(|_| device.set_pin_mode_bulk(bus, NEOKEY_1X4_PINMASK, PinMode::InputPullup))
             .map(|_| device)
+    }
+}
+
+// Additional methods
+impl NeoKey1x4 {
+    pub fn keys<E, B: Bus<E>>(&self, bus: &mut B) -> Result<u8, SeesawError<E>> {
+        self.digital_read_bulk(bus).map(|r| (r >> 4 & 0xF) as u8)
+    }
+
+    pub fn keys_bool<E, B: Bus<E>>(&self, bus: &mut B) -> Result<[bool; 4], SeesawError<E>> {
+        self.keys(bus).map(|b| {
+            [
+                0 == 1 & b >> 0,
+                0 == 1 & b >> 1,
+                0 == 1 & b >> 2,
+                0 == 1 & b >> 3,
+            ]
+        })
     }
 }

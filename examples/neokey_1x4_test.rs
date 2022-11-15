@@ -1,7 +1,10 @@
+#![allow(incomplete_features)]
+#![feature(generic_const_exprs)]
 #![no_std]
 #![no_main]
 use adafruit_seesaw::{
     devices::{neokey_1x4::NeoKey1x4, SeesawDevice},
+    modules::neopixel::NeopixelModule,
     SeesawBus,
 };
 use cortex_m_rt::entry;
@@ -14,7 +17,8 @@ use stm32f4xx_hal::{
     rcc::{RccExt, SYSCLK_MAX},
 };
 
-const _DEFAULT_ADDR: u8 = 0x30;
+const RED: (u8, u8, u8) = (255, 0, 0);
+const GREEN: (u8, u8, u8) = (0, 255, 0);
 
 #[entry]
 fn main() -> ! {
@@ -30,27 +34,22 @@ fn main() -> ! {
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let mut bus = SeesawBus::new(i2c, delay);
     let neokeys = NeoKey1x4::begin_default(&mut bus).expect("Failed to connect to neokeys");
-    // let encoder = RotaryEncoder(DEFAULT_ADDR);
-    // let encoder2 = RotaryEncoder(DEFAULT_ADDR + 1);
-    // encoder.reset(&mut ss_bus).expect("Failed to reset device");
-    // let hardware_id = encoder
-    //     .hardware_id(&mut ss_bus)
-    //     .expect("Failed to get hardware ID");
-    // rprintln!("Hardware ID: {:?}", hardware_id);
-    // let hardware_id = encoder2
-    //     .hardware_id(&mut ss_bus)
-    //     .expect("Failed to get hardware ID");
-    // rprintln!("Hardware ID: {:?}", hardware_id);
-    // let version = encoder
-    //     .product_info(&mut ss_bus)
-    //     .expect("Failed to get version");
-    // rprintln!("Version {:?}", version);
-    // let options = encoder
-    //     .capabilities(&mut ss_bus)
-    //     .expect("Failed to get options");
-    // rprintln!("Options {:?}", options);
 
-    loop {}
+    loop {
+        let [k0, k1, k2, k3] = neokeys.keys_bool(&mut bus).expect("Failed to read keys");
+        neokeys
+            .set_neopixel_colors(
+                &mut bus,
+                &[
+                    if k0 { GREEN } else { RED },
+                    if k1 { GREEN } else { RED },
+                    if k2 { GREEN } else { RED },
+                    if k3 { GREEN } else { RED },
+                ],
+            )
+            .and_then(|_| neokeys.sync_neopixel(&mut bus))
+            .expect("Failed to update neopixels");
+    }
 }
 
 #[panic_handler]

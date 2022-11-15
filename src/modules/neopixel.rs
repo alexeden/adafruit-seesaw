@@ -48,7 +48,7 @@ pub trait NeopixelModule: Addressable {
             .map(|_| bus.delay_us(10_000))
     }
 
-    fn set_speed<E, B: Bus<E>>(
+    fn set_neopixel_speed<E, B: Bus<E>>(
         &self,
         bus: &mut B,
         speed: NeopixelSpeed,
