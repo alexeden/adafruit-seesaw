@@ -6,17 +6,19 @@ use embedded_hal::blocking::{
     delay::DelayUs,
     i2c::{SevenBitAddress, Write, WriteRead},
 };
-pub(crate) mod bus;
+pub mod bus;
 use error::SeesawError;
 use modules::Reg;
 pub mod devices;
 pub mod error;
 pub mod modules;
 
+const DELAY_TIME: u32 = 125;
+
+#[derive(Debug)]
 pub struct SeesawBus<I2C, DELAY> {
     bus: I2C,
     delay: DELAY,
-    delay_time: u32,
 }
 
 impl<I2C, DELAY, E> SeesawBus<I2C, DELAY>
@@ -25,11 +27,7 @@ where
     I2C: WriteRead<Error = E> + Write<Error = E>,
 {
     pub fn new(bus: I2C, delay: DELAY) -> Self {
-        SeesawBus {
-            bus,
-            delay,
-            delay_time: 125,
-        }
+        SeesawBus { bus, delay }
     }
 }
 
@@ -62,7 +60,7 @@ where
 
         self.bus
             .write(addr, &buffer)
-            .map(|_| self.delay_us(self.delay_time))
+            .map(|_| self.delay_us(DELAY_TIME))
             .map_err(SeesawError::I2c)
     }
 
@@ -75,7 +73,7 @@ where
         self.bus
             .write(addr, reg)
             .and_then(|_| {
-                self.delay_us(self.delay_time);
+                self.delay_us(DELAY_TIME);
                 self.bus.write_read(addr, &[], &mut buffer)
             })
             .map_err(SeesawError::I2c)

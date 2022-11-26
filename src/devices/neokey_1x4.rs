@@ -13,6 +13,7 @@ use embedded_hal::blocking::i2c::SevenBitAddress;
 const NEOKEY_1X4_PINMASK: u32 = (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7);
 
 pub struct NeoKey1x4(SevenBitAddress);
+
 impl Addressable for NeoKey1x4 {
     fn addr(&self) -> SevenBitAddress {
         self.0
