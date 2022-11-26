@@ -10,17 +10,17 @@ pub trait Addressable {
 }
 
 // All Seesaw devices support the Status module
-impl<B: crate::Bus, D: SeesawDevice<B>> StatusModule<B> for D {}
+impl<'a, B: crate::Bus, D: SeesawDevice<'a, B>> StatusModule<'a, B> for D {}
 
-pub trait SeesawDevice<B: crate::Bus>: Addressable + Attached<B>
+pub trait SeesawDevice<'a, B: crate::Bus>: Addressable + Attached<'a, B>
 where
     Self: Sized,
 {
     const DEFAULT_ADDR: u8;
 
-    fn begin(bus: B, addr: SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>>;
+    fn begin(bus: &'a mut B, addr: SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>>;
 
-    fn begin_default(bus: B) -> Result<Self, SeesawError<B::I2cError>> {
+    fn begin_default(bus: &'a mut B) -> Result<Self, SeesawError<B::I2cError>> {
         Self::begin(bus, Self::DEFAULT_ADDR)
     }
 }

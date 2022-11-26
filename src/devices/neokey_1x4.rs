@@ -12,30 +12,30 @@ use embedded_hal::blocking::i2c::SevenBitAddress;
 
 const NEOKEY_1X4_PINMASK: u32 = (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7);
 
-pub struct NeoKey1x4<B>(SevenBitAddress, B);
+pub struct NeoKey1x4<'a, B>(SevenBitAddress, &'a mut B);
 
-impl<B> Addressable for NeoKey1x4<B> {
+impl<'a, B> Addressable for NeoKey1x4<'a, B> {
     fn addr(&self) -> SevenBitAddress {
         self.0
     }
 }
 
-impl<B: crate::Bus> Attached<B> for NeoKey1x4<B> {
-    fn bus(&mut self) -> &mut B {
+impl<'a, B: crate::Bus> Attached<'a, B> for NeoKey1x4<'a, B> {
+    fn bus(&'a mut self) -> &'a mut B {
         &mut self.1
     }
 }
 
-impl<B: crate::Bus> GpioModule<B> for NeoKey1x4<B> {}
-impl<B: crate::Bus> NeopixelModule<B> for NeoKey1x4<B> {
+impl<'a, B: crate::Bus> GpioModule<'a, B> for NeoKey1x4<'a, B> {}
+impl<'a, B: crate::Bus> NeopixelModule<'a, B> for NeoKey1x4<'a, B> {
     const N_LEDS: u16 = 4;
     const PIN: u8 = 3;
 }
 
-impl<B: crate::Bus> SeesawDevice<B> for NeoKey1x4<B> {
+impl<'a, B: crate::Bus> SeesawDevice<'a, B> for NeoKey1x4<'a, B> {
     const DEFAULT_ADDR: u8 = 0x30;
 
-    fn begin(bus: B, addr: SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>> {
+    fn begin(bus: &'a mut B, addr: SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>> {
         let mut device = NeoKey1x4(addr, bus);
         device
             .reset_and_begin()
@@ -46,9 +46,9 @@ impl<B: crate::Bus> SeesawDevice<B> for NeoKey1x4<B> {
 }
 
 // Additional methods
-impl<B: crate::Bus> NeoKey1x4<B>
+impl<'a, B: crate::Bus> NeoKey1x4<'a, B>
 where
-    Self: GpioModule<B>,
+    Self: GpioModule<'a, B>,
 {
     pub fn keys(&mut self) -> Result<u8, SeesawError<B::I2cError>> {
         self.digital_read_bulk().map(|r| (r >> 4 & 0xF) as u8)

@@ -33,7 +33,8 @@ fn main() -> ! {
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let bus = SeesawBus::new(i2c, delay);
-    let mut neokeys = NeoKey1x4::begin_default(bus).expect("Failed to connect to neokeys");
+    let mut neokeys = NeoKey1x4::begin_default(&mut bus).expect("Failed to connect to neokeys");
+    let mut neokeys2 = NeoKey1x4::begin_default(&mut bus).expect("Failed to connect to neokeys");
 
     loop {
         let [k0, k1, k2, k3] = neokeys.keys_bool().expect("Failed to read keys");
