@@ -40,19 +40,23 @@ pub trait NeopixelModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
     const N_LEDS: u16 = 1;
 
     fn enable_neopixel(&mut self) -> Result<(), SeesawError<E>> {
+        let addr = self.addr();
+
         self.bus()
-            .write_u8(self.addr(), SET_PIN, Self::PIN)
+            .write_u8(addr, SET_PIN, Self::PIN)
             .and_then(|_| {
                 self.bus().delay_us(10_000);
-                self.bus().write_u16(self.addr(), SET_LEN, 3 * Self::N_LEDS)
+                self.bus().write_u16(addr, SET_LEN, 3 * Self::N_LEDS)
             })
             .map(|_| self.bus().delay_us(10_000))
     }
 
-    fn set_neopixel_speed(&self, speed: NeopixelSpeed) -> Result<(), SeesawError<E>> {
+    fn set_neopixel_speed(&mut self, speed: NeopixelSpeed) -> Result<(), SeesawError<E>> {
+        let addr = self.addr();
+
         self.bus()
             .write_u8(
-                self.addr(),
+                addr,
                 SET_SPEED,
                 match speed {
                     NeopixelSpeed::Khz400 => 0,
@@ -62,39 +66,48 @@ pub trait NeopixelModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
             .map(|_| self.bus().delay_us(10_000))
     }
 
-    fn set_neopixel_color(&self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<E>> {
+    fn set_neopixel_color(&mut self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<E>> {
         self.set_nth_neopixel_color(0, r, g, b)
     }
 
-    fn set_nth_neopixel_color(&self, n: u16, r: u8, g: u8, b: u8) -> Result<(), SeesawError<E>> {
+    fn set_nth_neopixel_color(
+        &mut self,
+        n: u16,
+        r: u8,
+        g: u8,
+        b: u8,
+    ) -> Result<(), SeesawError<E>> {
         assert!(n < Self::N_LEDS as u16);
         let [zero, one] = u16::to_be_bytes(3 * n);
+        let addr = self.addr();
+
         self.bus()
-            .register_write(self.addr(), SET_BUF, &[zero, one, r, g, b, 0x00])
+            .register_write(addr, SET_BUF, &[zero, one, r, g, b, 0x00])
     }
 
     fn set_neopixel_colors(
-        &self,
+        &mut self,
         colors: &[(u8, u8, u8); Self::N_LEDS as usize],
     ) -> Result<(), SeesawError<E>>
     where
         [(); Self::N_LEDS as usize]: Sized,
     {
+        let addr = self.addr();
+
         // assert!(n < Self::N_LEDS);
         (0..Self::N_LEDS).into_iter().try_for_each(|n| {
             let [zero, one] = u16::to_be_bytes(3 * n);
             let color = colors[n as usize];
-            self.bus().register_write(
-                self.addr(),
-                SET_BUF,
-                &[zero, one, color.0, color.1, color.2, 0x00],
-            )
+            self.bus()
+                .register_write(addr, SET_BUF, &[zero, one, color.0, color.1, color.2, 0x00])
         })
     }
 
-    fn sync_neopixel(&self) -> Result<(), SeesawError<E>> {
+    fn sync_neopixel(&mut self) -> Result<(), SeesawError<E>> {
+        let addr = self.addr();
+
         self.bus()
-            .register_write(self.addr(), SHOW, &[])
+            .register_write(addr, SHOW, &[])
             .map(|_| self.bus().delay_us(125))
     }
 }

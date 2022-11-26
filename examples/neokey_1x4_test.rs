@@ -34,10 +34,10 @@ fn main() -> ! {
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     // i2c.wr
     let mut bus = SeesawBus::new(i2c, delay);
-    let neokeys = NeoKey1x4::begin_default(&mut bus).expect("Failed to connect to neokeys");
+    let neokeys = NeoKey1x4::begin_default(bus).expect("Failed to connect to neokeys");
 
     loop {
-        let [k0, k1, k2, k3] = neokeys.keys_bool(&mut bus).expect("Failed to read keys");
+        let [k0, k1, k2, k3] = neokeys.keys_bool().expect("Failed to read keys");
         neokeys
             .set_neopixel_colors(
                 &mut bus,

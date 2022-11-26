@@ -1,5 +1,5 @@
 use super::{Reg, GPIO_MODULE_ID};
-use crate::{bus::Bus, devices::Addressable, error::SeesawError};
+use crate::{bus::Attached, devices::Addressable, error::SeesawError};
 use num_enum::IntoPrimitive;
 
 /// WO - 32 bits
@@ -98,45 +98,40 @@ pub enum InterruptMode {
     OnhighWe = 0x0D,
 }
 
-pub trait GpioModule: Addressable {
-    fn digital_read<E, B: Bus<E>>(&self, bus: &mut B, pin: u8) -> Result<bool, SeesawError<E>> {
-        self.digital_read_bulk(bus)
+pub trait GpioModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
+    fn digital_read(&mut self, pin: u8) -> Result<bool, SeesawError<E>> {
+        self.digital_read_bulk()
             .map(|pins| match pins >> pin & 0x1 {
                 1 => false,
                 _ => true,
             })
     }
 
-    fn digital_read_bulk<E, B: Bus<E>>(&self, bus: &mut B) -> Result<u32, SeesawError<E>> {
-        bus.read_u32(self.addr(), GPIO)
+    fn digital_read_bulk(&mut self) -> Result<u32, SeesawError<E>> {
+        let addr = self.addr();
+
+        self.bus().read_u32(addr, GPIO)
     }
 
-    fn set_pin_mode<E, B: Bus<E>>(
-        &mut self,
-        bus: &mut B,
-        pin: u8,
-        mode: PinMode,
-    ) -> Result<(), SeesawError<E>> {
-        self.set_pin_mode_bulk(bus, 1 << pin, mode)
+    fn set_pin_mode(&mut self, pin: u8, mode: PinMode) -> Result<(), SeesawError<E>> {
+        self.set_pin_mode_bulk(1 << pin, mode)
     }
 
-    fn set_pin_mode_bulk<E, B: Bus<E>>(
-        &mut self,
-        bus: &mut B,
-        pins: u32,
-        mode: PinMode,
-    ) -> Result<(), SeesawError<E>> {
+    fn set_pin_mode_bulk(&mut self, pins: u32, mode: PinMode) -> Result<(), SeesawError<E>> {
+        let addr = self.addr();
+        let mut bus = self.bus();
+
         match mode {
-            PinMode::Output => bus.write_u32(self.addr(), GPIO, pins),
-            PinMode::Input => bus.write_u32(self.addr(), SET_INPUT, pins),
+            PinMode::Output => bus.write_u32(addr, GPIO, pins),
+            PinMode::Input => bus.write_u32(addr, SET_INPUT, pins),
             PinMode::InputPullup => bus
-                .write_u32(self.addr(), SET_INPUT, pins)
-                .and_then(|_| bus.write_u32(self.addr(), PULL_ENABLE, pins))
-                .and_then(|_| bus.write_u32(self.addr(), SET_HIGH, pins)),
+                .write_u32(addr, SET_INPUT, pins)
+                .and_then(|_| bus.write_u32(addr, PULL_ENABLE, pins))
+                .and_then(|_| bus.write_u32(addr, SET_HIGH, pins)),
             PinMode::InputPulldown => bus
-                .write_u32(self.addr(), SET_INPUT, pins)
-                .and_then(|_| bus.write_u32(self.addr(), PULL_ENABLE, pins))
-                .and_then(|_| bus.write_u32(self.addr(), SET_LOW, pins)),
+                .write_u32(addr, SET_INPUT, pins)
+                .and_then(|_| bus.write_u32(addr, PULL_ENABLE, pins))
+                .and_then(|_| bus.write_u32(addr, SET_LOW, pins)),
             _ => unimplemented!("Other pins modes are not supported."),
         }
     }

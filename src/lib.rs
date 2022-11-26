@@ -1,5 +1,9 @@
 #![no_std]
-#![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
+#![allow(
+  // dead_code,
+  incomplete_features,
+  const_evaluatable_unchecked
+)]
 #![feature(generic_const_exprs)]
 use bus::Bus;
 use core::cell;

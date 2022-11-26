@@ -3,7 +3,7 @@ use embedded_hal::blocking::{delay, i2c};
 use crate::error::SeesawError;
 
 pub trait Attached<E, B: Bus<E>> {
-    fn bus(&self) -> B;
+    fn bus(&mut self) -> &mut B;
 }
 
 pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<Error = E> {

@@ -12,33 +12,38 @@ const DELTA: &Reg = &[ENCODER_MODULE_ID, 0x40];
 
 const ENCODER_BTN_PIN: u8 = 24;
 
-pub trait EncoderModule: GpioModule {
-    fn enable_button<E, B: Bus<E>>(&mut self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        self.set_pin_mode(bus, ENCODER_BTN_PIN, PinMode::InputPullup)
-            .map(|_| bus.delay_us(125))
+pub trait EncoderModule<E, B: crate::Bus<E>>: GpioModule<E, B> {
+    fn enable_button(&mut self) -> Result<(), SeesawError<E>> {
+        self.set_pin_mode(ENCODER_BTN_PIN, PinMode::InputPullup)
+            .map(|_| self.bus().delay_us(125))
     }
 
-    fn button<E, B: Bus<E>>(&self, bus: &mut B) -> Result<bool, SeesawError<E>> {
-        self.digital_read(bus, ENCODER_BTN_PIN)
+    fn button(&mut self) -> Result<bool, SeesawError<E>> {
+        self.digital_read(ENCODER_BTN_PIN)
     }
 
-    fn delta<E, B: Bus<E>>(&self, bus: &mut B) -> Result<i32, SeesawError<E>> {
-        bus.read_i32(self.addr(), DELTA)
+    fn delta(&mut self) -> Result<i32, SeesawError<E>> {
+        let addr = self.addr();
+        self.bus().read_i32(addr, DELTA)
     }
 
-    fn disable_interrupt<E, B: Bus<E>>(&self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        bus.write_u8(self.addr(), INT_CLR, 1)
+    fn disable_interrupt(&mut self) -> Result<(), SeesawError<E>> {
+        let addr = self.addr();
+        self.bus().write_u8(addr, INT_CLR, 1)
     }
 
-    fn enable_interrupt<E, B: Bus<E>>(&self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        bus.write_u8(self.addr(), INT_SET, 1)
+    fn enable_interrupt(&mut self) -> Result<(), SeesawError<E>> {
+        let addr = self.addr();
+        self.bus().write_u8(addr, INT_SET, 1)
     }
 
-    fn position<E, B: Bus<E>>(&self, bus: &mut B) -> Result<i32, SeesawError<E>> {
-        bus.read_i32(self.addr(), POSITION)
+    fn position(&mut self) -> Result<i32, SeesawError<E>> {
+        let addr = self.addr();
+        self.bus().read_i32(addr, POSITION)
     }
 
-    fn set_position<E, B: Bus<E>>(&self, bus: &mut B, pos: i32) -> Result<(), SeesawError<E>> {
-        bus.write_i32(self.addr(), POSITION, pos)
+    fn set_position(&mut self, pos: i32) -> Result<(), SeesawError<E>> {
+        let addr = self.addr();
+        self.bus().write_i32(addr, POSITION, pos)
     }
 }
