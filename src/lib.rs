@@ -1,6 +1,8 @@
 #![no_std]
 #![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
 #![feature(generic_const_exprs)]
+use bus::Bus;
+use core::cell;
 use embedded_hal::blocking::{delay, i2c};
 pub mod bus;
 use error::SeesawError;
@@ -13,8 +15,8 @@ const DELAY_TIME: u32 = 125;
 
 #[derive(Debug)]
 pub struct SeesawBus<I2C, DELAY> {
-    bus: I2C,
-    delay: DELAY,
+    bus: cell::RefCell<I2C>,
+    delay: cell::RefCell<DELAY>,
 }
 
 impl<I2C, DELAY, E> SeesawBus<I2C, DELAY>
@@ -23,7 +25,10 @@ where
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
     pub fn new(bus: I2C, delay: DELAY) -> Self {
-        SeesawBus { bus, delay }
+        Self {
+            bus: cell::RefCell::new(bus),
+            delay: cell::RefCell::new(delay),
+        }
     }
 }
 
@@ -32,7 +37,7 @@ where
     DELAY: delay::DelayUs<u32>,
 {
     fn delay_us(&mut self, us: u32) {
-        self.delay.delay_us(us)
+        self.delay.borrow_mut().delay_us(us)
     }
 }
 
@@ -43,7 +48,7 @@ where
     type Error = <I2C as i2c::Write>::Error;
 
     fn write(&mut self, address: u8, bytes: &[u8]) -> Result<(), Self::Error> {
-        self.bus.write(address, bytes)
+        self.bus.borrow_mut().write(address, bytes)
     }
 }
 
@@ -59,6 +64,13 @@ where
         bytes: &[u8],
         buffer: &mut [u8],
     ) -> Result<(), Self::Error> {
-        self.bus.write_read(address, bytes, buffer)
+        self.bus.borrow_mut().write_read(address, bytes, buffer)
     }
+}
+
+impl<I2C, DELAY, E> Bus<E> for SeesawBus<I2C, DELAY>
+where
+    DELAY: delay::DelayUs<u32>,
+    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+{
 }

@@ -84,7 +84,7 @@ pub trait NeopixelModule: Addressable {
     ) -> Result<(), SeesawError<E>> {
         assert!(n < Self::N_LEDS as u16);
         let [zero, one] = u16::to_be_bytes(3 * n);
-        bus.write(self.addr(), SET_BUF, &[zero, one, r, g, b, 0x00])
+        bus.register_write(self.addr(), SET_BUF, &[zero, one, r, g, b, 0x00])
     }
 
     fn set_neopixel_colors<E, B: Bus<E>>(
@@ -99,7 +99,7 @@ pub trait NeopixelModule: Addressable {
         (0..Self::N_LEDS).into_iter().try_for_each(|n| {
             let [zero, one] = u16::to_be_bytes(3 * n);
             let color = colors[n as usize];
-            bus.write(
+            bus.register_write(
                 self.addr(),
                 SET_BUF,
                 &[zero, one, color.0, color.1, color.2, 0x00],
@@ -108,6 +108,7 @@ pub trait NeopixelModule: Addressable {
     }
 
     fn sync_neopixel<E, B: Bus<E>>(&self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        bus.write(self.addr(), SHOW, &[]).map(|_| bus.delay_us(125))
+        bus.register_write(self.addr(), SHOW, &[])
+            .map(|_| bus.delay_us(125))
     }
 }
