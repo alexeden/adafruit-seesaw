@@ -3,18 +3,22 @@ use super::{
     GPIO_MODULE_ID, INTERRUPT_MODULE_ID, KEYPAD_MODULE_ID, NEOPIXEL_MODULE_ID, SEESAW_HW_ID,
     SERCOM0_MODULE_ID, SPECTRUM_MODULE_ID, STATUS_MODULE_ID, TOUCH_MODULE_ID,
 };
-use crate::{bus::Bus, devices::Addressable, error::SeesawError};
+use crate::{
+    bus::{Attached, Bus},
+    devices::Addressable,
+    error::SeesawError,
+};
 const STATUS_HW_ID: &Reg = &[STATUS_MODULE_ID, 0x01];
 const STATUS_VERSION: &Reg = &[STATUS_MODULE_ID, 0x02];
 const STATUS_OPTIONS: &Reg = &[STATUS_MODULE_ID, 0x03];
 const STATUS_TEMP: &Reg = &[STATUS_MODULE_ID, 0x04];
 const STATUS_SWRST: &Reg = &[STATUS_MODULE_ID, 0x7F];
 
-pub trait StatusModule: Addressable {
-    fn reset_and_begin<E, B: Bus<E>>(&mut self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        self.reset(bus).and_then(|_| {
-            bus.delay_us(12_500);
-            match self.hardware_id(bus) {
+pub trait StatusModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
+    fn reset_and_begin(&mut self) -> Result<(), SeesawError<E>> {
+        self.reset().and_then(|_| {
+            self.bus().delay_us(12_500);
+            match self.hardware_id() {
                 Ok(SEESAW_HW_ID) => Ok(()),
                 Ok(id) => Err(SeesawError::InvalidHardwareId(id)),
                 Err(e) => Err(e),
@@ -22,30 +26,31 @@ pub trait StatusModule: Addressable {
         })
     }
 
-    fn capabilities<E, B: Bus<E>>(
-        &self,
-        bus: &mut B,
-    ) -> Result<DeviceCapabilities, SeesawError<E>> {
-        bus.read_u32(self.addr(), STATUS_OPTIONS)
+    fn capabilities(&self) -> Result<DeviceCapabilities, SeesawError<E>> {
+        self.bus()
+            .read_u32(self.addr(), STATUS_OPTIONS)
             .map(|opts| opts.into())
     }
 
-    fn hardware_id<E, B: Bus<E>>(&self, bus: &mut B) -> Result<u8, SeesawError<E>> {
-        bus.read_u8(self.addr(), STATUS_HW_ID)
+    fn hardware_id(&self) -> Result<u8, SeesawError<E>> {
+        self.bus().read_u8(self.addr(), STATUS_HW_ID)
     }
 
-    fn product_info<E, B: Bus<E>>(&self, bus: &mut B) -> Result<ProductDateCode, SeesawError<E>> {
-        bus.read_u32(self.addr(), STATUS_VERSION)
+    fn product_info(&self) -> Result<ProductDateCode, SeesawError<E>> {
+        self.bus()
+            .read_u32(self.addr(), STATUS_VERSION)
             .map(|version| version.into())
     }
 
-    fn reset<E, B: Bus<E>>(&self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        bus.write_u8(self.addr(), STATUS_SWRST, 0xFF)
-            .map(|_| bus.delay_us(125_000))
+    fn reset(&self) -> Result<(), SeesawError<E>> {
+        self.bus()
+            .write_u8(self.addr(), STATUS_SWRST, 0xFF)
+            .map(|_| self.bus().delay_us(125_000))
     }
 
-    fn temp<E, B: Bus<E>>(&self, bus: &mut B) -> Result<f32, SeesawError<E>> {
-        bus.read_u32(self.addr(), STATUS_TEMP)
+    fn temp(&self) -> Result<f32, SeesawError<E>> {
+        self.bus()
+            .read_u32(self.addr(), STATUS_TEMP)
             .map(|buf| (buf as f32 / (1u32 << 16) as f32))
     }
 }

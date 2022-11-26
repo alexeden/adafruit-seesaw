@@ -1,11 +1,17 @@
 use embedded_hal::blocking::{delay, i2c};
 
+use crate::error::SeesawError;
+
+pub trait Attached<E, B: Bus<E>> {
+    fn bus(&self) -> B;
+}
+
 pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<Error = E> {
     fn register_read<const N: usize>(
         &mut self,
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
-    ) -> Result<[u8; N], crate::SeesawError<E>> {
+    ) -> Result<[u8; N], SeesawError<E>> {
         let mut buffer = [0u8; N];
         self.write(addr, reg)
             .and_then(|_| {

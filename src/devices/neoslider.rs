@@ -6,7 +6,7 @@ use crate::{
 };
 use embedded_hal::blocking::i2c::SevenBitAddress;
 
-pub struct NeoSlider(SevenBitAddress);
+pub struct NeoSlider<B>(SevenBitAddress);
 impl Addressable for NeoSlider {
     fn addr(&self) -> SevenBitAddress {
         self.0

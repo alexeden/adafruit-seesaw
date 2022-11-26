@@ -32,6 +32,7 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
+    // i2c.wr
     let mut bus = SeesawBus::new(i2c, delay);
     let neokeys = NeoKey1x4::begin_default(&mut bus).expect("Failed to connect to neokeys");
 

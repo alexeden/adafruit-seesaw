@@ -1,5 +1,5 @@
 use super::{Reg, NEOPIXEL_MODULE_ID};
-use crate::{bus::Bus, devices::Addressable, error::SeesawError};
+use crate::{bus::Attached, devices::Addressable, error::SeesawError};
 
 /// WO - 8 bits
 /// Not documented.
@@ -33,63 +33,48 @@ pub enum NeopixelSpeed {
     Khz800 = 1,
 }
 
-pub trait NeopixelModule: Addressable {
+pub trait NeopixelModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
     const PIN: u8;
 
     /// The number of neopixels on the device
     const N_LEDS: u16 = 1;
 
-    fn enable_neopixel<E, B: Bus<E>>(&mut self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        bus.write_u8(self.addr(), SET_PIN, Self::PIN)
+    fn enable_neopixel(&mut self) -> Result<(), SeesawError<E>> {
+        self.bus()
+            .write_u8(self.addr(), SET_PIN, Self::PIN)
             .and_then(|_| {
-                bus.delay_us(10_000);
-                bus.write_u16(self.addr(), SET_LEN, 3 * Self::N_LEDS)
+                self.bus().delay_us(10_000);
+                self.bus().write_u16(self.addr(), SET_LEN, 3 * Self::N_LEDS)
             })
-            .map(|_| bus.delay_us(10_000))
+            .map(|_| self.bus().delay_us(10_000))
     }
 
-    fn set_neopixel_speed<E, B: Bus<E>>(
-        &self,
-        bus: &mut B,
-        speed: NeopixelSpeed,
-    ) -> Result<(), SeesawError<E>> {
-        bus.write_u8(
-            self.addr(),
-            SET_SPEED,
-            match speed {
-                NeopixelSpeed::Khz400 => 0,
-                NeopixelSpeed::Khz800 => 1,
-            },
-        )
-        .map(|_| bus.delay_us(10_000))
+    fn set_neopixel_speed(&self, speed: NeopixelSpeed) -> Result<(), SeesawError<E>> {
+        self.bus()
+            .write_u8(
+                self.addr(),
+                SET_SPEED,
+                match speed {
+                    NeopixelSpeed::Khz400 => 0,
+                    NeopixelSpeed::Khz800 => 1,
+                },
+            )
+            .map(|_| self.bus().delay_us(10_000))
     }
 
-    fn set_neopixel_color<E, B: Bus<E>>(
-        &self,
-        bus: &mut B,
-        r: u8,
-        g: u8,
-        b: u8,
-    ) -> Result<(), SeesawError<E>> {
-        self.set_nth_neopixel_color(bus, 0, r, g, b)
+    fn set_neopixel_color(&self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<E>> {
+        self.set_nth_neopixel_color(0, r, g, b)
     }
 
-    fn set_nth_neopixel_color<E, B: Bus<E>>(
-        &self,
-        bus: &mut B,
-        n: u16,
-        r: u8,
-        g: u8,
-        b: u8,
-    ) -> Result<(), SeesawError<E>> {
+    fn set_nth_neopixel_color(&self, n: u16, r: u8, g: u8, b: u8) -> Result<(), SeesawError<E>> {
         assert!(n < Self::N_LEDS as u16);
         let [zero, one] = u16::to_be_bytes(3 * n);
-        bus.register_write(self.addr(), SET_BUF, &[zero, one, r, g, b, 0x00])
+        self.bus()
+            .register_write(self.addr(), SET_BUF, &[zero, one, r, g, b, 0x00])
     }
 
-    fn set_neopixel_colors<E, B: Bus<E>>(
+    fn set_neopixel_colors(
         &self,
-        bus: &mut B,
         colors: &[(u8, u8, u8); Self::N_LEDS as usize],
     ) -> Result<(), SeesawError<E>>
     where
@@ -99,7 +84,7 @@ pub trait NeopixelModule: Addressable {
         (0..Self::N_LEDS).into_iter().try_for_each(|n| {
             let [zero, one] = u16::to_be_bytes(3 * n);
             let color = colors[n as usize];
-            bus.register_write(
+            self.bus().register_write(
                 self.addr(),
                 SET_BUF,
                 &[zero, one, color.0, color.1, color.2, 0x00],
@@ -107,8 +92,9 @@ pub trait NeopixelModule: Addressable {
         })
     }
 
-    fn sync_neopixel<E, B: Bus<E>>(&self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        bus.register_write(self.addr(), SHOW, &[])
-            .map(|_| bus.delay_us(125))
+    fn sync_neopixel(&self) -> Result<(), SeesawError<E>> {
+        self.bus()
+            .register_write(self.addr(), SHOW, &[])
+            .map(|_| self.bus().delay_us(125))
     }
 }

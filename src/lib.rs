@@ -68,7 +68,7 @@ where
     }
 }
 
-impl<I2C, DELAY, E> Bus<E> for SeesawBus<I2C, DELAY>
+impl<E, I2C, DELAY> Bus<E> for SeesawBus<I2C, DELAY>
 where
     DELAY: delay::DelayUs<u32>,
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
