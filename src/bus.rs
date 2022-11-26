@@ -1,50 +1,45 @@
 use embedded_hal::blocking::{delay, i2c};
 
-use crate::error::SeesawError;
-
-pub trait Attached<E, B: Bus<E>> {
+pub trait Attached<B: I2cExt> {
     fn bus(&mut self) -> &mut B;
 }
 
-pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<Error = E> {
+// Blanket trait for types that implement an I2C bus
+pub trait Bus: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32> {
+    type I2cError: From<<Self as i2c::Write>::Error>
+        + From<<Self as i2c::WriteRead>::Error>
+        + From<<Self as i2c::Read>::Error>;
+}
+
+impl<T, E> Bus for T
+where
+    T: i2c::Write<Error = E>
+        + i2c::WriteRead<Error = E>
+        + i2c::Read<Error = E>
+        + delay::DelayUs<u32>,
+{
+    type I2cError = E;
+}
+
+pub trait I2cExt {
+    type Error;
+
     fn register_read<const N: usize>(
         &mut self,
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
-    ) -> Result<[u8; N], SeesawError<E>> {
-        let mut buffer = [0u8; N];
-        self.write(addr, reg)
-            .and_then(|_| {
-                self.delay_us(crate::DELAY_TIME);
-                self.write_read(addr, &[], &mut buffer)
-            })
-            .map_err(crate::SeesawError::I2c)
-            .map(|_| buffer)
-    }
+    ) -> Result<[u8; N], Self::Error>;
 
     fn register_write<const N: usize>(
         &mut self,
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
         bytes: &[u8; N],
-    ) -> Result<(), crate::SeesawError<E>>
+    ) -> Result<(), Self::Error>
     where
-        [(); N + 2]: Sized,
-    {
-        let mut buffer = [0u8; N + 2];
-        buffer[0..2].copy_from_slice(reg);
-        buffer[2..].copy_from_slice(bytes);
+        [(); N + 2]: Sized;
 
-        self.write(addr, &buffer)
-            .map(|_| self.delay_us(crate::DELAY_TIME))
-            .map_err(crate::SeesawError::I2c)
-    }
-
-    fn read_u8(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-    ) -> Result<u8, crate::SeesawError<E>> {
+    fn read_u8(&mut self, addr: i2c::SevenBitAddress, reg: &crate::Reg) -> Result<u8, Self::Error> {
         self.register_read::<1>(addr, reg).map(|buf| buf[0])
     }
 
@@ -52,7 +47,7 @@ pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<E
         &mut self,
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
-    ) -> Result<i32, crate::SeesawError<E>> {
+    ) -> Result<i32, Self::Error> {
         self.register_read::<4>(addr, reg).map(i32::from_be_bytes)
     }
 
@@ -60,7 +55,7 @@ pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<E
         &mut self,
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
-    ) -> Result<u16, crate::SeesawError<E>> {
+    ) -> Result<u16, Self::Error> {
         self.register_read::<2>(addr, reg).map(u16::from_be_bytes)
     }
 
@@ -68,7 +63,7 @@ pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<E
         &mut self,
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
-    ) -> Result<u32, crate::SeesawError<E>> {
+    ) -> Result<u32, Self::Error> {
         self.register_read::<4>(addr, reg).map(u32::from_be_bytes)
     }
 
@@ -77,7 +72,7 @@ pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<E
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
         value: u8,
-    ) -> Result<(), crate::SeesawError<E>> {
+    ) -> Result<(), Self::Error> {
         self.register_write(addr, reg, &[value])
     }
 
@@ -86,7 +81,7 @@ pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<E
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
         value: u16,
-    ) -> Result<(), crate::SeesawError<E>> {
+    ) -> Result<(), Self::Error> {
         self.register_write(addr, reg, &u16::to_be_bytes(value))
     }
 
@@ -95,7 +90,7 @@ pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<E
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
         value: i32,
-    ) -> Result<(), crate::SeesawError<E>> {
+    ) -> Result<(), Self::Error> {
         self.register_write(addr, reg, &i32::to_be_bytes(value))
     }
 
@@ -104,7 +99,41 @@ pub trait Bus<E>: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<E
         addr: i2c::SevenBitAddress,
         reg: &crate::Reg,
         value: u32,
-    ) -> Result<(), crate::SeesawError<E>> {
+    ) -> Result<(), Self::Error> {
         self.register_write(addr, reg, &u32::to_be_bytes(value))
+    }
+}
+
+impl<T: Bus> I2cExt for T {
+    type Error = T::I2cError;
+
+    fn register_read<const N: usize>(
+        &mut self,
+        addr: i2c::SevenBitAddress,
+        reg: &crate::Reg,
+    ) -> Result<[u8; N], Self::Error> {
+        let mut buffer = [0u8; N];
+        self.write(addr, reg)?;
+        self.delay_us(crate::DELAY_TIME);
+        self.write_read(addr, &[], &mut buffer)?;
+        Ok(buffer)
+    }
+
+    fn register_write<const N: usize>(
+        &mut self,
+        addr: i2c::SevenBitAddress,
+        reg: &crate::Reg,
+        bytes: &[u8; N],
+    ) -> Result<(), Self::Error>
+    where
+        [(); N + 2]: Sized,
+    {
+        let mut buffer = [0u8; N + 2];
+        buffer[0..2].copy_from_slice(reg);
+        buffer[2..].copy_from_slice(bytes);
+
+        self.write(addr, &buffer)?;
+        self.delay_us(crate::DELAY_TIME);
+        Ok(())
     }
 }

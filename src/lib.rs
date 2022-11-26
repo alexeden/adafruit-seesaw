@@ -1,15 +1,11 @@
 #![no_std]
-#![allow(
-  // dead_code,
-  incomplete_features,
-  const_evaluatable_unchecked
-)]
+#![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
 #![feature(generic_const_exprs)]
 use bus::Bus;
 use core::cell;
 use embedded_hal::blocking::{delay, i2c};
 pub mod bus;
-use error::SeesawError;
+pub use error::SeesawError;
 use modules::Reg;
 pub mod devices;
 pub mod error;
@@ -72,9 +68,10 @@ where
     }
 }
 
-impl<E, I2C, DELAY> Bus<E> for SeesawBus<I2C, DELAY>
-where
-    DELAY: delay::DelayUs<u32>,
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
-{
-}
+// impl<E, I2C, DELAY> Bus for SeesawBus<I2C, DELAY>
+// where
+//     DELAY: delay::DelayUs<u32>,
+//     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E> + i2c,
+// {
+//     type I2cError = SeesawError<E>;
+// }

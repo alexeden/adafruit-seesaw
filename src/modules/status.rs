@@ -3,60 +3,67 @@ use super::{
     GPIO_MODULE_ID, INTERRUPT_MODULE_ID, KEYPAD_MODULE_ID, NEOPIXEL_MODULE_ID, SEESAW_HW_ID,
     SERCOM0_MODULE_ID, SPECTRUM_MODULE_ID, STATUS_MODULE_ID, TOUCH_MODULE_ID,
 };
-use crate::{bus::Attached, devices::Addressable, error::SeesawError};
+use crate::{
+    bus::{Attached, I2cExt},
+    devices::Addressable,
+    error::SeesawError,
+};
 const STATUS_HW_ID: &Reg = &[STATUS_MODULE_ID, 0x01];
 const STATUS_VERSION: &Reg = &[STATUS_MODULE_ID, 0x02];
 const STATUS_OPTIONS: &Reg = &[STATUS_MODULE_ID, 0x03];
 const STATUS_TEMP: &Reg = &[STATUS_MODULE_ID, 0x04];
 const STATUS_SWRST: &Reg = &[STATUS_MODULE_ID, 0x7F];
 
-pub trait StatusModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
-    fn reset_and_begin(&mut self) -> Result<(), SeesawError<E>> {
-        self.reset().and_then(|_| {
-            self.bus().delay_us(12_500);
-            match self.hardware_id() {
-                Ok(SEESAW_HW_ID) => Ok(()),
-                Ok(id) => Err(SeesawError::InvalidHardwareId(id)),
-                Err(e) => Err(e),
-            }
-        })
+pub trait StatusModule<B: crate::Bus>: Addressable + Attached<B> {
+    fn reset_and_begin(&mut self) -> Result<(), SeesawError<B::I2cError>> {
+        self.reset()?;
+        self.bus().delay_us(12_500);
+        match self.hardware_id() {
+            Ok(SEESAW_HW_ID) => Ok(()),
+            Ok(id) => Err(SeesawError::InvalidHardwareId(id)),
+            Err(e) => Err(e),
+        }
     }
 
-    fn capabilities(&mut self) -> Result<DeviceCapabilities, SeesawError<E>> {
+    fn capabilities(&mut self) -> Result<DeviceCapabilities, SeesawError<B::I2cError>> {
         let addr = self.addr();
         self.bus()
             .read_u32(addr, STATUS_OPTIONS)
             .map(|opts| opts.into())
+            .map_err(SeesawError::I2c)
     }
 
-    fn hardware_id(&mut self) -> Result<u8, SeesawError<E>> {
+    fn hardware_id(&mut self) -> Result<u8, SeesawError<B::I2cError>> {
         let addr = self.addr();
-
-        self.bus().read_u8(addr, STATUS_HW_ID)
+        self.bus()
+            .read_u8(addr, STATUS_HW_ID)
+            .map_err(SeesawError::I2c)
     }
 
-    fn product_info(&mut self) -> Result<ProductDateCode, SeesawError<E>> {
+    fn product_info(&mut self) -> Result<ProductDateCode, SeesawError<B::I2cError>> {
         let addr = self.addr();
-
         self.bus()
             .read_u32(addr, STATUS_VERSION)
             .map(|version| version.into())
+            .map_err(SeesawError::I2c)
     }
 
-    fn reset(&mut self) -> Result<(), SeesawError<E>> {
+    fn reset(&mut self) -> Result<(), SeesawError<B::I2cError>> {
         let addr = self.addr();
 
         self.bus()
             .write_u8(addr, STATUS_SWRST, 0xFF)
             .map(|_| self.bus().delay_us(125_000))
+            .map_err(SeesawError::I2c)
     }
 
-    fn temp(&mut self) -> Result<f32, SeesawError<E>> {
+    fn temp(&mut self) -> Result<f32, SeesawError<B::I2cError>> {
         let addr = self.addr();
 
         self.bus()
             .read_u32(addr, STATUS_TEMP)
             .map(|buf| (buf as f32 / (1u32 << 16) as f32))
+            .map_err(SeesawError::I2c)
     }
 }
 
