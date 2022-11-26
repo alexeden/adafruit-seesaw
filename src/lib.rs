@@ -68,6 +68,17 @@ where
     }
 }
 
+impl<I2C, DELAY> i2c::Read for SeesawBus<I2C, DELAY>
+where
+    I2C: i2c::Read,
+{
+    type Error = <I2C as i2c::Read>::Error;
+
+    fn read(&mut self, address: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
+        self.bus.borrow_mut().read(address, buffer)
+    }
+}
+
 // impl<E, I2C, DELAY> Bus for SeesawBus<I2C, DELAY>
 // where
 //     DELAY: delay::DelayUs<u32>,

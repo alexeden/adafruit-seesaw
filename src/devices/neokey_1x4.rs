@@ -20,22 +20,22 @@ impl<B> Addressable for NeoKey1x4<B> {
     }
 }
 
-impl<E, B: crate::Bus<E>> Attached<E, B> for NeoKey1x4<B> {
+impl<B: crate::Bus> Attached<B> for NeoKey1x4<B> {
     fn bus(&mut self) -> &mut B {
         &mut self.1
     }
 }
 
-impl<E, B: crate::Bus<E>> GpioModule<E, B> for NeoKey1x4<B> {}
-impl<E, B: crate::Bus<E>> NeopixelModule<E, B> for NeoKey1x4<B> {
+impl<B: crate::Bus> GpioModule<B> for NeoKey1x4<B> {}
+impl<B: crate::Bus> NeopixelModule<B> for NeoKey1x4<B> {
     const N_LEDS: u16 = 4;
     const PIN: u8 = 3;
 }
 
-impl<E, B: crate::Bus<E>> SeesawDevice<E, B> for NeoKey1x4<B> {
+impl<B: crate::Bus> SeesawDevice<B> for NeoKey1x4<B> {
     const DEFAULT_ADDR: u8 = 0x30;
 
-    fn begin(bus: B, addr: SevenBitAddress) -> Result<Self, SeesawError<E>> {
+    fn begin(bus: B, addr: SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>> {
         let mut device = NeoKey1x4(addr, bus);
         device
             .reset_and_begin()
@@ -46,15 +46,15 @@ impl<E, B: crate::Bus<E>> SeesawDevice<E, B> for NeoKey1x4<B> {
 }
 
 // Additional methods
-impl<E, B: crate::Bus<E>> NeoKey1x4<B>
+impl<B: crate::Bus> NeoKey1x4<B>
 where
-    Self: GpioModule<E, B>,
+    Self: GpioModule<B>,
 {
-    pub fn keys(&mut self) -> Result<u8, SeesawError<E>> {
+    pub fn keys(&mut self) -> Result<u8, SeesawError<B::I2cError>> {
         self.digital_read_bulk().map(|r| (r >> 4 & 0xF) as u8)
     }
 
-    pub fn keys_bool(&mut self) -> Result<[bool; 4], SeesawError<E>> {
+    pub fn keys_bool(&mut self) -> Result<[bool; 4], SeesawError<B::I2cError>> {
         self.keys().map(|b| {
             [
                 0 == 1 & b >> 0,

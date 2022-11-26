@@ -2,7 +2,7 @@ use super::{
     gpio::{GpioModule, PinMode},
     Reg, ENCODER_MODULE_ID,
 };
-use crate::{bus::Bus, error::SeesawError};
+use crate::{bus::I2cExt, error::SeesawError};
 
 const STATUS: &Reg = &[ENCODER_MODULE_ID, 0x00];
 const INT_SET: &Reg = &[ENCODER_MODULE_ID, 0x10];
@@ -12,38 +12,46 @@ const DELTA: &Reg = &[ENCODER_MODULE_ID, 0x40];
 
 const ENCODER_BTN_PIN: u8 = 24;
 
-pub trait EncoderModule<E, B: crate::Bus<E>>: GpioModule<E, B> {
-    fn enable_button(&mut self) -> Result<(), SeesawError<E>> {
+pub trait EncoderModule<B: crate::Bus>: GpioModule<B> {
+    fn enable_button(&mut self) -> Result<(), SeesawError<B::I2cError>> {
         self.set_pin_mode(ENCODER_BTN_PIN, PinMode::InputPullup)
             .map(|_| self.bus().delay_us(125))
     }
 
-    fn button(&mut self) -> Result<bool, SeesawError<E>> {
+    fn button(&mut self) -> Result<bool, SeesawError<B::I2cError>> {
         self.digital_read(ENCODER_BTN_PIN)
     }
 
-    fn delta(&mut self) -> Result<i32, SeesawError<E>> {
+    fn delta(&mut self) -> Result<i32, SeesawError<B::I2cError>> {
         let addr = self.addr();
-        self.bus().read_i32(addr, DELTA)
+        self.bus().read_i32(addr, DELTA).map_err(SeesawError::I2c)
     }
 
-    fn disable_interrupt(&mut self) -> Result<(), SeesawError<E>> {
+    fn disable_interrupt(&mut self) -> Result<(), SeesawError<B::I2cError>> {
         let addr = self.addr();
-        self.bus().write_u8(addr, INT_CLR, 1)
+        self.bus()
+            .write_u8(addr, INT_CLR, 1)
+            .map_err(SeesawError::I2c)
     }
 
-    fn enable_interrupt(&mut self) -> Result<(), SeesawError<E>> {
+    fn enable_interrupt(&mut self) -> Result<(), SeesawError<B::I2cError>> {
         let addr = self.addr();
-        self.bus().write_u8(addr, INT_SET, 1)
+        self.bus()
+            .write_u8(addr, INT_SET, 1)
+            .map_err(SeesawError::I2c)
     }
 
-    fn position(&mut self) -> Result<i32, SeesawError<E>> {
+    fn position(&mut self) -> Result<i32, SeesawError<B::I2cError>> {
         let addr = self.addr();
-        self.bus().read_i32(addr, POSITION)
+        self.bus()
+            .read_i32(addr, POSITION)
+            .map_err(SeesawError::I2c)
     }
 
-    fn set_position(&mut self, pos: i32) -> Result<(), SeesawError<E>> {
+    fn set_position(&mut self, pos: i32) -> Result<(), SeesawError<B::I2cError>> {
         let addr = self.addr();
-        self.bus().write_i32(addr, POSITION, pos)
+        self.bus()
+            .write_i32(addr, POSITION, pos)
+            .map_err(SeesawError::I2c)
     }
 }

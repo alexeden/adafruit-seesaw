@@ -27,14 +27,12 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-    let mut bus = SeesawBus::new(i2c, delay);
-    let encoder = NeoSlider::begin_default(&mut bus).expect("Failed to connect to neoslider");
+    let bus = SeesawBus::new(i2c, delay);
+    let mut encoder = NeoSlider::begin_default(bus).expect("Failed to connect to neoslider");
 
     rprintln!(
         "{:#?}",
-        encoder
-            .capabilities(&mut bus)
-            .expect("Failed to get options")
+        encoder.capabilities().expect("Failed to get options")
     );
 
     loop {}

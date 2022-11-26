@@ -28,31 +28,27 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-    let mut bus = SeesawBus::new(i2c, delay);
-    let encoder =
-        RotaryEncoder::begin_default(&mut bus).expect("Failed to connect to rotary encoder");
+    let bus = SeesawBus::new(i2c, delay);
+    let mut encoder =
+        RotaryEncoder::begin_default(bus).expect("Failed to connect to rotary encoder");
 
     rprintln!(
         "{:#?}",
-        encoder
-            .capabilities(&mut bus)
-            .expect("Failed to get options")
+        encoder.capabilities().expect("Failed to get options")
     );
 
     loop {
-        let position = encoder.position(&mut bus).expect("Failed to get position");
+        let position = encoder.position().expect("Failed to get position");
         let c = color_wheel(((position & 0xFF) as u8).wrapping_mul(3));
         let Color(r, g, b) = c.set_brightness(255);
 
         encoder
-            .set_neopixel_color(&mut bus, r, g, b)
-            .and_then(|_| encoder.sync_neopixel(&mut bus))
+            .set_neopixel_color(r, g, b)
+            .and_then(|_| encoder.sync_neopixel())
             .expect("Failed to set neopixel");
 
-        if let Ok(true) = encoder.button(&mut bus) {
-            encoder
-                .set_position(&mut bus, 0)
-                .expect("Failed to set position");
+        if let Ok(true) = encoder.button() {
+            encoder.set_position(0).expect("Failed to set position");
         }
 
         asm::delay(1_000_000);

@@ -1,30 +1,37 @@
 use super::{Addressable, SeesawDevice};
 use crate::{
-    bus::Bus,
+    bus::Attached,
     error::SeesawError,
     modules::{neopixel::NeopixelModule, status::StatusModule},
 };
 use embedded_hal::blocking::i2c::SevenBitAddress;
 
-pub struct NeoSlider<B>(SevenBitAddress);
-impl Addressable for NeoSlider {
+pub struct NeoSlider<B>(SevenBitAddress, B);
+
+impl<B: crate::Bus> Addressable for NeoSlider<B> {
     fn addr(&self) -> SevenBitAddress {
         self.0
     }
 }
-impl NeopixelModule for NeoSlider {
+
+impl<B: crate::Bus> Attached<B> for NeoSlider<B> {
+    fn bus(&mut self) -> &mut B {
+        &mut self.1
+    }
+}
+
+impl<B: crate::Bus> NeopixelModule<B> for NeoSlider<B> {
     const N_LEDS: u16 = 4;
     const PIN: u8 = 14;
 }
 
-impl SeesawDevice for NeoSlider {
+impl<B: crate::Bus> SeesawDevice<B> for NeoSlider<B> {
     const DEFAULT_ADDR: u8 = 0x30;
 
-    fn begin<E, B: Bus<E>>(bus: &mut B, addr: SevenBitAddress) -> Result<Self, SeesawError<E>> {
-        let mut device = NeoSlider(addr);
-        device
-            .reset_and_begin(bus)
-            .and_then(|_| device.enable_neopixel(bus))
-            .map(|_| device)
+    fn begin(bus: B, addr: SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>> {
+        let mut device = NeoSlider(addr, bus);
+        device.reset_and_begin()?;
+        device.enable_neopixel()?;
+        Ok(device)
     }
 }

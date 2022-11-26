@@ -1,5 +1,9 @@
 use super::{Reg, NEOPIXEL_MODULE_ID};
-use crate::{bus::Attached, devices::Addressable, error::SeesawError};
+use crate::{
+    bus::{Attached, I2cExt},
+    devices::Addressable,
+    error::SeesawError,
+};
 
 /// WO - 8 bits
 /// Not documented.
@@ -33,13 +37,13 @@ pub enum NeopixelSpeed {
     Khz800 = 1,
 }
 
-pub trait NeopixelModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
+pub trait NeopixelModule<B: crate::Bus>: Addressable + Attached<B> {
     const PIN: u8;
 
     /// The number of neopixels on the device
     const N_LEDS: u16 = 1;
 
-    fn enable_neopixel(&mut self) -> Result<(), SeesawError<E>> {
+    fn enable_neopixel(&mut self) -> Result<(), SeesawError<B::I2cError>> {
         let addr = self.addr();
 
         self.bus()
@@ -49,9 +53,10 @@ pub trait NeopixelModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
                 self.bus().write_u16(addr, SET_LEN, 3 * Self::N_LEDS)
             })
             .map(|_| self.bus().delay_us(10_000))
+            .map_err(SeesawError::I2c)
     }
 
-    fn set_neopixel_speed(&mut self, speed: NeopixelSpeed) -> Result<(), SeesawError<E>> {
+    fn set_neopixel_speed(&mut self, speed: NeopixelSpeed) -> Result<(), SeesawError<B::I2cError>> {
         let addr = self.addr();
 
         self.bus()
@@ -64,9 +69,10 @@ pub trait NeopixelModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
                 },
             )
             .map(|_| self.bus().delay_us(10_000))
+            .map_err(SeesawError::I2c)
     }
 
-    fn set_neopixel_color(&mut self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<E>> {
+    fn set_neopixel_color(&mut self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<B::I2cError>> {
         self.set_nth_neopixel_color(0, r, g, b)
     }
 
@@ -76,38 +82,45 @@ pub trait NeopixelModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
         r: u8,
         g: u8,
         b: u8,
-    ) -> Result<(), SeesawError<E>> {
+    ) -> Result<(), SeesawError<B::I2cError>> {
         assert!(n < Self::N_LEDS as u16);
         let [zero, one] = u16::to_be_bytes(3 * n);
         let addr = self.addr();
 
         self.bus()
             .register_write(addr, SET_BUF, &[zero, one, r, g, b, 0x00])
+            .map_err(SeesawError::I2c)
     }
 
     fn set_neopixel_colors(
         &mut self,
         colors: &[(u8, u8, u8); Self::N_LEDS as usize],
-    ) -> Result<(), SeesawError<E>>
+    ) -> Result<(), SeesawError<B::I2cError>>
     where
         [(); Self::N_LEDS as usize]: Sized,
     {
         let addr = self.addr();
 
-        // assert!(n < Self::N_LEDS);
-        (0..Self::N_LEDS).into_iter().try_for_each(|n| {
-            let [zero, one] = u16::to_be_bytes(3 * n);
-            let color = colors[n as usize];
-            self.bus()
-                .register_write(addr, SET_BUF, &[zero, one, color.0, color.1, color.2, 0x00])
-        })
+        (0..Self::N_LEDS)
+            .into_iter()
+            .try_for_each(|n| {
+                let [zero, one] = u16::to_be_bytes(3 * n);
+                let color = colors[n as usize];
+                self.bus().register_write(
+                    addr,
+                    SET_BUF,
+                    &[zero, one, color.0, color.1, color.2, 0x00],
+                )
+            })
+            .map_err(SeesawError::I2c)
     }
 
-    fn sync_neopixel(&mut self) -> Result<(), SeesawError<E>> {
+    fn sync_neopixel(&mut self) -> Result<(), SeesawError<B::I2cError>> {
         let addr = self.addr();
 
         self.bus()
             .register_write(addr, SHOW, &[])
             .map(|_| self.bus().delay_us(125))
+            .map_err(SeesawError::I2c)
     }
 }

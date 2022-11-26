@@ -1,5 +1,9 @@
 use super::{Reg, GPIO_MODULE_ID};
-use crate::{bus::Attached, devices::Addressable, error::SeesawError};
+use crate::{
+    bus::{Attached, I2cExt},
+    devices::Addressable,
+    error::SeesawError,
+};
 use num_enum::IntoPrimitive;
 
 /// WO - 32 bits
@@ -98,8 +102,8 @@ pub enum InterruptMode {
     OnhighWe = 0x0D,
 }
 
-pub trait GpioModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
-    fn digital_read(&mut self, pin: u8) -> Result<bool, SeesawError<E>> {
+pub trait GpioModule<B: crate::Bus>: Addressable + Attached<B> {
+    fn digital_read(&mut self, pin: u8) -> Result<bool, SeesawError<B::I2cError>> {
         self.digital_read_bulk()
             .map(|pins| match pins >> pin & 0x1 {
                 1 => false,
@@ -107,19 +111,22 @@ pub trait GpioModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
             })
     }
 
-    fn digital_read_bulk(&mut self) -> Result<u32, SeesawError<E>> {
+    fn digital_read_bulk(&mut self) -> Result<u32, SeesawError<B::I2cError>> {
         let addr = self.addr();
-
-        self.bus().read_u32(addr, GPIO)
+        self.bus().read_u32(addr, GPIO).map_err(SeesawError::I2c)
     }
 
-    fn set_pin_mode(&mut self, pin: u8, mode: PinMode) -> Result<(), SeesawError<E>> {
+    fn set_pin_mode(&mut self, pin: u8, mode: PinMode) -> Result<(), SeesawError<B::I2cError>> {
         self.set_pin_mode_bulk(1 << pin, mode)
     }
 
-    fn set_pin_mode_bulk(&mut self, pins: u32, mode: PinMode) -> Result<(), SeesawError<E>> {
+    fn set_pin_mode_bulk(
+        &mut self,
+        pins: u32,
+        mode: PinMode,
+    ) -> Result<(), SeesawError<B::I2cError>> {
         let addr = self.addr();
-        let mut bus = self.bus();
+        let bus = self.bus();
 
         match mode {
             PinMode::Output => bus.write_u32(addr, GPIO, pins),
@@ -134,5 +141,6 @@ pub trait GpioModule<E, B: crate::Bus<E>>: Addressable + Attached<E, B> {
                 .and_then(|_| bus.write_u32(addr, SET_LOW, pins)),
             _ => unimplemented!("Other pins modes are not supported."),
         }
+        .map_err(SeesawError::I2c)
     }
 }

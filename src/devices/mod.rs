@@ -1,9 +1,9 @@
-use crate::{bus::Attached, modules::status::StatusModule};
+use crate::{bus::Attached, modules::status::StatusModule, SeesawError};
 use embedded_hal::blocking::i2c::SevenBitAddress;
 
-// pub mod neokey_1x4;
-// pub mod neoslider;
-// pub mod rotary_encoder;
+pub mod neokey_1x4;
+pub mod neoslider;
+pub mod rotary_encoder;
 
 pub trait Addressable {
     fn addr(&self) -> SevenBitAddress;
@@ -18,9 +18,9 @@ where
 {
     const DEFAULT_ADDR: u8;
 
-    fn begin(bus: B, addr: SevenBitAddress) -> Result<Self, B::I2cError>;
+    fn begin(bus: B, addr: SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>>;
 
-    fn begin_default(bus: B) -> Result<Self, B::I2cError> {
+    fn begin_default(bus: B) -> Result<Self, SeesawError<B::I2cError>> {
         Self::begin(bus, Self::DEFAULT_ADDR)
     }
 }
