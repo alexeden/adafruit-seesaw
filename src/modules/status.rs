@@ -14,7 +14,7 @@ const STATUS_OPTIONS: &Reg = &[STATUS_MODULE_ID, 0x03];
 const STATUS_TEMP: &Reg = &[STATUS_MODULE_ID, 0x04];
 const STATUS_SWRST: &Reg = &[STATUS_MODULE_ID, 0x7F];
 
-pub trait StatusModule<B: crate::Bus>: Addressable + Attached<B> {
+pub trait StatusModule<B: crate::I2cBus>: Addressable + Attached<B> {
     fn reset_and_begin(&mut self) -> Result<(), SeesawError<B::I2cError>> {
         self.reset()?;
         self.bus().delay_us(12_500);

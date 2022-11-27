@@ -1,8 +1,8 @@
 #![no_std]
 #![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
 #![feature(generic_const_exprs)]
-use bus::Bus;
-use core::{borrow::BorrowMut, cell};
+use bus::I2cBus;
+use core::cell;
 use embedded_hal::blocking::{delay, i2c};
 pub mod bus;
 pub use error::SeesawError;
@@ -17,16 +17,6 @@ const DELAY_TIME: u32 = 125;
 pub struct SeesawBus<I2C, DELAY> {
     bus: cell::RefCell<(I2C, DELAY)>,
 }
-
-// impl<I2C, DELAY> BorrowMut<SeesawBus<I2C, DELAY>> for SeesawBus<I2C, DELAY>
-// where
-//     DELAY: delay::DelayUs<u32>,
-//     I2C: i2c::WriteRead + i2c::Write + i2c::Read,
-// {
-//     fn borrow_mut(&mut self) -> &mut Borrowed {
-//         self.bus.borrow_mut()
-//     }
-// }
 
 impl<I2C, DELAY> SeesawBus<I2C, DELAY>
 where

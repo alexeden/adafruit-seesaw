@@ -1,18 +1,18 @@
 use crate::{bus::Attached, modules::status::StatusModule, SeesawError};
 use embedded_hal::blocking::i2c;
 
-pub mod neokey_1x4;
-pub mod neoslider;
-pub mod rotary_encoder;
+// pub mod neokey_1x4;
+// pub mod neoslider;
+// pub mod rotary_encoder;
 
 pub trait Addressable {
     fn addr(&self) -> i2c::SevenBitAddress;
 }
 
 // All Seesaw devices support the Status module
-impl<B: crate::Bus, D: SeesawDevice<B>> StatusModule<B> for D {}
+impl<B: crate::I2cBus, D: SeesawDevice<B>> StatusModule<B> for D {}
 
-pub trait SeesawDevice<B: crate::Bus>: Addressable + Attached<B>
+pub trait SeesawDevice<B: crate::I2cBus>: Addressable + Attached<B>
 where
     Self: Sized,
 {

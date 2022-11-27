@@ -5,13 +5,13 @@ pub trait Attached<B: I2cExt> {
 }
 
 // Blanket trait for types that implement an I2C bus
-pub trait Bus: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32> {
+pub trait I2cBus: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32> {
     type I2cError: From<<Self as i2c::Write>::Error>
         + From<<Self as i2c::WriteRead>::Error>
         + From<<Self as i2c::Read>::Error>;
 }
 
-impl<T, E> Bus for T
+impl<T, E> I2cBus for T
 where
     T: i2c::Write<Error = E>
         + i2c::WriteRead<Error = E>
@@ -104,7 +104,7 @@ pub trait I2cExt {
     }
 }
 
-impl<T: Bus> I2cExt for T {
+impl<T: I2cBus> I2cExt for T {
     type Error = T::I2cError;
 
     fn register_read<const N: usize>(
