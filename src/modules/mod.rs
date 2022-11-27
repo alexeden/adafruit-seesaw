@@ -1,7 +1,8 @@
 // pub mod encoder;
 // pub mod gpio;
 // pub mod neopixel;
-pub mod status;
+mod status;
+pub use status::*;
 
 pub type Reg = [u8; 2];
 

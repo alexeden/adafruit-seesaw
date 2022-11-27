@@ -12,12 +12,12 @@ exclude = [".cargo", "memory.x"]
 [dependencies]
 embedded-hal = "0.2"
 num_enum = { version = "0.5", default-features = false }
+shared-bus = "0.2"
 
 [dev-dependencies]
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
 rtt-target = { version = "0.3", features = ["cortex-m"] }
-shared-bus = "0.2"
 stm32f4xx-hal = { features = ["rt", "stm32f405", "sdio"], version = "0.13" }
 
 [profile.release]

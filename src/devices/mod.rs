@@ -1,26 +1,37 @@
-use crate::{bus::Attached, modules::status::StatusModule, SeesawError};
+use crate::{
+    bus::{DelayBus, I2cBus, I2cExt},
+    SeesawBus, SeesawDriver, SeesawError,
+};
 use embedded_hal::blocking::i2c;
-
-// pub mod neokey_1x4;
-// pub mod neoslider;
-// pub mod rotary_encoder;
+mod generic_device;
+pub use generic_device::*;
+use shared_bus::BusMutex;
 
 pub trait Addressable {
     fn addr(&self) -> i2c::SevenBitAddress;
 }
+// pub trait Attached<B: I2cExt> {
+//     fn bus(&mut self) -> &mut B;
+// }
 
-// All Seesaw devices support the Status module
-impl<B: crate::I2cBus, D: SeesawDevice<B>> StatusModule<B> for D {}
-
-pub trait SeesawDevice<B: crate::I2cBus>: Addressable + Attached<B>
+pub trait Device<M, I2C, DELAY>: Addressable
 where
-    Self: Sized,
+    M: BusMutex<Bus = SeesawDriver<I2C, DELAY>>,
+    DELAY: DelayBus,
+    I2C: I2cBus,
 {
-    const DEFAULT_ADDR: u8;
+    fn bus<'a>(&'a self) -> &'a M;
+}
 
-    fn begin(bus: B, addr: i2c::SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>>;
+// pub trait SeesawDevice<B: crate::I2cBus + crate::DelayBus>: Addressable +
+// Attached<B> where
+//     Self: Sized,
+// {
+//     const DEFAULT_ADDR: u8;
 
-    fn begin_default(bus: B) -> Result<Self, SeesawError<B::I2cError>> {
-        Self::begin(bus, Self::DEFAULT_ADDR)
-    }
+//     fn begin(bus: B, addr: i2c::SevenBitAddress) -> Result<Self,
+// SeesawError<B::I2cError>>; }
+
+pub trait Connect<I2C: crate::I2cBus, DELAY: crate::DelayBus> {
+    fn connect(i2c: I2C, delay: DELAY) -> Self;
 }

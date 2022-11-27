@@ -1,11 +1,7 @@
 use embedded_hal::blocking::{delay, i2c};
 
-pub trait Attached<B: I2cExt> {
-    fn bus(&mut self) -> &mut B;
-}
-
 // Blanket trait for types that implement an I2C bus
-pub trait I2cBus: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32> {
+pub trait I2cBus: i2c::Write + i2c::WriteRead + i2c::Read {
     type I2cError: From<<Self as i2c::Write>::Error>
         + From<<Self as i2c::WriteRead>::Error>
         + From<<Self as i2c::Read>::Error>;
@@ -13,13 +9,13 @@ pub trait I2cBus: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32> 
 
 impl<T, E> I2cBus for T
 where
-    T: i2c::Write<Error = E>
-        + i2c::WriteRead<Error = E>
-        + i2c::Read<Error = E>
-        + delay::DelayUs<u32>,
+    T: i2c::Write<Error = E> + i2c::WriteRead<Error = E> + i2c::Read<Error = E>,
 {
     type I2cError = E;
 }
+
+pub trait DelayBus: delay::DelayUs<u32> {}
+impl<T> DelayBus for T where T: delay::DelayUs<u32> {}
 
 pub trait I2cExt {
     type Error;
@@ -104,7 +100,7 @@ pub trait I2cExt {
     }
 }
 
-impl<T: I2cBus> I2cExt for T {
+impl<T: I2cBus + DelayBus> I2cExt for T {
     type Error = T::I2cError;
 
     fn register_read<const N: usize>(
