@@ -8,14 +8,14 @@ use crate::{
         status::StatusModule,
     },
 };
-use embedded_hal::blocking::i2c::SevenBitAddress;
+use embedded_hal::blocking::i2c;
 
 const NEOKEY_1X4_PINMASK: u32 = (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7);
 
-pub struct NeoKey1x4<B>(SevenBitAddress, B);
+pub struct NeoKey1x4<B>(i2c::SevenBitAddress, B);
 
 impl<B> Addressable for NeoKey1x4<B> {
-    fn addr(&self) -> SevenBitAddress {
+    fn addr(&self) -> i2c::SevenBitAddress {
         self.0
     }
 }
@@ -35,7 +35,7 @@ impl<B: crate::Bus> NeopixelModule<B> for NeoKey1x4<B> {
 impl<B: crate::Bus> SeesawDevice<B> for NeoKey1x4<B> {
     const DEFAULT_ADDR: u8 = 0x30;
 
-    fn begin(bus: B, addr: SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>> {
+    fn begin(bus: B, addr: i2c::SevenBitAddress) -> Result<Self, SeesawError<B::I2cError>> {
         let mut device = NeoKey1x4(addr, bus);
         device
             .reset_and_begin()

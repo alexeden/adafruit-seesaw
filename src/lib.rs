@@ -2,7 +2,7 @@
 #![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
 #![feature(generic_const_exprs)]
 use bus::Bus;
-use core::cell;
+use core::{borrow::BorrowMut, cell};
 use embedded_hal::blocking::{delay, i2c};
 pub mod bus;
 pub use error::SeesawError;
@@ -15,19 +15,27 @@ const DELAY_TIME: u32 = 125;
 
 #[derive(Debug)]
 pub struct SeesawBus<I2C, DELAY> {
-    bus: cell::RefCell<I2C>,
-    delay: cell::RefCell<DELAY>,
+    bus: cell::RefCell<(I2C, DELAY)>,
 }
 
-impl<I2C, DELAY, E> SeesawBus<I2C, DELAY>
+// impl<I2C, DELAY> BorrowMut<SeesawBus<I2C, DELAY>> for SeesawBus<I2C, DELAY>
+// where
+//     DELAY: delay::DelayUs<u32>,
+//     I2C: i2c::WriteRead + i2c::Write + i2c::Read,
+// {
+//     fn borrow_mut(&mut self) -> &mut Borrowed {
+//         self.bus.borrow_mut()
+//     }
+// }
+
+impl<I2C, DELAY> SeesawBus<I2C, DELAY>
 where
     DELAY: delay::DelayUs<u32>,
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: i2c::WriteRead + i2c::Write + i2c::Read,
 {
     pub fn new(bus: I2C, delay: DELAY) -> Self {
         Self {
-            bus: cell::RefCell::new(bus),
-            delay: cell::RefCell::new(delay),
+            bus: cell::RefCell::new((bus, delay)),
         }
     }
 }
@@ -37,7 +45,7 @@ where
     DELAY: delay::DelayUs<u32>,
 {
     fn delay_us(&mut self, us: u32) {
-        self.delay.borrow_mut().delay_us(us)
+        self.bus.borrow_mut().1.delay_us(us)
     }
 }
 
@@ -48,7 +56,7 @@ where
     type Error = <I2C as i2c::Write>::Error;
 
     fn write(&mut self, address: u8, bytes: &[u8]) -> Result<(), Self::Error> {
-        self.bus.borrow_mut().write(address, bytes)
+        self.bus.borrow_mut().0.write(address, bytes)
     }
 }
 
@@ -64,7 +72,7 @@ where
         bytes: &[u8],
         buffer: &mut [u8],
     ) -> Result<(), Self::Error> {
-        self.bus.borrow_mut().write_read(address, bytes, buffer)
+        self.bus.borrow_mut().0.write_read(address, bytes, buffer)
     }
 }
 
@@ -75,6 +83,6 @@ where
     type Error = <I2C as i2c::Read>::Error;
 
     fn read(&mut self, address: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
-        self.bus.borrow_mut().read(address, buffer)
+        self.bus.borrow_mut().0.read(address, buffer)
     }
 }
