@@ -1,6 +1,6 @@
 use crate::{
-    bus::{DelayBus, I2cBus, I2cExt},
-    SeesawBus, SeesawDriver, SeesawError,
+    bus::{DelayBus, I2cBus},
+    SeesawError,
 };
 use embedded_hal::blocking::i2c;
 mod generic_device;
@@ -10,28 +10,22 @@ use shared_bus::BusMutex;
 pub trait Addressable {
     fn addr(&self) -> i2c::SevenBitAddress;
 }
-// pub trait Attached<B: I2cExt> {
-//     fn bus(&mut self) -> &mut B;
-// }
 
-pub trait Device<M, I2C, DELAY>: Addressable
+pub trait Device<D, M>: Addressable
 where
-    M: BusMutex<Bus = SeesawDriver<I2C, DELAY>>,
-    DELAY: DelayBus,
-    I2C: I2cBus,
+    M: BusMutex<Bus = D>,
+    D: I2cBus + DelayBus,
 {
     fn bus<'a>(&'a self) -> &'a M;
 }
 
-// pub trait SeesawDevice<B: crate::I2cBus + crate::DelayBus>: Addressable +
-// Attached<B> where
-//     Self: Sized,
-// {
-//     const DEFAULT_ADDR: u8;
-
-//     fn begin(bus: B, addr: i2c::SevenBitAddress) -> Result<Self,
-// SeesawError<B::I2cError>>; }
-
-pub trait Connect<I2C: crate::I2cBus, DELAY: crate::DelayBus> {
-    fn connect(i2c: I2C, delay: DELAY) -> Self;
+pub trait Connect<I2C: crate::I2cBus, DELAY: crate::DelayBus>
+where
+    Self: Sized,
+{
+    fn connect(
+        i2c: I2C,
+        delay: DELAY,
+        addr: i2c::SevenBitAddress,
+    ) -> Result<Self, SeesawError<I2C::I2cError>>;
 }

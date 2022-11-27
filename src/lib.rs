@@ -1,7 +1,7 @@
 #![no_std]
 #![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
 #![feature(generic_const_exprs)]
-use bus::{DelayBus, I2cBus, I2cExt};
+use bus::{DelayBus, I2cBus};
 use core::cell;
 use embedded_hal::blocking::{delay, i2c};
 pub mod bus;
@@ -12,7 +12,6 @@ pub mod error;
 mod modules;
 
 // Exports
-// pub use devices::SeesawDevice;
 pub use modules::*;
 
 const DELAY_TIME: u32 = 125;
@@ -49,13 +48,23 @@ where
 
 impl<I2C, DELAY> SeesawBus<I2C, DELAY>
 where
-    DELAY: delay::DelayUs<u32>,
-    I2C: i2c::WriteRead + i2c::Write + i2c::Read,
+    DELAY: DelayBus,
+    I2C: I2cBus,
 {
     pub fn new(bus: I2C, delay: DELAY) -> Self {
         Self {
             bus: cell::RefCell::new(SeesawDriver(bus, delay)),
         }
+    }
+}
+
+impl<I2C, DELAY> SeesawDriver<I2C, DELAY>
+where
+    DELAY: DelayBus,
+    I2C: I2cBus,
+{
+    pub fn new(bus: I2C, delay: DELAY) -> Self {
+        Self(bus, delay)
     }
 }
 
@@ -105,37 +114,3 @@ where
         self.0.read(address, buffer)
     }
 }
-
-// impl<I2C: I2cBus, DELAY: DelayBus> I2cExt for SeesawDriver<I2C, DELAY> {
-//     type Error = I2C::I2cError;
-
-//     fn register_read<const N: usize>(
-//         &mut self,
-//         addr: i2c::SevenBitAddress,
-//         reg: &crate::Reg,
-//     ) -> Result<[u8; N], Self::Error> {
-//         let mut buffer = [0u8; N];
-//         self.write(addr, reg)?;
-//         self.delay_us(crate::DELAY_TIME);
-//         self.write_read(addr, &[], &mut buffer)?;
-//         Ok(buffer)
-//     }
-
-//     fn register_write<const N: usize>(
-//         &mut self,
-//         addr: i2c::SevenBitAddress,
-//         reg: &crate::Reg,
-//         bytes: &[u8; N],
-//     ) -> Result<(), Self::Error>
-//     where
-//         [(); N + 2]: Sized,
-//     {
-//         let mut buffer = [0u8; N + 2];
-//         buffer[0..2].copy_from_slice(reg);
-//         buffer[2..].copy_from_slice(bytes);
-
-//         self.write(addr, &buffer)?;
-//         self.delay_us(crate::DELAY_TIME);
-//         Ok(())
-//     }
-// }

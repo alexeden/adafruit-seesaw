@@ -7,7 +7,6 @@ use crate::{
     bus::{DelayBus, I2cBus, I2cExt},
     devices::{Addressable, Device},
     error::SeesawError,
-    SeesawDriver,
 };
 use shared_bus::BusMutex;
 
@@ -17,65 +16,69 @@ const STATUS_OPTIONS: &Reg = &[STATUS_MODULE_ID, 0x03];
 const STATUS_TEMP: &Reg = &[STATUS_MODULE_ID, 0x04];
 const STATUS_SWRST: &Reg = &[STATUS_MODULE_ID, 0x7F];
 
-pub trait StatusModule<M, I2C, DELAY>: Addressable + Device<M, I2C, DELAY>
+pub trait StatusModule<D, M>: Addressable + Device<D, M>
 where
-    M: BusMutex<Bus = SeesawDriver<I2C, DELAY>>,
-    I2C: I2cBus,
-    DELAY: DelayBus,
+    M: BusMutex<Bus = D>,
+    D: I2cBus + DelayBus,
 {
-    // fn reset_and_begin(&mut self) -> Result<(), SeesawError<I2C::I2cError>> {
-    //     self.reset()?;
-    //     self.bus().lock(|bus| {
-    //         bus.1.delay_us(12_500);
-    //     });
-    //     match self.hardware_id() {
-    //         Ok(SEESAW_HW_ID) => Ok(()),
-    //         Ok(id) => Err(SeesawError::InvalidHardwareId(id)),
-    //         Err(e) => Err(e),
-    //     }
-    // }
+    fn reset_and_begin(&mut self) -> Result<(), SeesawError<<D as I2cBus>::I2cError>> {
+        self.reset()?;
+        self.bus().lock(|driver| {
+            driver.delay_us(12_500);
+        });
+        match self.hardware_id() {
+            Ok(SEESAW_HW_ID) => Ok(()),
+            Ok(id) => Err(SeesawError::InvalidHardwareId(id)),
+            Err(e) => Err(e),
+        }
+    }
 
-    // fn capabilities(&mut self) -> Result<DeviceCapabilities,
-    // SeesawError<I2C::I2cError>> {     let addr = self.addr();
-    //     self.bus().lock(|(i2c, delay)| {
-    //         i2c.read_u32(addr, STATUS_OPTIONS)
-    //             .map(|opts| opts.into())
-    //             .map_err(SeesawError::I2c)
-    //     })
-    // }
+    fn capabilities(&mut self) -> Result<DeviceCapabilities, SeesawError<<D as I2cBus>::I2cError>> {
+        let addr = self.addr();
+        self.bus().lock(|driver| {
+            driver
+                .read_u32(addr, STATUS_OPTIONS)
+                .map(|opts| opts.into())
+                .map_err(SeesawError::I2c)
+        })
+    }
 
-    fn hardware_id(&mut self) -> Result<u8, SeesawError<I2C::I2cError>> {
+    fn hardware_id(&mut self) -> Result<u8, SeesawError<<D as I2cBus>::I2cError>> {
         let addr = self.addr();
         self.bus()
             .lock(|driver| driver.read_u8(addr, STATUS_HW_ID).map_err(SeesawError::I2c))
     }
 
-    // fn product_info(&mut self) -> Result<ProductDateCode,
-    // SeesawError<I2C::I2cError>> {     let addr = self.addr();
-    //     self.bus().lock(|(i2c, delay)| {
-    //         i2c.read_u32(addr, STATUS_VERSION)
-    //             .map(|version| version.into())
-    //             .map_err(SeesawError::I2c)
-    //     })
-    // }
+    fn product_info(&mut self) -> Result<ProductDateCode, SeesawError<<D as I2cBus>::I2cError>> {
+        let addr = self.addr();
+        self.bus().lock(|driver| {
+            driver
+                .read_u32(addr, STATUS_VERSION)
+                .map(|version| version.into())
+                .map_err(SeesawError::I2c)
+        })
+    }
 
-    // fn reset(&mut self) -> Result<(), SeesawError<I2C::I2cError>> {
-    //     let addr = self.addr();
-    //     self.bus().lock(|(i2c, delay)| {
-    //         i2c.write_u8(addr, STATUS_SWRST, 0xFF)
-    //             .map(|_| delay.delay_us(125_000))
-    //             .map_err(SeesawError::I2c)
-    //     })
-    // }
+    fn reset(&mut self) -> Result<(), SeesawError<<D as I2cBus>::I2cError>> {
+        let addr = self.addr();
+        self.bus().lock(|driver| {
+            driver
+                .write_u8(addr, STATUS_SWRST, 0xFF)
+                .map(|_| driver.delay_us(125_000))
+                .map_err(SeesawError::I2c)
+        })
+    }
 
-    // fn temp(&mut self) -> Result<f32, SeesawError<I2C::I2cError>> {
-    //     let addr = self.addr();
+    fn temp(&mut self) -> Result<f32, SeesawError<<D as I2cBus>::I2cError>> {
+        let addr = self.addr();
 
-    //     self.bus()
-    //         .read_u32(addr, STATUS_TEMP)
-    //         .map(|buf| (buf as f32 / (1u32 << 16) as f32))
-    //         .map_err(SeesawError::I2c)
-    // }
+        self.bus().lock(|driver| {
+            driver
+                .read_u32(addr, STATUS_TEMP)
+                .map(|buf| (buf as f32 / (1u32 << 16) as f32))
+                .map_err(SeesawError::I2c)
+        })
+    }
 }
 
 #[derive(Copy, Clone, Debug)]

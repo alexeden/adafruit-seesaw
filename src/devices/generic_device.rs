@@ -1,27 +1,18 @@
-use super::{Addressable, Device};
+use super::{Addressable, Connect, Device};
 use crate::{
     bus::{DelayBus, I2cBus},
-    error::SeesawError,
     modules::StatusModule,
-    SeesawBus, SeesawDriver,
+    SeesawBus, SeesawDriver, SeesawError,
 };
-use embedded_hal::blocking::{delay, i2c};
+use embedded_hal::blocking::i2c;
 use shared_bus::BusMutex;
 
 pub struct GenericDevice<M>(i2c::SevenBitAddress, M);
 
-impl<I2C, DELAY> GenericDevice<SeesawBus<I2C, DELAY>>
+impl<D, M> Device<M::Bus, M> for GenericDevice<M>
 where
-    I2C: crate::I2cBus,
-    DELAY: crate::DelayBus,
-{
-}
-
-impl<M, I2C, DELAY> Device<M, I2C, DELAY> for GenericDevice<M>
-where
-    M: BusMutex<Bus = SeesawDriver<I2C, DELAY>>,
-    DELAY: DelayBus,
-    I2C: I2cBus,
+    D: I2cBus + DelayBus,
+    M: BusMutex<Bus = D>,
 {
     fn bus<'a>(&'a self) -> &'a M {
         &self.1
@@ -34,26 +25,24 @@ impl<B> Addressable for GenericDevice<B> {
     }
 }
 
-// impl<B: crate::I2cBus + crate::DelayBus> Attached<B> for GenericDevice<B> {
-//     fn bus(&mut self) -> &mut B {
-//         &mut self.1
-//     }
-// }
-
-impl<M, I2C, DELAY> StatusModule<M, I2C, DELAY> for GenericDevice<M>
+impl<D, M> StatusModule<M::Bus, M> for GenericDevice<M>
 where
-    M: BusMutex<Bus = SeesawDriver<I2C, DELAY>>,
-    DELAY: DelayBus,
-    I2C: I2cBus,
+    D: I2cBus + DelayBus,
+    M: BusMutex<Bus = D>,
 {
 }
 
-// impl<B: crate::I2cBus + crate::DelayBus> SeesawDevice<B> for GenericDevice<B>
-// {     const DEFAULT_ADDR: u8 = 0x30;
-
-//     fn begin(bus: B, addr: i2c::SevenBitAddress) -> Result<Self,
-// SeesawError<B::I2cError>> {         let mut device = GenericDevice(addr,
-// bus);         device.reset_and_begin()?;
-//         Ok(device)
-//     }
-// }
+impl<I2C, DELAY> Connect<I2C, DELAY> for GenericDevice<SeesawBus<I2C, DELAY>>
+where
+    DELAY: DelayBus,
+    I2C: I2cBus,
+{
+    fn connect(
+        i2c: I2C,
+        delay: DELAY,
+        addr: i2c::SevenBitAddress,
+    ) -> Result<Self, SeesawError<I2C::I2cError>> {
+        let device = Self(addr, SeesawBus::create(SeesawDriver::new(i2c, delay)));
+        Ok(device)
+    }
+}
