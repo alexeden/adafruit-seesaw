@@ -37,13 +37,13 @@ pub enum NeopixelSpeed {
     Khz800 = 1,
 }
 
-pub trait NeopixelModule<'a, B: crate::Bus>: Addressable + Attached<'a, B> {
+pub trait NeopixelModule<B: crate::Bus>: Addressable + Attached<B> {
     const PIN: u8;
 
     /// The number of neopixels on the device
     const N_LEDS: u16 = 1;
 
-    fn enable_neopixel(&'a mut self) -> Result<(), SeesawError<B::I2cError>> {
+    fn enable_neopixel(&mut self) -> Result<(), SeesawError<B::I2cError>> {
         let addr = self.addr();
 
         self.bus()

@@ -1,7 +1,7 @@
 use embedded_hal::blocking::{delay, i2c};
 
-pub trait Attached<'a, B: I2cExt> {
-    fn bus(&'a mut self) -> &'a mut B;
+pub trait Attached<B: I2cExt> {
+    fn bus(&mut self) -> &mut B;
 }
 
 // Blanket trait for types that implement an I2C bus

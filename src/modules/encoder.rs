@@ -12,8 +12,8 @@ const DELTA: &Reg = &[ENCODER_MODULE_ID, 0x40];
 
 const ENCODER_BTN_PIN: u8 = 24;
 
-pub trait EncoderModule<'a, B: crate::Bus>: GpioModule<'a, B> {
-    fn enable_button(&'a mut self) -> Result<(), SeesawError<B::I2cError>> {
+pub trait EncoderModule<B: crate::Bus>: GpioModule<B> {
+    fn enable_button(&mut self) -> Result<(), SeesawError<B::I2cError>> {
         self.set_pin_mode(ENCODER_BTN_PIN, PinMode::InputPullup)
             .map(|_| self.bus().delay_us(125))
     }
@@ -22,7 +22,7 @@ pub trait EncoderModule<'a, B: crate::Bus>: GpioModule<'a, B> {
         self.digital_read(ENCODER_BTN_PIN)
     }
 
-    fn delta(&'a mut self) -> Result<i32, SeesawError<B::I2cError>> {
+    fn delta(&mut self) -> Result<i32, SeesawError<B::I2cError>> {
         let addr = self.addr();
         self.bus().read_i32(addr, DELTA).map_err(SeesawError::I2c)
     }

@@ -102,7 +102,7 @@ pub enum InterruptMode {
     OnhighWe = 0x0D,
 }
 
-pub trait GpioModule<'a, B: crate::Bus>: Addressable + Attached<'a, B> {
+pub trait GpioModule<B: crate::Bus>: Addressable + Attached<B> {
     fn digital_read(&mut self, pin: u8) -> Result<bool, SeesawError<B::I2cError>> {
         self.digital_read_bulk()
             .map(|pins| match pins >> pin & 0x1 {

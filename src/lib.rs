@@ -78,11 +78,3 @@ where
         self.bus.borrow_mut().read(address, buffer)
     }
 }
-
-// impl<E, I2C, DELAY> Bus for SeesawBus<I2C, DELAY>
-// where
-//     DELAY: delay::DelayUs<u32>,
-//     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E> + i2c,
-// {
-//     type I2cError = SeesawError<E>;
-// }
