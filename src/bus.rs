@@ -1,5 +1,7 @@
 use embedded_hal::blocking::{delay, i2c};
 
+pub type Reg = [u8; 2];
+
 //
 pub trait Driver: DelayBus + I2cBus {}
 
