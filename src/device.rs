@@ -1,4 +1,6 @@
 pub trait Device<D: crate::Driver> {
+    const DEFAULT_ADDR: u8;
+
     type Error;
 
     fn addr(&self) -> u8;
@@ -27,6 +29,7 @@ impl<D: crate::Driver, T: Device<D>> crate::StatusModule<D> for T {}
 #[macro_export]
 macro_rules! seesaw_device {
     ($device:ident) => {
+        /// $device
         #[derive(Debug)]
         pub struct $device<M>(u8, M);
 
