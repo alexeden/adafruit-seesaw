@@ -1,13 +1,13 @@
 #![no_std]
-#![allow(incomplete_features, const_evaluatable_unchecked)]
+#![allow(unused_imports, incomplete_features, const_evaluatable_unchecked)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
 mod bus;
-mod devices;
+pub mod devices;
 mod driver;
 mod error;
-mod modules;
+pub mod modules;
 pub use bus::*;
-use devices::Device;
+use devices::{Device, GenericDevice};
 use driver::DriverProxy;
 use embedded_hal::blocking::{delay, i2c};
 pub use error::SeesawError;
@@ -26,7 +26,7 @@ pub struct Seesaw<M> {
 
 impl<M: BusMutex> Seesaw<M>
 where
-    M::Bus: Driver,
+    M::Bus: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>,
 {
     pub fn new(bus: M::Bus) -> Self {
         Seesaw {
@@ -34,13 +34,12 @@ where
         }
     }
 
-    pub fn driver<'a>(&'a self) -> DriverProxy<'a, M> {
+    fn driver<'a>(&'a self) -> DriverProxy<'a, M> {
         DriverProxy { mutex: &self.mutex }
     }
 
-    pub fn connect<D: Device>(&self, addr: u8) -> D {
-        let driver = self.driver();
-        D::begin(addr, driver)
+    pub fn connect<'a, D: Device<DriverProxy<'a, M>>>(&'a self, addr: u8) -> D {
+        D::begin(addr, self.driver())
     }
 }
 
@@ -52,7 +51,7 @@ pub struct SeesawBus<DELAY, I2C>(DELAY, I2C);
 impl<DELAY, I2C: I2cBus> SeesawBus<DELAY, I2C>
 where
     DELAY: delay::DelayUs<u32>,
-    I2C: I2cBus,
+    I2C: i2c::Write + i2c::WriteRead + i2c::Read,
 {
     pub fn new(delay: DELAY, i2c: I2C) -> Self {
         Self(delay, i2c)

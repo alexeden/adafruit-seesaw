@@ -1,6 +1,6 @@
 #![no_std]
 #![no_main]
-use adafruit_seesaw::{prelude::*, SeesawBus, SeesawSingleThread};
+use adafruit_seesaw::{devices::GenericDevice, prelude::*, SeesawBus, SeesawSingleThread};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{
@@ -25,10 +25,9 @@ fn main() -> ! {
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let bus = shared_bus::BusManagerSimple::new(i2c);
     let mut seesaw_bus = SeesawBus::new(delay, bus.acquire_i2c());
-    seesaw_bus
-        .register_read::<0>(0, &[9, 0])
-        .expect("Failed to read register");
-    let _seesaw = SeesawSingleThread::new(seesaw_bus);
+    let seesaw = SeesawSingleThread::new(seesaw_bus);
+    let _device = seesaw.connect::<GenericDevice<_>>(0x0);
+    let _device2 = seesaw.connect::<GenericDevice<_>>(0x0);
     // let _generic_device = GenericDevice::connect(bus.acquire_i2c(), delay, 0x30)
     //     .expect("Failed to connect generic device");
     // let _generic_device2 = GenericDevice::connect(bus.acquire_i2c(), delay,

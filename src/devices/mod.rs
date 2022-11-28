@@ -1,45 +1,58 @@
+use core::borrow::BorrowMut;
+
+use crate::modules::Modules;
+use embedded_hal::blocking::{delay, i2c};
 // use embedded_hal::blocking::i2c;
 // use shared_bus::BusMutex;
 // mod generic_device;
 // pub use generic_device::*;
-
-use crate::Driver;
+use crate::{driver::DriverProxy, BusExt, Driver, SeesawError};
+use shared_bus::BusMutex;
 // use shared_bus::BusMutex;
 
-pub trait Device {
+// pub trait Device {
+pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>> {
     fn addr(&self) -> u8;
 
-    fn begin<D: Driver>(addr: u8, driver: D) -> Self;
+    fn driver<'a>(&'a mut self) -> &'a mut D;
+
+    fn begin(addr: u8, driver: D) -> Self;
 }
 
-// pub trait Connect<I2C: crate::I2cBus, DELAY: crate::DelayBus>
-// where
-//     Self: Sized,
-// {
-//     fn connect(
-//         i2c: I2C,
-//         delay: DELAY,
-//         addr: i2c::SevenBitAddress,
-//     ) -> Result<Self, crate::SeesawError<I2C::I2cError>>;
-// }
+#[derive(Debug)]
+pub struct GenericDevice<M>(u8, M);
 
-// pub trait SeesawDevice<D, M>
-// where
-//     M: BusMutex<Bus = D>,
-//     D: crate::Driver,
-// {
-//     fn addr(&self) -> u8;
-//     fn bus<'a>(&'a self) -> &'a M;
-// }
+impl<D: Driver> Device<D> for GenericDevice<D> {
+    fn addr(&self) -> u8 {
+        self.0
+    }
 
-// impl<SSD, D, M> StatusModule<D, M> for SSD
-// where
-//     SSD: SeesawDevice<D, M>,
-//     //  + Connect<I2C, DELAY>,
-//     // Self: Driver,
-//     D: crate::Driver,
-//     M: BusMutex<Bus = D>,
-//     // I2C: I2cBus,
-//     // DELAY: DelayBus,
-// {
+    fn begin(addr: u8, driver: D) -> Self {
+        Self(addr, driver)
+    }
+
+    fn driver<'a>(&'a mut self) -> &'a mut D {
+        self.1.borrow_mut()
+    }
+}
+
+pub trait StatusModule<D>: Device<D>
+where
+    D: crate::Driver,
+{
+    fn hardware_id(&mut self) -> Result<u8, SeesawError<<D>::I2cError>> {
+        let addr = self.addr();
+        self.driver()
+            .read_u8(addr, &[Modules::Status.into(), 0x01])
+            .map_err(SeesawError::I2c)
+    }
+}
+
+// impl<D: Driver> GenericDevice<D> {
+// impl<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>>
+// GenericDevice<D> {     // GenericDevice<D> {
+
+//     pub fn new(addr: u8, driver: D) -> Self {
+//         Self(addr, driver)
+//     }
 // }
