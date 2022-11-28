@@ -5,6 +5,7 @@ use core::cell;
 use embedded_hal::blocking::{delay, i2c};
 pub mod bus;
 pub mod devices;
+mod driver;
 pub mod error;
 mod modules;
 pub(crate) use bus::*;
