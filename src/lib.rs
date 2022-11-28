@@ -1,5 +1,5 @@
 #![no_std]
-#![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
+#![allow(incomplete_features, const_evaluatable_unchecked)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
 use core::cell;
 use embedded_hal::blocking::{delay, i2c};

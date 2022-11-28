@@ -75,20 +75,20 @@ where
 
 #[derive(Copy, Clone, Debug)]
 pub struct DeviceCapabilities {
-    adc: bool,
-    dac: bool,
-    dap: bool,
-    eeprom: bool,
-    encoder: bool,
-    gpio: bool,
-    interrupt: bool,
-    keypad: bool,
-    neopixel: bool,
-    sercom0: bool,
-    spectrum: bool,
-    status: bool,
-    timer: bool,
-    touch: bool,
+    pub adc: bool,
+    pub dac: bool,
+    pub dap: bool,
+    pub eeprom: bool,
+    pub encoder: bool,
+    pub gpio: bool,
+    pub interrupt: bool,
+    pub keypad: bool,
+    pub neopixel: bool,
+    pub sercom0: bool,
+    pub spectrum: bool,
+    pub status: bool,
+    pub timer: bool,
+    pub touch: bool,
 }
 
 impl From<u32> for DeviceCapabilities {
@@ -106,7 +106,7 @@ impl From<u32> for DeviceCapabilities {
             sercom0: value >> Modules::Sercom0 as u8 & 1 == 1,
             spectrum: value >> Modules::Spectrum as u8 & 1 == 1,
             status: value >> Modules::Status as u8 & 1 == 1,
-            timer: value >> Modules::Status as u8 & 1 == 1,
+            timer: value >> Modules::Timer as u8 & 1 == 1,
             touch: value >> Modules::Touch as u8 & 1 == 1,
         }
     }
@@ -114,10 +114,10 @@ impl From<u32> for DeviceCapabilities {
 
 #[derive(Debug)]
 pub struct ProductDateCode {
-    id: u16,
-    year: u8,
-    month: u8,
-    day: u8,
+    pub id: u16,
+    pub year: u8,
+    pub month: u8,
+    pub day: u8,
 }
 
 impl From<u32> for ProductDateCode {
