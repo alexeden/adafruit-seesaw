@@ -1,10 +1,8 @@
 #![no_std]
 #![no_main]
-use adafruit_seesaw::{bus::I2cExt, Seesaw, SeesawBus, SeesawSingleThread};
+use adafruit_seesaw::{prelude::*, SeesawBus, SeesawSingleThread};
 use cortex_m_rt::entry;
-use embedded_hal::blocking::i2c::Write;
 use rtt_target::{rprintln, rtt_init_print};
-use shared_bus::{BusMutex, NullMutex};
 use stm32f4xx_hal::{
     gpio::GpioExt,
     i2c::I2c,
@@ -26,9 +24,11 @@ fn main() -> ! {
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let bus = shared_bus::BusManagerSimple::new(i2c);
-    let seesaw_bus = SeesawBus::new(delay, bus.acquire_i2c());
-    // seesaw_bus.register_read();
-    // let _seesaw = SeesawSingleThread::new(seesaw_bus);
+    let mut seesaw_bus = SeesawBus::new(delay, bus.acquire_i2c());
+    seesaw_bus
+        .register_read::<0>(0, &[9, 0])
+        .expect("Failed to read register");
+    let _seesaw = SeesawSingleThread::new(seesaw_bus);
     // let _generic_device = GenericDevice::connect(bus.acquire_i2c(), delay, 0x30)
     //     .expect("Failed to connect generic device");
     // let _generic_device2 = GenericDevice::connect(bus.acquire_i2c(), delay,

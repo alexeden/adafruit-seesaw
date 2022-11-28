@@ -1,17 +1,19 @@
 #![no_std]
 #![allow(incomplete_features, const_evaluatable_unchecked)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
-pub mod bus;
-pub mod devices;
+mod bus;
+mod devices;
 mod driver;
-pub mod error;
+mod error;
 mod modules;
-pub(crate) use bus::*;
+pub use bus::*;
 use embedded_hal::blocking::{delay, i2c};
 pub use error::SeesawError;
-// use modules::Reg;
-use driver::DriverProxy;
 use shared_bus::{BusMutex, NullMutex};
+
+pub mod prelude {
+    pub use super::bus::BusExt;
+}
 
 const DELAY_TIME: u32 = 125;
 

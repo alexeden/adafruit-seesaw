@@ -24,7 +24,7 @@ where
 pub trait DelayBus: delay::DelayUs<u32> {}
 impl<T> DelayBus for T where T: delay::DelayUs<u32> {}
 
-pub trait I2cExt {
+pub trait BusExt {
     type Error;
 
     fn register_read<const N: usize>(
@@ -107,7 +107,7 @@ pub trait I2cExt {
     }
 }
 
-impl<T: Driver> I2cExt for T {
+impl<T: Driver> BusExt for T {
     type Error = T::I2cError;
 
     fn register_read<const N: usize>(
