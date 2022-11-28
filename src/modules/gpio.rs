@@ -1,5 +1,5 @@
 use super::{Modules, Reg};
-use crate::{error::SeesawError, DriverExt};
+use crate::DriverExt;
 use num_enum::IntoPrimitive;
 
 /// WO - 32 bits
@@ -105,7 +105,7 @@ pub enum InterruptMode {
 }
 
 pub trait GpioModule<D: crate::Driver>: crate::Device<D> {
-    fn digital_read(&mut self, pin: u8) -> Result<bool, SeesawError<D::I2cError>> {
+    fn digital_read(&mut self, pin: u8) -> Result<bool, crate::SeesawError<D::I2cError>> {
         self.digital_read_bulk()
             .map(|pins| match pins >> pin & 0x1 {
                 1 => false,
@@ -113,12 +113,18 @@ pub trait GpioModule<D: crate::Driver>: crate::Device<D> {
             })
     }
 
-    fn digital_read_bulk(&mut self) -> Result<u32, SeesawError<D::I2cError>> {
+    fn digital_read_bulk(&mut self) -> Result<u32, crate::SeesawError<D::I2cError>> {
         let addr = self.addr();
-        self.driver().read_u32(addr, GPIO).map_err(SeesawError::I2c)
+        self.driver()
+            .read_u32(addr, GPIO)
+            .map_err(crate::SeesawError::I2c)
     }
 
-    fn set_pin_mode(&mut self, pin: u8, mode: PinMode) -> Result<(), SeesawError<D::I2cError>> {
+    fn set_pin_mode(
+        &mut self,
+        pin: u8,
+        mode: PinMode,
+    ) -> Result<(), crate::SeesawError<D::I2cError>> {
         self.set_pin_mode_bulk(1 << pin, mode)
     }
 
@@ -126,7 +132,7 @@ pub trait GpioModule<D: crate::Driver>: crate::Device<D> {
         &mut self,
         pins: u32,
         mode: PinMode,
-    ) -> Result<(), SeesawError<D::I2cError>> {
+    ) -> Result<(), crate::SeesawError<D::I2cError>> {
         let addr = self.addr();
         let bus = self.driver();
 
@@ -143,6 +149,6 @@ pub trait GpioModule<D: crate::Driver>: crate::Device<D> {
                 .and_then(|_| bus.write_u32(addr, SET_LOW, pins)),
             _ => unimplemented!("Other pins modes are not supported."),
         }
-        .map_err(SeesawError::I2c)
+        .map_err(crate::SeesawError::I2c)
     }
 }
