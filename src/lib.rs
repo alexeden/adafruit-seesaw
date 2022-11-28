@@ -2,12 +2,13 @@
 #![allow(incomplete_features, const_evaluatable_unchecked)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
 mod bus;
+pub(crate) mod device;
+pub(crate) use device::*;
 pub mod devices;
 mod driver;
 mod error;
 pub mod modules;
 use bus::{Bus, BusProxy};
-use devices::Device;
 pub use driver::*;
 use embedded_hal::blocking::{delay, i2c};
 pub use error::SeesawError;
@@ -37,12 +38,9 @@ where
         }
     }
 
-    fn driver<'a>(&'a self) -> BusProxy<'a, M> {
-        BusProxy { mutex: &self.mutex }
-    }
-
     pub fn connect<'a, D: Device<BusProxy<'a, M>>>(&'a self, addr: u8) -> D {
-        D::create(addr, self.driver())
+        let driver = BusProxy { mutex: &self.mutex };
+        D::create(addr, driver)
     }
 }
 
