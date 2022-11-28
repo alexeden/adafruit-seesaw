@@ -1,9 +1,6 @@
 #![no_std]
 #![no_main]
-use adafruit_seesaw::{
-    devices::{GenericDevice, StatusModule},
-    SeesawSingleThread,
-};
+use adafruit_seesaw::{devices::GenericDevice, prelude::*, SeesawSingleThread};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{

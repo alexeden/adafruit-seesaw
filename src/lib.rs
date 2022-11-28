@@ -11,10 +11,11 @@ use devices::Device;
 pub use driver::*;
 use embedded_hal::blocking::{delay, i2c};
 pub use error::SeesawError;
+pub use modules::*;
 use shared_bus::{BusMutex, NullMutex};
 
 pub mod prelude {
-    pub use super::driver::DriverExt;
+    pub use super::{driver::DriverExt, modules::*};
 }
 
 const DELAY_TIME: u32 = 125;

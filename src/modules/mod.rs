@@ -1,12 +1,15 @@
-// // pub mod encoder;
-// // pub mod gpio;
-// // pub mod neopixel;
-// mod status;
-// pub use status::*;
+mod encoder;
+mod gpio;
+mod neopixel;
+mod status;
+pub use encoder::*;
+pub use gpio::*;
+pub use neopixel::*;
+pub use status::*;
 
-// pub type Reg = [u8; 2];
+pub type Reg = [u8; 2];
 
-// pub const SEESAW_HW_ID: u8 = 0x55;
+pub const SEESAW_HW_ID: u8 = 0x55;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Modules {
