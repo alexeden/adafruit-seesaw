@@ -1,13 +1,14 @@
-use crate::{device::Connect, seesaw_device};
-use embedded_hal::blocking::{delay, i2c};
+use crate::{device::Connect, seesaw_device, StatusModule};
 
 seesaw_device!(GenericDevice, StatusModule);
 
-impl<D, E> Connect<D, E> for GenericDevice<D>
+impl<D> Connect<D> for GenericDevice<D>
 where
     D: crate::Driver,
 {
-    fn connect(self) -> Result<Self, crate::SeesawError<E>> {
-        todo!()
+    type Error = crate::SeesawError<D::I2cError>;
+
+    fn connect(mut self) -> Result<Self, Self::Error> {
+        self.reset().map(|_| self)
     }
 }

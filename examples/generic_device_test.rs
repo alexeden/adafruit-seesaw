@@ -26,10 +26,13 @@ fn main() -> ! {
     let bus = shared_bus::BusManagerSimple::new(i2c);
     let seesaw = SeesawSingleThread::new(delay, bus.acquire_i2c());
     let mut device = seesaw
-        .connect::<GenericDevice<_>, _>(0x30)
+        .connect::<GenericDevice<_>>(0x30)
         .expect("Failed to connect");
     let id = device.hardware_id().expect("Failed to get hardware id");
     rprintln!("{:?}", id);
+    let mut device2 = seesaw
+        .connect_with::<GenericDevice<_>, _, _>(0x30, |d| Ok(d))
+        .expect("Failed to connect");
     // let _generic_device = GenericDevice::connect(bus.acquire_i2c(), delay, 0x30)
     //     .expect("Failed to connect generic device");
     // let _generic_device2 = GenericDevice::connect(bus.acquire_i2c(), delay,

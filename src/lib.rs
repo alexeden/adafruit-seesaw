@@ -1,5 +1,5 @@
 #![no_std]
-#![allow(incomplete_features, const_evaluatable_unchecked)]
+#![allow(const_evaluatable_unchecked, incomplete_features)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
 use embedded_hal::blocking::{delay, i2c};
 use shared_bus::{BusMutex, NullMutex};
@@ -14,14 +14,12 @@ use bus::{Bus, BusProxy};
 pub use driver::*;
 pub use error::SeesawError;
 pub use modules::*;
-
 pub mod prelude {
     pub use super::{driver::DriverExt, modules::*};
 }
 
 const DELAY_TIME: u32 = 125;
 
-#[derive(Debug)]
 pub struct Seesaw<M> {
     mutex: M,
 }
@@ -38,14 +36,19 @@ where
         }
     }
 
-    pub fn connect<'a, E, D: Connect<BusProxy<'a, M>, E>>(
+    pub fn connect<'a, D: Connect<BusProxy<'a, M>>>(&'a self, addr: u8) -> Result<D, D::Error> {
+        let driver = BusProxy { mutex: &self.mutex };
+        D::new(addr, driver).connect()
+    }
+
+    pub fn connect_with<'a, D: Device<BusProxy<'a, M>>, E, F: FnMut(D) -> Result<D, E>>(
         &'a self,
         addr: u8,
-    ) -> Result<D, crate::SeesawError<E>> {
+        mut f: F,
+    ) -> Result<D, E> {
         let driver = BusProxy { mutex: &self.mutex };
-        let device = D::create(addr, driver);
-        device.connect()
-        // D::connect(addr, driver)
+        let device = D::new(addr, driver);
+        f(device)
     }
 }
 

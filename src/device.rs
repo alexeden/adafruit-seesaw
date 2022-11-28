@@ -3,17 +3,19 @@ use embedded_hal::blocking::{delay, i2c};
 pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>> {
     fn addr(&self) -> u8;
 
-    fn create(addr: u8, driver: D) -> Self;
-
     fn driver<'a>(&'a mut self) -> &'a mut D;
+
+    fn new(addr: u8, driver: D) -> Self;
 }
 
-pub trait Connect<D, E>: Device<D>
+pub trait Connect<D>: Device<D>
 where
     D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>,
     Self: Sized,
 {
-    fn connect(self) -> Result<Self, crate::SeesawError<E>>;
+    type Error;
+
+    fn connect(self) -> Result<Self, Self::Error>;
 }
 
 impl<T, D> crate::StatusModule<D> for T
@@ -34,7 +36,7 @@ macro_rules! seesaw_device {
                 self.0
             }
 
-            fn create(addr: u8, driver: D) -> Self {
+            fn new(addr: u8, driver: D) -> Self {
                 Self(addr, driver)
             }
 
