@@ -46,10 +46,9 @@ where
     }
 }
 
-impl<'a, M> i2c::WriteRead for DriverProxy<'a, M>
+impl<'a, M: BusMutex> i2c::WriteRead for DriverProxy<'a, M>
 where
     M::Bus: i2c::WriteRead,
-    M: BusMutex,
 {
     type Error = <M::Bus as i2c::WriteRead>::Error;
 

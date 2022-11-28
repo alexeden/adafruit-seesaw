@@ -7,6 +7,8 @@ mod driver;
 mod error;
 mod modules;
 pub use bus::*;
+use devices::Device;
+use driver::DriverProxy;
 use embedded_hal::blocking::{delay, i2c};
 pub use error::SeesawError;
 use shared_bus::{BusMutex, NullMutex};
@@ -31,6 +33,15 @@ where
             mutex: M::create(bus),
         }
     }
+
+    pub fn driver<'a>(&'a self) -> DriverProxy<'a, M> {
+        DriverProxy { mutex: &self.mutex }
+    }
+
+    pub fn connect<D: Device>(&self, addr: u8) -> D {
+        let driver = self.driver();
+        D::begin(addr, driver)
+    }
 }
 
 pub type SeesawSingleThread<BUS> = Seesaw<NullMutex<BUS>>;
@@ -38,9 +49,9 @@ pub type SeesawSingleThread<BUS> = Seesaw<NullMutex<BUS>>;
 #[derive(Debug)]
 pub struct SeesawBus<DELAY, I2C>(DELAY, I2C);
 
-impl<DELAY: DelayBus, I2C: I2cBus> SeesawBus<DELAY, I2C>
+impl<DELAY, I2C: I2cBus> SeesawBus<DELAY, I2C>
 where
-    DELAY: DelayBus,
+    DELAY: delay::DelayUs<u32>,
     I2C: I2cBus,
 {
     pub fn new(delay: DELAY, i2c: I2C) -> Self {

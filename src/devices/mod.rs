@@ -3,6 +3,15 @@
 // mod generic_device;
 // pub use generic_device::*;
 
+use crate::Driver;
+// use shared_bus::BusMutex;
+
+pub trait Device {
+    fn addr(&self) -> u8;
+
+    fn begin<D: Driver>(addr: u8, driver: D) -> Self;
+}
+
 // pub trait Connect<I2C: crate::I2cBus, DELAY: crate::DelayBus>
 // where
 //     Self: Sized,

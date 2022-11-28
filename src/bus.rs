@@ -3,8 +3,20 @@ use embedded_hal::blocking::{delay, i2c};
 pub type Reg = [u8; 2];
 
 //
-pub trait Driver: DelayBus + I2cBus {}
-impl<T: I2cBus + DelayBus> Driver for T {}
+pub trait Driver: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32> {
+    type I2cError: From<<Self as i2c::Write>::Error>
+        + From<<Self as i2c::WriteRead>::Error>
+        + From<<Self as i2c::Read>::Error>;
+}
+impl<T, E> Driver for T
+where
+    T: i2c::Write<Error = E>
+        + i2c::WriteRead<Error = E>
+        + i2c::Read<Error = E>
+        + delay::DelayUs<u32>,
+{
+    type I2cError = E;
+}
 
 // Blanket trait for types that implements an I2C bus
 pub trait I2cBus: i2c::Write + i2c::WriteRead + i2c::Read {
@@ -19,10 +31,6 @@ where
 {
     type I2cError = E;
 }
-
-// Blanket trait & impl for delay
-pub trait DelayBus: delay::DelayUs<u32> {}
-impl<T> DelayBus for T where T: delay::DelayUs<u32> {}
 
 pub trait BusExt {
     type Error;
