@@ -6,7 +6,7 @@ use embedded_hal::blocking::{delay, i2c};
 // use shared_bus::BusMutex;
 // mod generic_device;
 // pub use generic_device::*;
-use crate::{driver::DriverProxy, BusExt, Driver, SeesawError};
+use crate::{proxy::DriverProxy, BusExt, Driver, SeesawError};
 use shared_bus::BusMutex;
 // use shared_bus::BusMutex;
 

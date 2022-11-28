@@ -6,13 +6,14 @@ pub mod devices;
 mod driver;
 mod error;
 pub mod modules;
+mod proxy;
 use core::ops::{Deref, DerefMut};
 
 pub use bus::*;
 use devices::{Device, GenericDevice};
-use driver::DriverProxy;
 use embedded_hal::blocking::{delay, i2c};
 pub use error::SeesawError;
+use proxy::DriverProxy;
 use shared_bus::{BusMutex, NullMutex};
 
 pub mod prelude {
