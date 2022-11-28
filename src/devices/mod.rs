@@ -10,7 +10,6 @@ use crate::{driver::DriverProxy, BusExt, Driver, SeesawError};
 use shared_bus::BusMutex;
 // use shared_bus::BusMutex;
 
-// pub trait Device {
 pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>> {
     fn addr(&self) -> u8;
 
@@ -32,7 +31,7 @@ impl<D: Driver> Device<D> for GenericDevice<D> {
     }
 
     fn driver<'a>(&'a mut self) -> &'a mut D {
-        self.1.borrow_mut()
+        &mut self.1
     }
 }
 

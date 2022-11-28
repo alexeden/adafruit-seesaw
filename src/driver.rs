@@ -8,17 +8,6 @@ pub struct DriverProxy<'a, M> {
     pub(crate) mutex: &'a M,
 }
 
-impl<'a, M, E> Driver for DriverProxy<'a, M>
-where
-    M: BusMutex,
-    M::Bus: i2c::Write<Error = E>
-        + i2c::WriteRead<Error = E>
-        + i2c::Read<Error = E>
-        + delay::DelayUs<u32>,
-{
-    type I2cError = E;
-}
-
 // Clone implementation
 impl<'a, M: BusMutex> Clone for DriverProxy<'a, M> {
     fn clone(&self) -> Self {

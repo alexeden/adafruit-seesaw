@@ -51,11 +51,7 @@ where
     I2C: i2c::Write + i2c::WriteRead + i2c::Read,
     M: BusMutex<Bus = SeesawBus<DELAY, I2C>>,
 {
-    pub fn new(delay: DELAY, i2c: I2C) -> Self
-    where
-        DELAY: delay::DelayUs<u32>,
-        I2C: i2c::Write + i2c::WriteRead + i2c::Read,
-    {
+    pub fn new(delay: DELAY, i2c: I2C) -> Self {
         Self::create(SeesawBus(delay, i2c))
     }
 }
@@ -64,16 +60,6 @@ pub type SeesawSingleThread<BUS> = Seesaw<NullMutex<BUS>>;
 
 #[derive(Debug)]
 pub struct SeesawBus<DELAY, I2C>(DELAY, I2C);
-
-impl<DELAY, I2C: I2cBus> SeesawBus<DELAY, I2C>
-where
-    DELAY: delay::DelayUs<u32>,
-    I2C: i2c::Write + i2c::WriteRead + i2c::Read,
-{
-    pub fn new(delay: DELAY, i2c: I2C) -> Self {
-        Self(delay, i2c)
-    }
-}
 
 impl<DELAY, I2C> delay::DelayUs<u32> for SeesawBus<DELAY, I2C>
 where
