@@ -42,6 +42,7 @@ where
     ) -> Result<Self, SeesawError<I2C::I2cError>> {
         let bus = SeesawBus::new(i2c, delay);
         let device = Self(addr, bus);
+        // device.reset()
         Ok(device)
     }
 }

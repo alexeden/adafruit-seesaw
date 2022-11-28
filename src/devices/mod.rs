@@ -22,3 +22,15 @@ where
     fn addr(&self) -> u8;
     fn bus<'a>(&'a self) -> &'a M;
 }
+
+// impl<SSD, D, M> StatusModule<D, M> for SSD
+// where
+//     SSD: SeesawDevice<D, M>,
+//     //  + Connect<I2C, DELAY>,
+//     // Self: Driver,
+//     D: crate::Driver,
+//     M: BusMutex<Bus = D>,
+//     // I2C: I2cBus,
+//     // DELAY: DelayBus,
+// {
+// }
