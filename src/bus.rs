@@ -4,6 +4,7 @@ pub type Reg = [u8; 2];
 
 //
 pub trait Driver: DelayBus + I2cBus {}
+impl<T: I2cBus + DelayBus> Driver for T {}
 
 // Blanket trait for types that implements an I2C bus
 pub trait I2cBus: i2c::Write + i2c::WriteRead + i2c::Read {
