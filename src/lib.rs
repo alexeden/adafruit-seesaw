@@ -6,15 +6,15 @@ pub mod devices;
 mod driver;
 mod error;
 pub mod modules;
-pub use bus::*;
+use bus::{Bus, BusProxy};
 use devices::Device;
-use driver::{Bus, DriverProxy};
+pub use driver::*;
 use embedded_hal::blocking::{delay, i2c};
 pub use error::SeesawError;
 use shared_bus::{BusMutex, NullMutex};
 
 pub mod prelude {
-    pub use super::bus::BusExt;
+    pub use super::driver::DriverExt;
 }
 
 const DELAY_TIME: u32 = 125;
@@ -22,11 +22,6 @@ const DELAY_TIME: u32 = 125;
 #[derive(Debug)]
 pub struct Seesaw<M> {
     mutex: M,
-}
-
-impl<M: BusMutex> Seesaw<M> where
-    M::Bus: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>
-{
 }
 
 impl<DELAY, I2C, M> Seesaw<M>
@@ -41,11 +36,11 @@ where
         }
     }
 
-    fn driver<'a>(&'a self) -> DriverProxy<'a, M> {
-        DriverProxy { mutex: &self.mutex }
+    fn driver<'a>(&'a self) -> BusProxy<'a, M> {
+        BusProxy { mutex: &self.mutex }
     }
 
-    pub fn connect<'a, D: Device<DriverProxy<'a, M>>>(&'a self, addr: u8) -> D {
+    pub fn connect<'a, D: Device<BusProxy<'a, M>>>(&'a self, addr: u8) -> D {
         D::create(addr, self.driver())
     }
 }

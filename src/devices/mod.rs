@@ -1,10 +1,9 @@
-use crate::modules::Modules;
+use crate::{modules::Modules, DriverExt};
 use embedded_hal::blocking::{delay, i2c};
 // use embedded_hal::blocking::i2c;
 // use shared_bus::BusMutex;
 // mod generic_device;
 // pub use generic_device::*;
-use crate::{BusExt, Driver, SeesawError};
 // use shared_bus::BusMutex;
 
 pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>> {
@@ -15,32 +14,54 @@ pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32
     fn driver<'a>(&'a mut self) -> &'a mut D;
 }
 
-#[derive(Debug)]
-pub struct GenericDevice<M>(u8, M);
+macro_rules! seesaw_device {
+    ($device:ident) => {
+        #[derive(Debug)]
+        pub struct $device<M>(u8, M);
 
-impl<D: Driver> Device<D> for GenericDevice<D> {
-    fn addr(&self) -> u8 {
-        self.0
-    }
+        impl<D: crate::Driver> Device<D> for $device<D> {
+            fn addr(&self) -> u8 {
+                self.0
+            }
 
-    fn create(addr: u8, driver: D) -> Self {
-        Self(addr, driver)
-    }
+            fn create(addr: u8, driver: D) -> Self {
+                Self(addr, driver)
+            }
 
-    fn driver<'a>(&'a mut self) -> &'a mut D {
-        &mut self.1
-    }
+            fn driver<'a>(&'a mut self) -> &'a mut D {
+                &mut self.1
+            }
+        }
+    };
 }
+
+// #[derive(Debug)]
+// pub struct GenericDevice<M>(u8, M);
+seesaw_device!(GenericDevice);
+
+// impl<D: crate::Driver> Device<D> for GenericDevice<D> {
+//     fn addr(&self) -> u8 {
+//         self.0
+//     }
+
+//     fn create(addr: u8, driver: D) -> Self {
+//         Self(addr, driver)
+//     }
+
+//     fn driver<'a>(&'a mut self) -> &'a mut D {
+//         &mut self.1
+//     }
+// }
 
 pub trait StatusModule<D>: Device<D>
 where
     D: crate::Driver,
 {
-    fn hardware_id(&mut self) -> Result<u8, SeesawError<<D>::I2cError>> {
+    fn hardware_id(&mut self) -> Result<u8, crate::SeesawError<<D>::I2cError>> {
         let addr = self.addr();
         self.driver()
             .read_u8(addr, &[Modules::Status.into(), 0x01])
-            .map_err(SeesawError::I2c)
+            .map_err(crate::SeesawError::I2c)
     }
 }
 
