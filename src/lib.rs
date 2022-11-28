@@ -17,15 +17,9 @@ pub use modules::*;
 const DELAY_TIME: u32 = 125;
 
 #[derive(Debug)]
-pub struct Seesaw<M>(M);
-
-#[derive(Debug)]
 pub struct SeesawBus<I2C, DELAY> {
     bus: cell::RefCell<SeesawDriver<I2C, DELAY>>,
 }
-
-#[derive(Debug)]
-pub struct SeesawDriver<I2C, DELAY>(I2C, DELAY);
 
 impl<I2C, DELAY> shared_bus::BusMutex for SeesawBus<I2C, DELAY>
 where
@@ -57,6 +51,9 @@ where
         }
     }
 }
+
+#[derive(Debug)]
+pub struct SeesawDriver<I2C, DELAY>(I2C, DELAY);
 
 impl<I2C, DELAY> SeesawDriver<I2C, DELAY>
 where
