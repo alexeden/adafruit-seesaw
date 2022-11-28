@@ -1,15 +1,15 @@
 #![no_std]
 #![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
-#![feature(generic_const_exprs)]
-use bus::{DelayBus, I2cBus};
+#![feature(const_convert, const_trait_impl, generic_const_exprs)]
 use core::cell;
 use embedded_hal::blocking::{delay, i2c};
 pub mod bus;
-pub use error::SeesawError;
-use modules::Reg;
 pub mod devices;
 pub mod error;
 mod modules;
+pub(crate) use bus::*;
+pub use error::SeesawError;
+use modules::Reg;
 
 // Exports
 pub use modules::*;

@@ -1,4 +1,4 @@
-use super::{Addressable, Connect, Device};
+use super::{Connect, SeesawDevice};
 use crate::{
     bus::{DelayBus, I2cBus},
     modules::StatusModule,
@@ -9,25 +9,23 @@ use shared_bus::BusMutex;
 
 pub struct GenericDevice<M>(i2c::SevenBitAddress, M);
 
-impl<D, M> Device<M::Bus, M> for GenericDevice<M>
+impl<D, M> SeesawDevice<M::Bus, M> for GenericDevice<M>
 where
-    D: I2cBus + DelayBus,
+    D: crate::Driver,
     M: BusMutex<Bus = D>,
 {
+    fn addr(&self) -> u8 {
+        self.0.into()
+    }
+
     fn bus<'a>(&'a self) -> &'a M {
         &self.1
     }
 }
 
-impl<B> Addressable for GenericDevice<B> {
-    fn addr(&self) -> i2c::SevenBitAddress {
-        self.0
-    }
-}
-
 impl<D, M> StatusModule<M::Bus, M> for GenericDevice<M>
 where
-    D: I2cBus + DelayBus,
+    D: crate::Driver,
     M: BusMutex<Bus = D>,
 {
 }

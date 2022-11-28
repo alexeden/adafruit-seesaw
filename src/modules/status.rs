@@ -1,25 +1,17 @@
-use super::{
-    Reg, ADC_MODULE_ID, DAC_MODULE_ID, DAP_MODULE_ID, EEPROM_MODULE_ID, ENCODER_MODULE_ID,
-    GPIO_MODULE_ID, INTERRUPT_MODULE_ID, KEYPAD_MODULE_ID, NEOPIXEL_MODULE_ID, SEESAW_HW_ID,
-    SERCOM0_MODULE_ID, SPECTRUM_MODULE_ID, STATUS_MODULE_ID, TOUCH_MODULE_ID,
-};
-use crate::{
-    bus::{DelayBus, I2cBus, I2cExt},
-    devices::{Addressable, Device},
-    error::SeesawError,
-};
+use super::{Modules, Reg, SEESAW_HW_ID};
+use crate::{bus::*, devices::SeesawDevice, error::SeesawError};
 use shared_bus::BusMutex;
 
-const STATUS_HW_ID: &Reg = &[STATUS_MODULE_ID, 0x01];
-const STATUS_VERSION: &Reg = &[STATUS_MODULE_ID, 0x02];
-const STATUS_OPTIONS: &Reg = &[STATUS_MODULE_ID, 0x03];
-const STATUS_TEMP: &Reg = &[STATUS_MODULE_ID, 0x04];
-const STATUS_SWRST: &Reg = &[STATUS_MODULE_ID, 0x7F];
+const STATUS_HW_ID: &Reg = &[Modules::Status.into(), 0x01];
+const STATUS_VERSION: &Reg = &[Modules::Status.into(), 0x02];
+const STATUS_OPTIONS: &Reg = &[Modules::Status.into(), 0x03];
+const STATUS_TEMP: &Reg = &[Modules::Status.into(), 0x04];
+const STATUS_SWRST: &Reg = &[Modules::Status.into(), 0x7F];
 
-pub trait StatusModule<D, M>: Addressable + Device<D, M>
+pub trait StatusModule<D, M>: SeesawDevice<D, M>
 where
     M: BusMutex<Bus = D>,
-    D: I2cBus + DelayBus,
+    D: crate::Driver,
 {
     fn reset_and_begin(&mut self) -> Result<(), SeesawError<<D as I2cBus>::I2cError>> {
         self.reset()?;
@@ -102,20 +94,20 @@ pub struct DeviceCapabilities {
 impl From<u32> for DeviceCapabilities {
     fn from(value: u32) -> Self {
         DeviceCapabilities {
-            adc: value >> ADC_MODULE_ID & 1 == 1,
-            dac: value >> DAC_MODULE_ID & 1 == 1,
-            dap: value >> DAP_MODULE_ID & 1 == 1,
-            eeprom: value >> EEPROM_MODULE_ID & 1 == 1,
-            encoder: value >> ENCODER_MODULE_ID & 1 == 1,
-            gpio: value >> GPIO_MODULE_ID & 1 == 1,
-            interrupt: value >> INTERRUPT_MODULE_ID & 1 == 1,
-            keypad: value >> KEYPAD_MODULE_ID & 1 == 1,
-            neopixel: value >> NEOPIXEL_MODULE_ID & 1 == 1,
-            sercom0: value >> SERCOM0_MODULE_ID & 1 == 1,
-            spectrum: value >> SPECTRUM_MODULE_ID & 1 == 1,
-            status: value >> STATUS_MODULE_ID & 1 == 1,
-            timer: value >> STATUS_MODULE_ID & 1 == 1,
-            touch: value >> TOUCH_MODULE_ID & 1 == 1,
+            adc: value >> Modules::Adc as u8 & 1 == 1,
+            dac: value >> Modules::Dac as u8 & 1 == 1,
+            dap: value >> Modules::Dap as u8 & 1 == 1,
+            eeprom: value >> Modules::Eeprom as u8 & 1 == 1,
+            encoder: value >> Modules::Encoder as u8 & 1 == 1,
+            gpio: value >> Modules::Gpio as u8 & 1 == 1,
+            interrupt: value >> Modules::Interrupt as u8 & 1 == 1,
+            keypad: value >> Modules::Keypad as u8 & 1 == 1,
+            neopixel: value >> Modules::Neopixel as u8 & 1 == 1,
+            sercom0: value >> Modules::Sercom0 as u8 & 1 == 1,
+            spectrum: value >> Modules::Spectrum as u8 & 1 == 1,
+            status: value >> Modules::Status as u8 & 1 == 1,
+            timer: value >> Modules::Status as u8 & 1 == 1,
+            touch: value >> Modules::Touch as u8 & 1 == 1,
         }
     }
 }
