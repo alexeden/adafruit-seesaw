@@ -31,8 +31,10 @@ fn main() -> ! {
     let id = device.hardware_id().expect("Failed to get hardware id");
     rprintln!("{:?}", id);
     let mut device2 = seesaw
-        .connect_with::<GenericDevice<_>, _, _>(0x30, |d| Ok(d))
+        .connect_with::<GenericDevice<_>, _>(0x30, |mut d| d.reset().map(|_| d))
         .expect("Failed to connect");
+    let id2 = device2.hardware_id().expect("Failed to get hardware id");
+    rprintln!("{:?}", id2);
     // let _generic_device = GenericDevice::connect(bus.acquire_i2c(), delay, 0x30)
     //     .expect("Failed to connect generic device");
     // let _generic_device2 = GenericDevice::connect(bus.acquire_i2c(), delay,

@@ -1,20 +1,22 @@
 use embedded_hal::blocking::{delay, i2c};
 
-pub trait Driver: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32> {
+/// Blanket trait for something that implements I2C bus operations, with a
+/// combined Error associated type
+pub trait I2cDriver: i2c::Write + i2c::WriteRead + i2c::Read {
     type I2cError: From<<Self as i2c::Write>::Error>
         + From<<Self as i2c::WriteRead>::Error>
         + From<<Self as i2c::Read>::Error>;
 }
 
-impl<T, E> Driver for T
+impl<T, E> I2cDriver for T
 where
-    T: i2c::Write<Error = E>
-        + i2c::WriteRead<Error = E>
-        + i2c::Read<Error = E>
-        + delay::DelayUs<u32>,
+    T: i2c::Write<Error = E> + i2c::WriteRead<Error = E> + i2c::Read<Error = E>,
 {
     type I2cError = E;
 }
+
+pub trait Driver: I2cDriver + delay::DelayUs<u32> {}
+impl<T> Driver for T where T: I2cDriver + delay::DelayUs<u32> {}
 
 pub trait DriverExt {
     type Error;

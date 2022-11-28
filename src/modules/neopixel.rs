@@ -1,5 +1,7 @@
-use super::{Modules, Reg};
-use crate::DriverExt;
+use crate::{
+    common::{Modules, NeopixelSpeed, Reg},
+    DriverExt,
+};
 
 /// WO - 8 bits
 /// Not documented.
@@ -24,14 +26,6 @@ pub const SET_BUF: &Reg = &[Modules::Neopixel.into(), 0x04];
 /// Sending the SHOW command will cause the output to update. There's no
 /// arguments/data after the command.
 pub const SHOW: &Reg = &[Modules::Neopixel.into(), 0x05];
-
-/// The Neopixel protocol speed
-#[derive(Debug, Default)]
-pub enum NeopixelSpeed {
-    Khz400 = 0,
-    #[default]
-    Khz800 = 1,
-}
 
 pub trait NeopixelModule<D: crate::Driver>: crate::Device<D> {
     const PIN: u8;

@@ -1,6 +1,7 @@
-use super::{Modules, Reg};
-use crate::DriverExt;
-use num_enum::IntoPrimitive;
+use crate::{
+    common::{Modules, Reg},
+    DriverExt,
+};
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register sets the direction of the
@@ -70,40 +71,6 @@ const PULL_ENABLE: &Reg = &[Modules::Gpio.into(), 0x0B];
 #[allow(dead_code)]
 const PULL_DISABLE: &Reg = &[Modules::Gpio.into(), 0x0C];
 
-#[derive(Clone, Copy, Debug, IntoPrimitive)]
-#[repr(u8)]
-pub enum PinMode {
-    Input = 0x01,
-    Output = 0x02,
-    Pullup = 0x04,
-    InputPullup = 0x05,
-    Pulldown = 0x08,
-    InputPulldown = 0x09,
-    OpenDrain = 0x10,
-    OutputOpenDrain = 0x12,
-    Special = 0xF0,
-    Function1 = 0x00,
-    Function2 = 0x20,
-    Function3 = 0x40,
-    Function4 = 0x60,
-    Function5 = 0x80,
-    Function6 = 0xA0,
-    Analog = 0xC0,
-}
-
-#[derive(Clone, Copy, Debug, IntoPrimitive)]
-#[repr(u8)]
-pub enum InterruptMode {
-    Disabled = 0x00,
-    Rising = 0x01,
-    Falling = 0x02,
-    Change = 0x03,
-    Onlow = 0x04,
-    Onhigh = 0x05,
-    OnlowWe = 0x0C,
-    OnhighWe = 0x0D,
-}
-
 pub trait GpioModule<D: crate::Driver>: crate::Device<D> {
     fn digital_read(&mut self, pin: u8) -> Result<bool, crate::SeesawError<D::I2cError>> {
         self.digital_read_bulk()
@@ -150,5 +117,51 @@ pub trait GpioModule<D: crate::Driver>: crate::Device<D> {
             _ => unimplemented!("Other pins modes are not supported."),
         }
         .map_err(crate::SeesawError::I2c)
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+#[repr(u8)]
+pub enum PinMode {
+    Input = 0x01,
+    Output = 0x02,
+    Pullup = 0x04,
+    InputPullup = 0x05,
+    Pulldown = 0x08,
+    InputPulldown = 0x09,
+    OpenDrain = 0x10,
+    OutputOpenDrain = 0x12,
+    Special = 0xF0,
+    Function1 = 0x00,
+    Function2 = 0x20,
+    Function3 = 0x40,
+    Function4 = 0x60,
+    Function5 = 0x80,
+    Function6 = 0xA0,
+    Analog = 0xC0,
+}
+
+impl const From<PinMode> for u8 {
+    fn from(value: PinMode) -> Self {
+        value as u8
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+#[repr(u8)]
+pub enum InterruptMode {
+    Disabled = 0x00,
+    Rising = 0x01,
+    Falling = 0x02,
+    Change = 0x03,
+    Onlow = 0x04,
+    Onhigh = 0x05,
+    OnlowWe = 0x0C,
+    OnhighWe = 0x0D,
+}
+
+impl const From<InterruptMode> for u8 {
+    fn from(value: InterruptMode) -> Self {
+        value as u8
     }
 }

@@ -13,7 +13,7 @@ pub struct Bus<DELAY, I2C>(pub(crate) DELAY, pub(crate) I2C);
 impl<'a, DELAY, I2C, M> Clone for BusProxy<'a, M>
 where
     DELAY: delay::DelayUs<u32>,
-    I2C: i2c::Write + i2c::WriteRead + i2c::Read,
+    I2C: crate::I2cDriver,
     M: BusMutex<Bus = Bus<DELAY, I2C>>,
 {
     fn clone(&self) -> Self {
@@ -25,7 +25,7 @@ where
 impl<'a, DELAY, I2C, M> delay::DelayUs<u32> for BusProxy<'a, M>
 where
     DELAY: delay::DelayUs<u32>,
-    I2C: i2c::Write + i2c::WriteRead + i2c::Read,
+    I2C: crate::I2cDriver,
     M: BusMutex<Bus = Bus<DELAY, I2C>>,
 {
     fn delay_us(&mut self, us: u32) {
@@ -37,36 +37,40 @@ where
 impl<'a, DELAY, I2C, M> i2c::Write for BusProxy<'a, M>
 where
     DELAY: delay::DelayUs<u32>,
-    I2C: i2c::Write + i2c::WriteRead + i2c::Read,
+    I2C: crate::I2cDriver,
     M: BusMutex<Bus = Bus<DELAY, I2C>>,
 {
-    type Error = <I2C as i2c::Write>::Error;
+    type Error = I2C::I2cError;
 
     fn write(&mut self, addr: u8, buffer: &[u8]) -> Result<(), Self::Error> {
-        self.mutex.lock(|bus| bus.1.write(addr, buffer))
+        self.mutex
+            .lock(|bus| bus.1.write(addr, buffer))
+            .map_err(|err| err.into())
     }
 }
 
 impl<'a, DELAY, I2C, M> i2c::Read for BusProxy<'a, M>
 where
     DELAY: delay::DelayUs<u32>,
-    I2C: i2c::Write + i2c::WriteRead + i2c::Read,
+    I2C: crate::I2cDriver,
     M: BusMutex<Bus = Bus<DELAY, I2C>>,
 {
-    type Error = <I2C as i2c::Read>::Error;
+    type Error = I2C::I2cError;
 
     fn read(&mut self, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
-        self.mutex.lock(|bus| bus.1.read(addr, buffer))
+        self.mutex
+            .lock(|bus| bus.1.read(addr, buffer))
+            .map_err(|err| err.into())
     }
 }
 
 impl<'a, DELAY, I2C, M> i2c::WriteRead for BusProxy<'a, M>
 where
     DELAY: delay::DelayUs<u32>,
-    I2C: i2c::Write + i2c::WriteRead + i2c::Read,
+    I2C: crate::I2cDriver,
     M: BusMutex<Bus = Bus<DELAY, I2C>>,
 {
-    type Error = <I2C as i2c::WriteRead>::Error;
+    type Error = I2C::I2cError;
 
     fn write_read(
         &mut self,
@@ -76,5 +80,6 @@ where
     ) -> Result<(), Self::Error> {
         self.mutex
             .lock(|bus| bus.1.write_read(addr, buffer_in, buffer_out))
+            .map_err(|err| err.into())
     }
 }

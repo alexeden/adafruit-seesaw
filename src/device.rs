@@ -1,6 +1,6 @@
-use embedded_hal::blocking::{delay, i2c};
+pub trait Device<D: crate::Driver> {
+    type Error;
 
-pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>> {
     fn addr(&self) -> u8;
 
     fn driver<'a>(&'a mut self) -> &'a mut D;
@@ -8,40 +8,41 @@ pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32
     fn new(addr: u8, driver: D) -> Self;
 }
 
-pub trait Connect<D>: Device<D>
+/// At startup, Seesaw devices typically have a unique set of initialization
+/// calls to be made. e.g. for a Neokey1x4, we're need to enable the on-board
+/// neopixel and also do some pin mode setting to get everything working.
+/// All devices implement `DeviceInit` with a set of sensible defaults. You can
+/// override the default initialization function with your own by calling
+/// `Seesaw::connect_with` instead of `Seesaw::connect`.
+pub trait DeviceInit<D: crate::Driver>: Device<D>
 where
-    D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>,
     Self: Sized,
 {
-    type Error;
-
-    fn connect(self) -> Result<Self, Self::Error>;
+    fn init(self) -> Result<Self, Self::Error>;
 }
 
-impl<T, D> crate::StatusModule<D> for T
-where
-    D: crate::Driver,
-    T: Device<D>,
-{
-}
+/// All devices implement the status module
+impl<D: crate::Driver, T: Device<D>> crate::StatusModule<D> for T {}
 
 #[macro_export]
 macro_rules! seesaw_device {
-    ($device:ident, $( $x:ty ),*) => {
+    ($device:ident) => {
         #[derive(Debug)]
         pub struct $device<M>(u8, M);
 
         impl<D: crate::Driver> $crate::device::Device<D> for $device<D> {
+            type Error = $crate::SeesawError<D::I2cError>;
+
             fn addr(&self) -> u8 {
                 self.0
             }
 
-            fn new(addr: u8, driver: D) -> Self {
-                Self(addr, driver)
-            }
-
             fn driver<'a>(&'a mut self) -> &'a mut D {
                 &mut self.1
+            }
+
+            fn new(addr: u8, driver: D) -> Self {
+                Self(addr, driver)
             }
         }
     };
