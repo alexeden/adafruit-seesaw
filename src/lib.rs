@@ -1,6 +1,8 @@
 #![no_std]
 #![allow(incomplete_features, const_evaluatable_unchecked)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
+use embedded_hal::blocking::{delay, i2c};
+use shared_bus::{BusMutex, NullMutex};
 mod bus;
 pub(crate) mod device;
 pub(crate) use device::*;
@@ -10,10 +12,8 @@ mod error;
 pub mod modules;
 use bus::{Bus, BusProxy};
 pub use driver::*;
-use embedded_hal::blocking::{delay, i2c};
 pub use error::SeesawError;
 pub use modules::*;
-use shared_bus::{BusMutex, NullMutex};
 
 pub mod prelude {
     pub use super::{driver::DriverExt, modules::*};
