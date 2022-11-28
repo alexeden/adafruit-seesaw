@@ -55,16 +55,6 @@ where
 #[derive(Debug)]
 pub struct SeesawDriver<I2C, DELAY>(I2C, DELAY);
 
-impl<I2C, DELAY> SeesawDriver<I2C, DELAY>
-where
-    DELAY: DelayBus,
-    I2C: I2cBus,
-{
-    pub fn new(bus: I2C, delay: DELAY) -> Self {
-        Self(bus, delay)
-    }
-}
-
 impl<I2C, DELAY> delay::DelayUs<u32> for SeesawDriver<I2C, DELAY>
 where
     DELAY: delay::DelayUs<u32>,

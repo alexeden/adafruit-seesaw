@@ -2,7 +2,7 @@ use super::{Connect, SeesawDevice};
 use crate::{
     bus::{DelayBus, I2cBus},
     modules::StatusModule,
-    SeesawBus, SeesawDriver, SeesawError,
+    SeesawBus, SeesawError,
 };
 use embedded_hal::blocking::i2c;
 use shared_bus::BusMutex;
@@ -40,7 +40,8 @@ where
         delay: DELAY,
         addr: i2c::SevenBitAddress,
     ) -> Result<Self, SeesawError<I2C::I2cError>> {
-        let device = Self(addr, SeesawBus::create(SeesawDriver::new(i2c, delay)));
+        let bus = SeesawBus::new(i2c, delay);
+        let device = Self(addr, bus);
         Ok(device)
     }
 }
