@@ -25,7 +25,9 @@ fn main() -> ! {
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let bus = shared_bus::BusManagerSimple::new(i2c);
     let seesaw = SeesawSingleThread::new(delay, bus.acquire_i2c());
-    let mut device = seesaw.connect::<GenericDevice<_>>(0x30);
+    let mut device = seesaw
+        .connect::<GenericDevice<_>, _>(0x30)
+        .expect("Failed to connect");
     let id = device.hardware_id().expect("Failed to get hardware id");
     rprintln!("{:?}", id);
     // let _generic_device = GenericDevice::connect(bus.acquire_i2c(), delay, 0x30)

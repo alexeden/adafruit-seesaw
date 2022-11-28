@@ -8,6 +8,14 @@ pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32
     fn driver<'a>(&'a mut self) -> &'a mut D;
 }
 
+pub trait Connect<D, E>: Device<D>
+where
+    D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>,
+    Self: Sized,
+{
+    fn connect(self) -> Result<Self, crate::SeesawError<E>>;
+}
+
 impl<T, D> crate::StatusModule<D> for T
 where
     D: crate::Driver,

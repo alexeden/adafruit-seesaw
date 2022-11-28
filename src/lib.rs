@@ -38,9 +38,14 @@ where
         }
     }
 
-    pub fn connect<'a, D: Device<BusProxy<'a, M>>>(&'a self, addr: u8) -> D {
+    pub fn connect<'a, E, D: Connect<BusProxy<'a, M>, E>>(
+        &'a self,
+        addr: u8,
+    ) -> Result<D, crate::SeesawError<E>> {
         let driver = BusProxy { mutex: &self.mutex };
-        D::create(addr, driver)
+        let device = D::create(addr, driver);
+        device.connect()
+        // D::connect(addr, driver)
     }
 }
 
