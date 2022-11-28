@@ -1,13 +1,10 @@
-use core::borrow::BorrowMut;
-
 use crate::modules::Modules;
 use embedded_hal::blocking::{delay, i2c};
 // use embedded_hal::blocking::i2c;
 // use shared_bus::BusMutex;
 // mod generic_device;
 // pub use generic_device::*;
-use crate::{proxy::DriverProxy, BusExt, Driver, SeesawError};
-use shared_bus::BusMutex;
+use crate::{BusExt, Driver, SeesawError};
 // use shared_bus::BusMutex;
 
 pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>> {

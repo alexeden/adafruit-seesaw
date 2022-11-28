@@ -1,4 +1,3 @@
-use crate::Driver;
 use embedded_hal::blocking::{delay, i2c};
 use shared_bus::BusMutex;
 
@@ -8,7 +7,7 @@ pub struct DriverProxy<'a, M> {
 }
 
 #[derive(Debug)]
-pub struct Bus<DELAY, I2C>(DELAY, I2C);
+pub struct Bus<DELAY, I2C>(pub(crate) DELAY, pub(crate) I2C);
 
 // Clone implementation
 impl<'a, DELAY, I2C, M> Clone for DriverProxy<'a, M>
