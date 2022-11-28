@@ -1,9 +1,6 @@
 #![no_std]
 #![no_main]
-use adafruit_seesaw::{
-    devices::{Connect, GenericDevice},
-    StatusModule,
-};
+use adafruit_seesaw::devices::{Connect, GenericDevice};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{
@@ -27,17 +24,17 @@ fn main() -> ! {
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let bus = shared_bus::BusManagerSimple::new(i2c);
-    let generic_device = GenericDevice::connect(bus.acquire_i2c(), delay, 0x30)
+    let _generic_device = GenericDevice::connect(bus.acquire_i2c(), delay, 0x30)
         .expect("Failed to connect generic device");
     // let _generic_device2 = GenericDevice::connect(bus.acquire_i2c(), delay,
     // 0x30);
 
-    rprintln!(
-        "Product info {:#?}",
-        generic_device
-            .product_info()
-            .expect("failed to get product info")
-    );
+    // rprintln!(
+    //     "Product info {:#?}",
+    //     generic_device
+    //         .product_info()
+    //         .expect("failed to get product info")
+    // );
     loop {}
 }
 
