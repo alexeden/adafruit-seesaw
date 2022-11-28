@@ -14,9 +14,9 @@ use shared_bus::BusMutex;
 pub trait Device<D: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>> {
     fn addr(&self) -> u8;
 
-    fn driver<'a>(&'a mut self) -> &'a mut D;
+    fn create(addr: u8, driver: D) -> Self;
 
-    fn begin(addr: u8, driver: D) -> Self;
+    fn driver<'a>(&'a mut self) -> &'a mut D;
 }
 
 #[derive(Debug)]
@@ -27,7 +27,7 @@ impl<D: Driver> Device<D> for GenericDevice<D> {
         self.0
     }
 
-    fn begin(addr: u8, driver: D) -> Self {
+    fn create(addr: u8, driver: D) -> Self {
         Self(addr, driver)
     }
 
@@ -46,6 +46,13 @@ where
             .read_u8(addr, &[Modules::Status.into(), 0x01])
             .map_err(SeesawError::I2c)
     }
+}
+
+impl<T, D> StatusModule<D> for T
+where
+    D: crate::Driver,
+    T: Device<D>,
+{
 }
 
 // impl<D: Driver> GenericDevice<D> {

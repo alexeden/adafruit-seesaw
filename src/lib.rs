@@ -6,6 +6,8 @@ pub mod devices;
 mod driver;
 mod error;
 pub mod modules;
+use core::ops::{Deref, DerefMut};
+
 pub use bus::*;
 use devices::{Device, GenericDevice};
 use driver::DriverProxy;
@@ -28,7 +30,7 @@ impl<M: BusMutex> Seesaw<M>
 where
     M::Bus: i2c::Write + i2c::WriteRead + i2c::Read + delay::DelayUs<u32>,
 {
-    pub fn new(bus: M::Bus) -> Self {
+    fn create(bus: M::Bus) -> Self {
         Seesaw {
             mutex: M::create(bus),
         }
@@ -39,7 +41,22 @@ where
     }
 
     pub fn connect<'a, D: Device<DriverProxy<'a, M>>>(&'a self, addr: u8) -> D {
-        D::begin(addr, self.driver())
+        D::create(addr, self.driver())
+    }
+}
+
+impl<DELAY, I2C, M> Seesaw<M>
+where
+    DELAY: delay::DelayUs<u32>,
+    I2C: i2c::Write + i2c::WriteRead + i2c::Read,
+    M: BusMutex<Bus = SeesawBus<DELAY, I2C>>,
+{
+    pub fn new(delay: DELAY, i2c: I2C) -> Self
+    where
+        DELAY: delay::DelayUs<u32>,
+        I2C: i2c::Write + i2c::WriteRead + i2c::Read,
+    {
+        Self::create(SeesawBus(delay, i2c))
     }
 }
 
