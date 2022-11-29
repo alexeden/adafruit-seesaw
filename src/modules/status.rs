@@ -1,5 +1,5 @@
 use crate::{
-    common::{DeviceCapabilities, Modules, ProductDateCode, Reg, SEESAW_HW_ID},
+    common::{DeviceCapabilities, Modules, ProductDateCode, Reg},
     device::Device,
     driver::Driver,
     DriverExt,
@@ -47,8 +47,9 @@ pub trait StatusModule<D: Driver>: Device<D> {
     }
 
     fn reset_and_verify_seesaw(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+        let hw_id = Self::HARDWARE_ID;
         self.reset().and_then(|_| match self.hardware_id() {
-            Ok(SEESAW_HW_ID) => Ok(()),
+            Ok(id) if id == hw_id => Ok(()),
             Ok(id) => Err(crate::SeesawError::InvalidHardwareId(id)),
             Err(e) => Err(e),
         })

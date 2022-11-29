@@ -1,6 +1,16 @@
 pub type Reg = [u8; 2];
 
-pub const SEESAW_HW_ID: u8 = 0x55;
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum HardwareId {
+    ATTINY817 = 0x87,
+    SAMD09 = 0x55,
+}
+
+impl const From<HardwareId> for u8 {
+    fn from(value: HardwareId) -> Self {
+        value as u8
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Modules {

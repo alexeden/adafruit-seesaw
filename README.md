@@ -1,6 +1,6 @@
 # adafruit-seesaw [WIP]
 
-Platform-agnostic driver to communicate with devices that implement the [Adafruit Seesaw firmware.](https://github.com/adafruit/Adafruit_Seesaw)
+Platform-agnostic driver to communicate with devices that implement the [Adafruit Seesaw firmware.](https://github.com/adafruit/Adafruit_Seesaw) [(guide)](https://learn.adafruit.com/adafruit-seesaw-atsamd09-breakout)
 
 ## TODOs
 
@@ -10,12 +10,12 @@ _Modules_
 
 | Seesaw Module | Implemented |
 | ------------- | ----------- |
-| Adc           | ⬜️         |
-| Dac           | ⬜️         |
-| Dap           | ⬜️         |
-| Eeprom        | ✅          |
+| ADC           | ⬜️         |
+| DAC           | ⬜️         |
+| DAP           | ⬜️         |
+| EEPROM        | ✅          |
 | Encoder       | ✅          |
-| Gpio          | ✅          |
+| GPIO          | ✅          |
 | Interrupt     | ⬜️         |
 | Keypad        | ⬜️         |
 | Neopixel      | ✅          |
@@ -29,8 +29,12 @@ _Devices_
 
 - ⬜️ Ask Adafruit nicely for a list of their products that use the Seesaw firmware
 
-| Device | Implemented |
-| ------ | ----------- |
+| Device                                               | Product ID | MCU       | Implemented                                 |
+| ---------------------------------------------------- | ---------- | --------- | ------------------------------------------- |
+| [ArcadeButton1x4](https://adafruit.com/product/5296) | 5296       | ATTiny8x7 | ⬜️                                         |
+| [NeoKey1x4](https://adafruit.com/product/4980)       | 4980       | SAMD09    | ✅                                          |
+| [NeoSlider](https://adafruit.com/product/5295)       | 5295       | ATTiny8x7 | ❓ (impl'd, but refuses to work in example) |
+| [RotaryEncoder](https://adafruit.com/product/4991)   | 4991       | SAMD09    | ✅                                          |
 
 ### Library/API-related
 

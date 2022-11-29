@@ -1,36 +1,55 @@
 use crate::{
     device::DeviceInit, driver::Driver, impl_device_encoder_module, impl_device_gpio_module,
-    impl_device_neopixel_module, modules::*, seesaw_device,
+    impl_device_neopixel_module, modules::*, seesaw_device, HardwareId,
 };
 
-seesaw_device!(
-  /// GenericDevice
-  GenericDevice,
-  default_addr: 0,
-  product_id: 0
-);
+seesaw_device! {
+  #[doc(hidden)]
+  name: GenericDevice,
+  hardware_id: HardwareId::SAMD09,
+  product_id: 0,
+  default_addr: 0x49
+}
 
 impl<D: Driver> DeviceInit<D> for GenericDevice<D> {
-    fn init(mut self) -> Result<Self, Self::Error> {
-        self.reset().map(|_| self)
+    fn init(&mut self) -> Result<(), Self::Error> {
+        self.reset()
     }
 }
 
-seesaw_device!(
+seesaw_device! {
+  /// ArcadeButton1x4
+  name: ArcadeButton1x4,
+  hardware_id: HardwareId::ATTINY817,
+  product_id: 5296,
+  default_addr: 0x3A
+}
+// impl_device_gpio_module!(ArcadeButton1x4);
+
+impl<D: Driver> DeviceInit<D> for ArcadeButton1x4<D> {
+    fn init(&mut self) -> Result<(), Self::Error> {
+        self.reset()
+        // self.reset_and_verify_seesaw()
+        // Ok(())
+        // .and_then(|_| self.enable_button_pins())
+    }
+}
+
+seesaw_device! {
   /// NeoKey1x4
-  NeoKey1x4,
-  default_addr: 0x30,
-  product_id: 4980
-);
+  name: NeoKey1x4,
+  hardware_id: HardwareId::SAMD09,
+  product_id: 4980,
+  default_addr: 0x30
+}
 impl_device_gpio_module!(NeoKey1x4);
 impl_device_neopixel_module!(NeoKey1x4, num_leds: 4, pin: 3);
 
 impl<D: Driver> DeviceInit<D> for NeoKey1x4<D> {
-    fn init(mut self) -> Result<Self, Self::Error> {
+    fn init(&mut self) -> Result<(), Self::Error> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_neopixel())
             .and_then(|_| self.enable_button_pins())
-            .map(|_| self)
     }
 }
 
@@ -49,36 +68,36 @@ impl<D: Driver> NeoKey1x4<D> {
 
 seesaw_device!(
   /// NeoSlider
-  NeoSlider,
-  default_addr: 0x30,
-  product_id: 5295
+  name: NeoSlider,
+  hardware_id: HardwareId::ATTINY817,
+  product_id: 5295,
+  default_addr: 0x30
 );
 impl_device_gpio_module!(NeoSlider);
 impl_device_neopixel_module!(NeoSlider, num_leds: 4, pin: 14);
 
 impl<D: Driver> DeviceInit<D> for NeoSlider<D> {
-    fn init(mut self) -> Result<Self, Self::Error> {
+    fn init(&mut self) -> Result<(), Self::Error> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_neopixel())
-            .map(|_| self)
     }
 }
 
 seesaw_device!(
   /// RotaryEncoder
-  RotaryEncoder,
-  default_addr: 0x36,
-  product_id: 4991
+  name: RotaryEncoder,
+  hardware_id: HardwareId::SAMD09,
+  product_id: 4991,
+  default_addr: 0x36
 );
 impl_device_encoder_module!(RotaryEncoder, button_pin: 24);
 impl_device_gpio_module!(RotaryEncoder);
 impl_device_neopixel_module!(RotaryEncoder, num_leds: 1, pin: 6);
 
 impl<D: Driver> DeviceInit<D> for RotaryEncoder<D> {
-    fn init(mut self) -> Result<Self, Self::Error> {
+    fn init(&mut self) -> Result<(), Self::Error> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_button())
             .and_then(|_| self.enable_neopixel())
-            .map(|_| self)
     }
 }

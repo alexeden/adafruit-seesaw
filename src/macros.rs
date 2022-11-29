@@ -1,15 +1,16 @@
 #[macro_export]
 macro_rules! seesaw_device {
-    ($(#[$attr:meta])* $device:ident, default_addr: $default_addr:expr, product_id: $product_id:expr) => {
+    ($(#[$attr:meta])* name: $name:ident, hardware_id: $hardware_id:expr, product_id: $product_id:expr, default_addr: $default_addr:expr) => {
         $(#[$attr])*
         ///
         /// [Adafruit Product Page](https://www.adafruit.com/product/$product_id)
-        pub struct $device<M>(u8, M);
+        pub struct $name<M>(u8, M);
 
-        impl<D: $crate::driver::Driver> $crate::device::Device<D> for $device<D> {
+        impl<D: $crate::driver::Driver> $crate::device::Device<D> for $name<D> {
             type Error = $crate::SeesawError<D::I2cError>;
 
             const DEFAULT_ADDR: u8 = $default_addr;
+            const HARDWARE_ID: u8 = $hardware_id.into();
             const PRODUCT_ID: u16 = $product_id;
 
             fn addr(&self) -> u8 {
