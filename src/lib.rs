@@ -42,7 +42,8 @@ where
         &'a self,
     ) -> Result<D, D::Error> {
         let driver = bus::BusProxy { mutex: &self.mutex };
-        D::new(D::DEFAULT_ADDR, driver).init()
+        let mut device = D::new(D::DEFAULT_ADDR, driver);
+        device.init().map(|_| device)
     }
 
     pub fn connect<'a, D: device::DeviceInit<bus::BusProxy<'a, M>>>(
@@ -50,21 +51,22 @@ where
         addr: u8,
     ) -> Result<D, D::Error> {
         let driver = bus::BusProxy { mutex: &self.mutex };
-        D::new(addr, driver).init()
+        let mut device = D::new(addr, driver);
+        device.init().map(|_| device)
     }
 
     pub fn connect_with<
         'a,
         D: device::Device<bus::BusProxy<'a, M>>,
-        F: FnMut(D) -> Result<D, D::Error>,
+        F: FnMut(&mut D) -> Result<(), D::Error>,
     >(
         &'a self,
         addr: u8,
         mut init: F,
     ) -> Result<D, D::Error> {
         let driver = bus::BusProxy { mutex: &self.mutex };
-        let device = D::new(addr, driver);
-        init(device)
+        let mut device = D::new(addr, driver);
+        init(&mut device).map(|_| device)
     }
 }
 
@@ -76,3 +78,6 @@ pub enum SeesawError<E> {
     /// Occurs when an invalid hardware ID is read
     InvalidHardwareId(u8),
 }
+
+/// All devices implement the status module
+impl<D: Driver, T: device::Device<D>> StatusModule<D> for T {}

@@ -1,4 +1,4 @@
-use crate::{driver::Driver, StatusModule};
+use crate::driver::Driver;
 
 pub trait Device<D: Driver> {
     type Error;
@@ -13,9 +13,6 @@ pub trait Device<D: Driver> {
     fn new(addr: u8, driver: D) -> Self;
 }
 
-/// All devices implement the status module
-impl<D: Driver, T: Device<D>> StatusModule<D> for T {}
-
 /// At startup, Seesaw devices typically have a unique set of initialization
 /// calls to be made. e.g. for a Neokey1x4, we're need to enable the on-board
 /// neopixel and also do some pin mode setting to get everything working.
@@ -26,5 +23,5 @@ pub trait DeviceInit<D: Driver>: Device<D>
 where
     Self: Sized,
 {
-    fn init(self) -> Result<Self, Self::Error>;
+    fn init(&mut self) -> Result<(), Self::Error>;
 }

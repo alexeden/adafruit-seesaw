@@ -31,7 +31,7 @@ fn main() -> ! {
     let id = device.hardware_id().expect("Failed to get hardware id");
     rprintln!("{:?}", id);
     let mut device2 = seesaw
-        .connect_with::<GenericDevice<_>, _>(0x30, |mut d| d.reset().map(|_| d))
+        .connect_with::<GenericDevice<_>, _>(0x30, |d| d.reset())
         .expect("Failed to connect");
     let id2 = device2.hardware_id().expect("Failed to get hardware id");
     rprintln!("{:?}", id2);
