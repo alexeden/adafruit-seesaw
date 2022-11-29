@@ -10,10 +10,10 @@ _Modules_
 
 | Seesaw Module | Implemented |
 | ------------- | ----------- |
-| Adc           | []          |
+| Adc           | - []          |
 | Dac           | []          |
 | Dap           | []          |
-| Eeprom        | [x]         |
+| Eeprom        | :white_check_mark:         |
 | Encoder       | [x]         |
 | Gpio          | [x]         |
 | Interrupt     | []          |
