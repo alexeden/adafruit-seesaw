@@ -29,8 +29,11 @@ _Devices_
 
 - ⬜️ Ask Adafruit nicely for a list of their products that use the Seesaw firmware
 
-| Device | Implemented |
-| ------ | ----------- |
+| Device        | Product ID | Implemented                                 |
+| ------------- | ---------- | ------------------------------------------- |
+| NeoKey1x4     | 4980       | ✅                                          |
+| NeoSlider     | 5295       | ❓ (impl'd, but refuses to work in example) |
+| RotaryEncoder | 4991       | ✅                                          |
 
 ### Library/API-related
 
