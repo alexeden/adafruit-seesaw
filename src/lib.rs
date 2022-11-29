@@ -10,16 +10,15 @@ mod macros;
 pub(crate) use device::*;
 pub mod devices;
 mod driver;
-mod error;
 pub mod modules;
 pub use driver::*;
-pub use error::*;
 pub use modules::*;
 pub mod prelude {
     pub use super::{driver::DriverExt, modules::*};
 }
 
 const DELAY_TIME: u32 = 125;
+pub type SeesawSingleThread<BUS> = Seesaw<shared_bus::NullMutex<BUS>>;
 
 pub struct Seesaw<M> {
     mutex: M,
@@ -56,4 +55,11 @@ where
     }
 }
 
-pub type SeesawSingleThread<BUS> = Seesaw<shared_bus::NullMutex<BUS>>;
+#[derive(Copy, Clone, Debug)]
+pub enum SeesawError<E> {
+    /// I2C bus error
+    I2c(E),
+
+    /// Occurs when an invalid hardware ID is read
+    InvalidHardwareId(u8),
+}

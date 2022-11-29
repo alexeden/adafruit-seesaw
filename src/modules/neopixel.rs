@@ -2,8 +2,7 @@ use crate::{
     common::{Modules, NeopixelSpeed, Reg},
     device::Device,
     driver::Driver,
-    error::SeesawError,
-    DriverExt,
+    DriverExt, SeesawError,
 };
 
 /// WO - 8 bits
