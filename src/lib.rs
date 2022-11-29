@@ -5,6 +5,7 @@ use embedded_hal::blocking::delay;
 mod bus;
 pub mod common;
 pub(crate) mod device;
+mod macros;
 pub(crate) use device::*;
 pub mod devices;
 mod driver;
