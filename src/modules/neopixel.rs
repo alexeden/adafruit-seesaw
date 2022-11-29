@@ -81,7 +81,7 @@ pub trait NeopixelModule<D: crate::Driver>: crate::Device<D> {
         g: u8,
         b: u8,
     ) -> Result<(), crate::SeesawError<D::I2cError>> {
-        assert!(n < Self::N_LEDS as u16);
+        assert!(n < Self::N_LEDS);
         let [zero, one] = u16::to_be_bytes(3 * n);
         let addr = self.addr();
 

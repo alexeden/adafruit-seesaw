@@ -1,4 +1,5 @@
 #![no_std]
+#![forbid(unsafe_code)]
 #![allow(const_evaluatable_unchecked, incomplete_features)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
 use embedded_hal::blocking::delay;

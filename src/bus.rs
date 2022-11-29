@@ -8,7 +8,7 @@ pub struct BusProxy<'a, M> {
 }
 
 #[derive(Debug)]
-pub(crate) struct Bus<DELAY, I2C>(pub(crate) DELAY, pub(crate) I2C);
+pub struct Bus<DELAY, I2C>(pub(crate) DELAY, pub(crate) I2C);
 
 // Clone implementation
 impl<'a, DELAY, I2C, M> Clone for BusProxy<'a, M>
@@ -18,7 +18,7 @@ where
     M: BusMutex<Bus = Bus<DELAY, I2C>>,
 {
     fn clone(&self) -> Self {
-        Self { mutex: &self.mutex }
+        Self { mutex: self.mutex }
     }
 }
 

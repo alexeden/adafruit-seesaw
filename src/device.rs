@@ -5,7 +5,7 @@ pub trait Device<D: crate::Driver> {
 
     fn addr(&self) -> u8;
 
-    fn driver<'a>(&'a mut self) -> &'a mut D;
+    fn driver(&mut self) -> &mut D;
 
     fn new(addr: u8, driver: D) -> Self;
 }
