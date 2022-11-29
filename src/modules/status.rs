@@ -44,14 +44,11 @@ pub trait StatusModule<D: crate::Driver>: crate::Device<D> {
             .map_err(crate::SeesawError::I2c)
     }
 
-    fn reset_and_begin(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
-        self.reset().and_then(|_| {
-            self.driver().delay_us(12_500);
-            match self.hardware_id() {
-                Ok(SEESAW_HW_ID) => Ok(()),
-                Ok(id) => Err(crate::SeesawError::InvalidHardwareId(id)),
-                Err(e) => Err(e),
-            }
+    fn reset_and_verify_seesaw(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+        self.reset().and_then(|_| match self.hardware_id() {
+            Ok(SEESAW_HW_ID) => Ok(()),
+            Ok(id) => Err(crate::SeesawError::InvalidHardwareId(id)),
+            Err(e) => Err(e),
         })
     }
 

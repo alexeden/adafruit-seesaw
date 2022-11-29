@@ -1,5 +1,5 @@
 pub trait Device<D: crate::Driver> {
-    const DEFAULT_ADDR: u8;
+    // const DEFAULT_ADDR: u8;
 
     type Error;
 
@@ -9,6 +9,9 @@ pub trait Device<D: crate::Driver> {
 
     fn new(addr: u8, driver: D) -> Self;
 }
+
+/// All devices implement the status module
+impl<D: crate::Driver, T: Device<D>> crate::StatusModule<D> for T {}
 
 /// At startup, Seesaw devices typically have a unique set of initialization
 /// calls to be made. e.g. for a Neokey1x4, we're need to enable the on-board
@@ -21,32 +24,4 @@ where
     Self: Sized,
 {
     fn init(self) -> Result<Self, Self::Error>;
-}
-
-/// All devices implement the status module
-impl<D: crate::Driver, T: Device<D>> crate::StatusModule<D> for T {}
-
-#[macro_export]
-macro_rules! seesaw_device {
-    ($device:ident) => {
-        /// $device
-        #[derive(Debug)]
-        pub struct $device<M>(u8, M);
-
-        impl<D: crate::Driver> $crate::device::Device<D> for $device<D> {
-            type Error = $crate::SeesawError<D::I2cError>;
-
-            fn addr(&self) -> u8 {
-                self.0
-            }
-
-            fn driver<'a>(&'a mut self) -> &'a mut D {
-                &mut self.1
-            }
-
-            fn new(addr: u8, driver: D) -> Self {
-                Self(addr, driver)
-            }
-        }
-    };
 }
