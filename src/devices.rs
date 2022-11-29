@@ -3,12 +3,12 @@ use crate::{
     impl_device_neopixel_module, modules::*, seesaw_device,
 };
 
-seesaw_device!(
-  /// GenericDevice
-  GenericDevice,
+seesaw_device! {
+  #[doc(hidden)]
+  name: GenericDevice,
   default_addr: 0,
   product_id: 0
-);
+}
 
 impl<D: Driver> DeviceInit<D> for GenericDevice<D> {
     fn init(&mut self) -> Result<(), Self::Error> {
@@ -16,12 +16,27 @@ impl<D: Driver> DeviceInit<D> for GenericDevice<D> {
     }
 }
 
-seesaw_device!(
+seesaw_device! {
+  /// ArcadeButton1x4
+  name: ArcadeButton1x4,
+  default_addr: 0x3A,
+  product_id: 5296
+}
+impl_device_gpio_module!(ArcadeButton1x4);
+
+impl<D: Driver> DeviceInit<D> for ArcadeButton1x4<D> {
+    fn init(&mut self) -> Result<(), Self::Error> {
+        self.reset_and_verify_seesaw()
+        // .and_then(|_| self.enable_button_pins())
+    }
+}
+
+seesaw_device! {
   /// NeoKey1x4
-  NeoKey1x4,
+  name: NeoKey1x4,
   default_addr: 0x30,
   product_id: 4980
-);
+}
 impl_device_gpio_module!(NeoKey1x4);
 impl_device_neopixel_module!(NeoKey1x4, num_leds: 4, pin: 3);
 
@@ -48,7 +63,7 @@ impl<D: Driver> NeoKey1x4<D> {
 
 seesaw_device!(
   /// NeoSlider
-  NeoSlider,
+  name: NeoSlider,
   default_addr: 0x30,
   product_id: 5295
 );
@@ -64,7 +79,7 @@ impl<D: Driver> DeviceInit<D> for NeoSlider<D> {
 
 seesaw_device!(
   /// RotaryEncoder
-  RotaryEncoder,
+  name: RotaryEncoder,
   default_addr: 0x36,
   product_id: 4991
 );

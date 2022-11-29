@@ -12,6 +12,7 @@ mod driver;
 mod macros;
 pub mod modules;
 pub use common::*;
+pub use devices::*;
 pub use driver::*;
 pub use modules::*;
 
