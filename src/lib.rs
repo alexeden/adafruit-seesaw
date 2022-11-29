@@ -2,19 +2,21 @@
 #![forbid(unsafe_code)]
 #![allow(const_evaluatable_unchecked, incomplete_features)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
+// TODO improve the organization of the exports/visibility
 use embedded_hal::blocking::delay;
 mod bus;
-pub mod common;
-pub(crate) mod device;
-mod macros;
-pub(crate) use device::*;
+mod common;
+pub mod device;
 pub mod devices;
 mod driver;
+mod macros;
 pub mod modules;
+pub use common::*;
 pub use driver::*;
 pub use modules::*;
+
 pub mod prelude {
-    pub use super::{driver::DriverExt, modules::*};
+    pub use super::{devices::*, driver::DriverExt, modules::*};
 }
 
 const DELAY_TIME: u32 = 125;
@@ -36,7 +38,14 @@ where
         }
     }
 
-    pub fn connect<'a, D: DeviceInit<bus::BusProxy<'a, M>>>(
+    pub fn connect_default_addr<'a, D: device::DeviceInit<bus::BusProxy<'a, M>>>(
+        &'a self,
+    ) -> Result<D, D::Error> {
+        let driver = bus::BusProxy { mutex: &self.mutex };
+        D::new(D::DEFAULT_ADDR, driver).init()
+    }
+
+    pub fn connect<'a, D: device::DeviceInit<bus::BusProxy<'a, M>>>(
         &'a self,
         addr: u8,
     ) -> Result<D, D::Error> {
@@ -44,7 +53,11 @@ where
         D::new(addr, driver).init()
     }
 
-    pub fn connect_with<'a, D: Device<bus::BusProxy<'a, M>>, F: FnMut(D) -> Result<D, D::Error>>(
+    pub fn connect_with<
+        'a,
+        D: device::Device<bus::BusProxy<'a, M>>,
+        F: FnMut(D) -> Result<D, D::Error>,
+    >(
         &'a self,
         addr: u8,
         mut init: F,

@@ -1,18 +1,22 @@
 #[macro_export]
 macro_rules! seesaw_device {
-    ($device:ident, default_addr: $default_addr:expr) => {
-        /// $device
-        #[derive(Debug)]
+    ($(#[$attr:meta])* $device:ident, default_addr: $default_addr:expr, product_id: $product_id:expr) => {
+        $(#[$attr])*
+        ///
+        /// [Adafruit Product Page](https://www.adafruit.com/product/$product_id)
         pub struct $device<M>(u8, M);
 
         impl<D: $crate::driver::Driver> $crate::device::Device<D> for $device<D> {
             type Error = $crate::SeesawError<D::I2cError>;
 
+            const DEFAULT_ADDR: u8 = $default_addr;
+            const PRODUCT_ID: u16 = $product_id;
+
             fn addr(&self) -> u8 {
                 self.0
             }
 
-            fn driver<'a>(&'a mut self) -> &'a mut D {
+            fn driver(&mut self) -> &mut D {
                 &mut self.1
             }
 

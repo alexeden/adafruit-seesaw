@@ -1,9 +1,10 @@
 use crate::{driver::Driver, StatusModule};
 
 pub trait Device<D: Driver> {
-    // const DEFAULT_ADDR: u8;
-
     type Error;
+
+    const DEFAULT_ADDR: u8;
+    const PRODUCT_ID: u16;
 
     fn addr(&self) -> u8;
 
