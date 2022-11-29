@@ -1,4 +1,6 @@
-pub trait Device<D: crate::Driver> {
+use crate::{driver::Driver, StatusModule};
+
+pub trait Device<D: Driver> {
     // const DEFAULT_ADDR: u8;
 
     type Error;
@@ -11,7 +13,7 @@ pub trait Device<D: crate::Driver> {
 }
 
 /// All devices implement the status module
-impl<D: crate::Driver, T: Device<D>> crate::StatusModule<D> for T {}
+impl<D: Driver, T: Device<D>> StatusModule<D> for T {}
 
 /// At startup, Seesaw devices typically have a unique set of initialization
 /// calls to be made. e.g. for a Neokey1x4, we're need to enable the on-board
@@ -19,7 +21,7 @@ impl<D: crate::Driver, T: Device<D>> crate::StatusModule<D> for T {}
 /// All devices implement `DeviceInit` with a set of sensible defaults. You can
 /// override the default initialization function with your own by calling
 /// `Seesaw::connect_with` instead of `Seesaw::connect`.
-pub trait DeviceInit<D: crate::Driver>: Device<D>
+pub trait DeviceInit<D: Driver>: Device<D>
 where
     Self: Sized,
 {

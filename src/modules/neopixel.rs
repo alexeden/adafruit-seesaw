@@ -1,5 +1,8 @@
 use crate::{
     common::{Modules, NeopixelSpeed, Reg},
+    device::Device,
+    driver::Driver,
+    error::SeesawError,
     DriverExt,
 };
 
@@ -27,13 +30,13 @@ pub const SET_BUF: &Reg = &[Modules::Neopixel.into(), 0x04];
 /// arguments/data after the command.
 pub const SHOW: &Reg = &[Modules::Neopixel.into(), 0x05];
 
-pub trait NeopixelModule<D: crate::Driver>: crate::Device<D> {
+pub trait NeopixelModule<D: Driver>: Device<D> {
     const PIN: u8;
 
     /// The number of neopixels on the device
     const N_LEDS: u16 = 1;
 
-    fn enable_neopixel(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn enable_neopixel(&mut self) -> Result<(), SeesawError<D::I2cError>> {
         let addr = self.addr();
 
         self.driver()
@@ -43,13 +46,10 @@ pub trait NeopixelModule<D: crate::Driver>: crate::Device<D> {
                 self.driver().write_u16(addr, SET_LEN, 3 * Self::N_LEDS)
             })
             .map(|_| self.driver().delay_us(10_000))
-            .map_err(crate::SeesawError::I2c)
+            .map_err(SeesawError::I2c)
     }
 
-    fn set_neopixel_speed(
-        &mut self,
-        speed: NeopixelSpeed,
-    ) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn set_neopixel_speed(&mut self, speed: NeopixelSpeed) -> Result<(), SeesawError<D::I2cError>> {
         let addr = self.addr();
 
         self.driver()
@@ -62,15 +62,10 @@ pub trait NeopixelModule<D: crate::Driver>: crate::Device<D> {
                 },
             )
             .map(|_| self.driver().delay_us(10_000))
-            .map_err(crate::SeesawError::I2c)
+            .map_err(SeesawError::I2c)
     }
 
-    fn set_neopixel_color(
-        &mut self,
-        r: u8,
-        g: u8,
-        b: u8,
-    ) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn set_neopixel_color(&mut self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<D::I2cError>> {
         self.set_nth_neopixel_color(0, r, g, b)
     }
 
@@ -80,20 +75,20 @@ pub trait NeopixelModule<D: crate::Driver>: crate::Device<D> {
         r: u8,
         g: u8,
         b: u8,
-    ) -> Result<(), crate::SeesawError<D::I2cError>> {
+    ) -> Result<(), SeesawError<D::I2cError>> {
         assert!(n < Self::N_LEDS);
         let [zero, one] = u16::to_be_bytes(3 * n);
         let addr = self.addr();
 
         self.driver()
             .register_write(addr, SET_BUF, &[zero, one, r, g, b, 0x00])
-            .map_err(crate::SeesawError::I2c)
+            .map_err(SeesawError::I2c)
     }
 
     fn set_neopixel_colors(
         &mut self,
         colors: &[(u8, u8, u8); Self::N_LEDS as usize],
-    ) -> Result<(), crate::SeesawError<D::I2cError>>
+    ) -> Result<(), SeesawError<D::I2cError>>
     where
         [(); Self::N_LEDS as usize]: Sized,
     {
@@ -110,15 +105,15 @@ pub trait NeopixelModule<D: crate::Driver>: crate::Device<D> {
                     &[zero, one, color.0, color.1, color.2, 0x00],
                 )
             })
-            .map_err(crate::SeesawError::I2c)
+            .map_err(SeesawError::I2c)
     }
 
-    fn sync_neopixel(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn sync_neopixel(&mut self) -> Result<(), SeesawError<D::I2cError>> {
         let addr = self.addr();
 
         self.driver()
             .register_write(addr, SHOW, &[])
             .map(|_| self.driver().delay_us(125))
-            .map_err(crate::SeesawError::I2c)
+            .map_err(SeesawError::I2c)
     }
 }
