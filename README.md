@@ -8,36 +8,36 @@ Platform-agnostic driver to communicate with devices that implement the [Adafrui
 
 _Modules_
 
-| Seesaw Module | Implemented          |
-| ------------- | -------------------- |
-| Adc           | :white_large_square: |
-| Dac           | :white_large_square: |
-| Dap           | :white_large_square: |
-| Eeprom        | :white_check_mark:   |
-| Encoder       | :white_check_mark:   |
-| Gpio          | :white_check_mark:   |
-| Interrupt     | :white_large_square: |
-| Keypad        | :white_large_square: |
-| Neopixel      | :white_check_mark:   |
-| Sercom0       | :white_large_square: |
-| Spectrum      | :white_large_square: |
-| Status        | :white_check_mark:   |
-| Timer         | :white_large_square: |
-| Touch         | :white_large_square: |
+| Seesaw Module | Implemented |
+| ------------- | ----------- |
+| Adc           | ⬜️         |
+| Dac           | ⬜️         |
+| Dap           | ⬜️         |
+| Eeprom        | ✅          |
+| Encoder       | ✅          |
+| Gpio          | ✅          |
+| Interrupt     | ⬜️         |
+| Keypad        | ⬜️         |
+| Neopixel      | ✅          |
+| Sercom0       | ⬜️         |
+| Spectrum      | ⬜️         |
+| Status        | ✅          |
+| Timer         | ⬜️         |
+| Touch         | ⬜️         |
 
 _Devices_
 
-* :white_large_square: Ask Adafruit nicely for a list of their products that use the Seesaw firmware
+- ⬜️ Ask Adafruit nicely for a list of their products that use the Seesaw firmware
 
 | Device | Implemented |
 | ------ | ----------- |
 
 ### Library/API-related
 
-* :white_large_square: Add feature flag and implementations for using eh alpha
-* :white_large_square: Add features for using platform-specific mutexes ([these flags will be coupled directly with the feaure flags of `shared-bus`](https://docs.rs/crate/shared-bus/latest/features))
+- ⬜️ Add feature flag and implementations for using eh alpha
+- ⬜️ Add features for using platform-specific mutexes ([these flags will be coupled directly with the feaure flags of `shared-bus`](https://docs.rs/crate/shared-bus/latest/features))
 
-* :white_large_square: Setup github actions for CI porpoises
+- ⬜️ Setup github actions for CI porpoises
 
 ## License
 
