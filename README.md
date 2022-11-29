@@ -10,12 +10,12 @@ _Modules_
 
 | Seesaw Module | Implemented |
 | ------------- | ----------- |
-| Adc           | ⬜️         |
-| Dac           | ⬜️         |
-| Dap           | ⬜️         |
-| Eeprom        | ✅          |
+| ADC           | ⬜️         |
+| DAC           | ⬜️         |
+| DAP           | ⬜️         |
+| EEPROM        | ✅          |
 | Encoder       | ✅          |
-| Gpio          | ✅          |
+| GPIO          | ✅          |
 | Interrupt     | ⬜️         |
 | Keypad        | ⬜️         |
 | Neopixel      | ✅          |

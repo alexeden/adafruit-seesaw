@@ -20,7 +20,7 @@ pub mod prelude {
     pub use super::{devices::*, driver::DriverExt, modules::*};
 }
 
-const DELAY_TIME: u32 = 125;
+const DELAY_TIME: u32 = 12500;
 pub type SeesawSingleThread<BUS> = Seesaw<shared_bus::NullMutex<BUS>>;
 
 pub struct Seesaw<M> {

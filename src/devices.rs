@@ -8,7 +8,7 @@ seesaw_device! {
   name: GenericDevice,
   hardware_id: HardwareId::SAMD09,
   product_id: 0,
-  default_addr: 0
+  default_addr: 0x49
 }
 
 impl<D: Driver> DeviceInit<D> for GenericDevice<D> {
@@ -24,12 +24,13 @@ seesaw_device! {
   product_id: 5296,
   default_addr: 0x3A
 }
-impl_device_gpio_module!(ArcadeButton1x4);
+// impl_device_gpio_module!(ArcadeButton1x4);
 
 impl<D: Driver> DeviceInit<D> for ArcadeButton1x4<D> {
     fn init(&mut self) -> Result<(), Self::Error> {
+        self.reset()
         // self.reset_and_verify_seesaw()
-        Ok(())
+        // Ok(())
         // .and_then(|_| self.enable_button_pins())
     }
 }
