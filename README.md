@@ -4,7 +4,7 @@ Platform-agnostic driver to communicate with devices that implement the [Adafrui
 
 ## TODOs
 
-#### Seesaw-related
+### Seesaw-related
 
 _Modules_
 
@@ -27,16 +27,17 @@ _Modules_
 
 _Devices_
 
-:white_large_square: Ask Adafruit nicely for a list of their products that use the Seesaw firmware
+* :white_large_square: Ask Adafruit nicely for a list of their products that use the Seesaw firmware
 
 | Device | Implemented |
 | ------ | ----------- |
 
-#### Library/API-related
+### Library/API-related
 
-:white_large_square: Add feature flag and implementations for using eh alpha
-:white_large_square: Add features for using platform-specific mutexes ([these flags will be coupled directly with the feaure flags of `shared-bus`](https://docs.rs/crate/shared-bus/latest/features))
-:white_large_square: Setup github actions for CI porpoises
+* :white_large_square: Add feature flag and implementations for using eh alpha
+* :white_large_square: Add features for using platform-specific mutexes ([these flags will be coupled directly with the feaure flags of `shared-bus`](https://docs.rs/crate/shared-bus/latest/features))
+
+* :white_large_square: Setup github actions for CI porpoises
 
 ## License
 
