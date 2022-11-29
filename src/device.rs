@@ -4,6 +4,7 @@ pub trait Device<D: Driver> {
     type Error;
 
     const DEFAULT_ADDR: u8;
+    const HARDWARE_ID: u8;
     const PRODUCT_ID: u16;
 
     fn addr(&self) -> u8;

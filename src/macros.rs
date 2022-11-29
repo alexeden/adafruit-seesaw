@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! seesaw_device {
-    ($(#[$attr:meta])* name: $name:ident, default_addr: $default_addr:expr, product_id: $product_id:expr) => {
+    ($(#[$attr:meta])* name: $name:ident, hardware_id: $hardware_id:expr, product_id: $product_id:expr, default_addr: $default_addr:expr) => {
         $(#[$attr])*
         ///
         /// [Adafruit Product Page](https://www.adafruit.com/product/$product_id)
@@ -10,6 +10,7 @@ macro_rules! seesaw_device {
             type Error = $crate::SeesawError<D::I2cError>;
 
             const DEFAULT_ADDR: u8 = $default_addr;
+            const HARDWARE_ID: u8 = $hardware_id.into();
             const PRODUCT_ID: u16 = $product_id;
 
             fn addr(&self) -> u8 {

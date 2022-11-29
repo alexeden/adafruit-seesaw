@@ -7,9 +7,6 @@ use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
 
-const RED: (u8, u8, u8) = (255, 0, 0);
-const GREEN: (u8, u8, u8) = (0, 255, 0);
-
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
@@ -22,9 +19,12 @@ fn main() -> ! {
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 10.kHz(), &clocks);
     let seesaw = SeesawSingleThread::new(delay, i2c);
-    let mut _buttons = seesaw
+    let mut buttons = seesaw
         .connect_default_addr::<ArcadeButton1x4<_>>()
         .expect("Failed to connect");
+
+    let info = buttons.product_info().expect("Failed to get product info");
+    rprintln!("{:#?}", info);
 
     loop {
         //
