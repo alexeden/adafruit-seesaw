@@ -1,3 +1,4 @@
+use crate::common::Reg;
 use embedded_hal::blocking::{delay, i2c};
 
 /// Blanket trait for something that implements I2C bus operations, with a
@@ -24,38 +25,38 @@ pub trait DriverExt {
     fn register_read<const N: usize>(
         &mut self,
         addr: i2c::SevenBitAddress,
-        reg: &[u8; 2],
+        reg: &Reg,
     ) -> Result<[u8; N], Self::Error>;
 
     fn register_write<const N: usize>(
         &mut self,
         addr: i2c::SevenBitAddress,
-        reg: &[u8; 2],
+        reg: &Reg,
         bytes: &[u8; N],
     ) -> Result<(), Self::Error>
     where
         [(); N + 2]: Sized;
 
-    fn read_u8(&mut self, addr: i2c::SevenBitAddress, reg: &[u8; 2]) -> Result<u8, Self::Error> {
+    fn read_u8(&mut self, addr: i2c::SevenBitAddress, reg: &Reg) -> Result<u8, Self::Error> {
         self.register_read::<1>(addr, reg).map(|buf| buf[0])
     }
 
-    fn read_i32(&mut self, addr: i2c::SevenBitAddress, reg: &[u8; 2]) -> Result<i32, Self::Error> {
+    fn read_i32(&mut self, addr: i2c::SevenBitAddress, reg: &Reg) -> Result<i32, Self::Error> {
         self.register_read::<4>(addr, reg).map(i32::from_be_bytes)
     }
 
-    fn read_u16(&mut self, addr: i2c::SevenBitAddress, reg: &[u8; 2]) -> Result<u16, Self::Error> {
+    fn read_u16(&mut self, addr: i2c::SevenBitAddress, reg: &Reg) -> Result<u16, Self::Error> {
         self.register_read::<2>(addr, reg).map(u16::from_be_bytes)
     }
 
-    fn read_u32(&mut self, addr: i2c::SevenBitAddress, reg: &[u8; 2]) -> Result<u32, Self::Error> {
+    fn read_u32(&mut self, addr: i2c::SevenBitAddress, reg: &Reg) -> Result<u32, Self::Error> {
         self.register_read::<4>(addr, reg).map(u32::from_be_bytes)
     }
 
     fn write_u8(
         &mut self,
         addr: i2c::SevenBitAddress,
-        reg: &[u8; 2],
+        reg: &Reg,
         value: u8,
     ) -> Result<(), Self::Error> {
         self.register_write(addr, reg, &[value])
@@ -64,7 +65,7 @@ pub trait DriverExt {
     fn write_u16(
         &mut self,
         addr: i2c::SevenBitAddress,
-        reg: &[u8; 2],
+        reg: &Reg,
         value: u16,
     ) -> Result<(), Self::Error> {
         self.register_write(addr, reg, &u16::to_be_bytes(value))
@@ -73,7 +74,7 @@ pub trait DriverExt {
     fn write_i32(
         &mut self,
         addr: i2c::SevenBitAddress,
-        reg: &[u8; 2],
+        reg: &Reg,
         value: i32,
     ) -> Result<(), Self::Error> {
         self.register_write(addr, reg, &i32::to_be_bytes(value))
@@ -82,7 +83,7 @@ pub trait DriverExt {
     fn write_u32(
         &mut self,
         addr: i2c::SevenBitAddress,
-        reg: &[u8; 2],
+        reg: &Reg,
         value: u32,
     ) -> Result<(), Self::Error> {
         self.register_write(addr, reg, &u32::to_be_bytes(value))
@@ -95,7 +96,7 @@ impl<T: Driver> DriverExt for T {
     fn register_read<const N: usize>(
         &mut self,
         addr: i2c::SevenBitAddress,
-        reg: &[u8; 2],
+        reg: &Reg,
     ) -> Result<[u8; N], Self::Error> {
         let mut buffer = [0u8; N];
         self.write(addr, reg)?;
@@ -107,7 +108,7 @@ impl<T: Driver> DriverExt for T {
     fn register_write<const N: usize>(
         &mut self,
         addr: i2c::SevenBitAddress,
-        reg: &[u8; 2],
+        reg: &Reg,
         bytes: &[u8; N],
     ) -> Result<(), Self::Error>
     where
