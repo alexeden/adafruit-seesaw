@@ -1,17 +1,30 @@
 [package]
-authors = ["Alex Eden <alexandereden91@gmail.com>"]
-description = "[WIP] Embedded rust implementation of the Adafruit Seesaw library."
-edition = "2021"
-license = "MIT/Apache-2.0"
 name = "adafruit-seesaw"
+version = "0.1.1"
+authors = ["Alex Eden <alexandereden91@gmail.com>"]
+edition = "2021"
+
+description = "Platform-agnostic implementation of the Adafruit Seesaw library."
+documentation = "https://docs.rs/adafruit-seesaw"
+categories = ["embedded", "no-std"]
+keywords = ["embedded", "shared-bus", "seesaw", "adafruit", "i2c", "bus"]
+exclude = [".cargo", "memory.x"]
+license = "MIT/Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/alexeden/adafruit-seesaw"
-version = "0.1.1"
-exclude = [".cargo", "memory.x"]
+
+[package.metadata.docs.rs]
+all-features = true
+
+[lib]
+bench = false
+test = false
+
+
 
 [dependencies]
 embedded-hal = "0.2"
-num_enum = { version = "0.5", default-features = false }
+shared-bus = "0.2"
 
 [dev-dependencies]
 cortex-m = "0.7"

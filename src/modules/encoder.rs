@@ -1,44 +1,60 @@
-use super::{
-    gpio::{GpioModule, PinMode},
-    Reg, ENCODER_MODULE_ID,
+use super::gpio::{GpioModule, PinMode};
+use crate::{
+    common::{Modules, Reg},
+    DriverExt,
 };
-use crate::{bus::Bus, error::SeesawError};
 
-const STATUS: &Reg = &[ENCODER_MODULE_ID, 0x00];
-const INT_SET: &Reg = &[ENCODER_MODULE_ID, 0x10];
-const INT_CLR: &Reg = &[ENCODER_MODULE_ID, 0x20];
-const POSITION: &Reg = &[ENCODER_MODULE_ID, 0x30];
-const DELTA: &Reg = &[ENCODER_MODULE_ID, 0x40];
+#[allow(dead_code)]
+const STATUS: &Reg = &[Modules::Encoder.into(), 0x00];
+const INT_SET: &Reg = &[Modules::Encoder.into(), 0x10];
+const INT_CLR: &Reg = &[Modules::Encoder.into(), 0x20];
+const POSITION: &Reg = &[Modules::Encoder.into(), 0x30];
+const DELTA: &Reg = &[Modules::Encoder.into(), 0x40];
 
-const ENCODER_BTN_PIN: u8 = 24;
+pub trait EncoderModule<D: crate::Driver>: GpioModule<D> {
+    const ENCODER_BTN_PIN: u8;
 
-pub trait EncoderModule: GpioModule {
-    fn enable_button<E, B: Bus<E>>(&mut self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        self.set_pin_mode(bus, ENCODER_BTN_PIN, PinMode::InputPullup)
-            .map(|_| bus.delay_us(125))
+    fn enable_button(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+        self.set_pin_mode(Self::ENCODER_BTN_PIN, PinMode::InputPullup)
+            .map(|_| self.driver().delay_us(125))
     }
 
-    fn button<E, B: Bus<E>>(&self, bus: &mut B) -> Result<bool, SeesawError<E>> {
-        self.digital_read(bus, ENCODER_BTN_PIN)
+    fn button(&mut self) -> Result<bool, crate::SeesawError<D::I2cError>> {
+        self.digital_read(Self::ENCODER_BTN_PIN)
     }
 
-    fn delta<E, B: Bus<E>>(&self, bus: &mut B) -> Result<i32, SeesawError<E>> {
-        bus.read_i32(self.addr(), DELTA)
+    fn delta(&mut self) -> Result<i32, crate::SeesawError<D::I2cError>> {
+        let addr = self.addr();
+        self.driver()
+            .read_i32(addr, DELTA)
+            .map_err(crate::SeesawError::I2c)
     }
 
-    fn disable_interrupt<E, B: Bus<E>>(&self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        bus.write_u8(self.addr(), INT_CLR, 1)
+    fn disable_interrupt(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+        let addr = self.addr();
+        self.driver()
+            .write_u8(addr, INT_CLR, 1)
+            .map_err(crate::SeesawError::I2c)
     }
 
-    fn enable_interrupt<E, B: Bus<E>>(&self, bus: &mut B) -> Result<(), SeesawError<E>> {
-        bus.write_u8(self.addr(), INT_SET, 1)
+    fn enable_interrupt(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+        let addr = self.addr();
+        self.driver()
+            .write_u8(addr, INT_SET, 1)
+            .map_err(crate::SeesawError::I2c)
     }
 
-    fn position<E, B: Bus<E>>(&self, bus: &mut B) -> Result<i32, SeesawError<E>> {
-        bus.read_i32(self.addr(), POSITION)
+    fn position(&mut self) -> Result<i32, crate::SeesawError<D::I2cError>> {
+        let addr = self.addr();
+        self.driver()
+            .read_i32(addr, POSITION)
+            .map_err(crate::SeesawError::I2c)
     }
 
-    fn set_position<E, B: Bus<E>>(&self, bus: &mut B, pos: i32) -> Result<(), SeesawError<E>> {
-        bus.write_i32(self.addr(), POSITION, pos)
+    fn set_position(&mut self, pos: i32) -> Result<(), crate::SeesawError<D::I2cError>> {
+        let addr = self.addr();
+        self.driver()
+            .write_i32(addr, POSITION, pos)
+            .map_err(crate::SeesawError::I2c)
     }
 }

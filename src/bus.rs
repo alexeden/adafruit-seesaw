@@ -1,124 +1,86 @@
+use crate::driver::I2cDriver;
 use embedded_hal::blocking::{delay, i2c};
+use shared_bus::BusMutex;
 
-pub trait Bus<E>: delay::DelayUs<u32> {
-    fn read<const N: usize>(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-    ) -> Result<[u8; N], crate::SeesawError<E>>;
+#[derive(Debug)]
+pub struct BusProxy<'a, M> {
+    pub(crate) mutex: &'a M,
+}
 
-    fn write<const N: usize>(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-        bytes: &[u8; N],
-    ) -> Result<(), crate::SeesawError<E>>
-    where
-        [(); N + 2]: Sized;
+#[derive(Debug)]
+pub struct Bus<DELAY, I2C>(pub(crate) DELAY, pub(crate) I2C);
 
-    fn read_u8(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-    ) -> Result<u8, crate::SeesawError<E>> {
-        self.read::<1>(addr, reg).map(|buf| buf[0])
-    }
-
-    fn read_i32(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-    ) -> Result<i32, crate::SeesawError<E>> {
-        self.read::<4>(addr, reg).map(i32::from_be_bytes)
-    }
-
-    fn read_u16(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-    ) -> Result<u16, crate::SeesawError<E>> {
-        self.read::<2>(addr, reg).map(u16::from_be_bytes)
-    }
-
-    fn read_u32(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-    ) -> Result<u32, crate::SeesawError<E>> {
-        self.read::<4>(addr, reg).map(u32::from_be_bytes)
-    }
-
-    fn write_u8(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-        value: u8,
-    ) -> Result<(), crate::SeesawError<E>> {
-        self.write(addr, reg, &[value])
-    }
-
-    fn write_u16(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-        value: u16,
-    ) -> Result<(), crate::SeesawError<E>> {
-        self.write(addr, reg, &u16::to_be_bytes(value))
-    }
-
-    fn write_i32(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-        value: i32,
-    ) -> Result<(), crate::SeesawError<E>> {
-        self.write(addr, reg, &i32::to_be_bytes(value))
-    }
-
-    fn write_u32(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-        value: u32,
-    ) -> Result<(), crate::SeesawError<E>> {
-        self.write(addr, reg, &u32::to_be_bytes(value))
+// Clone implementation
+impl<'a, DELAY, I2C, M> Clone for BusProxy<'a, M>
+where
+    DELAY: delay::DelayUs<u32>,
+    I2C: I2cDriver,
+    M: BusMutex<Bus = Bus<DELAY, I2C>>,
+{
+    fn clone(&self) -> Self {
+        Self { mutex: self.mutex }
     }
 }
 
-impl<BUS, E> Bus<E> for BUS
+// Delay implementation
+impl<'a, DELAY, I2C, M> delay::DelayUs<u32> for BusProxy<'a, M>
 where
-    BUS: delay::DelayUs<u32> + i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    DELAY: delay::DelayUs<u32>,
+    I2C: I2cDriver,
+    M: BusMutex<Bus = Bus<DELAY, I2C>>,
 {
-    fn write<const N: usize>(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-        bytes: &[u8; N],
-    ) -> Result<(), crate::SeesawError<E>>
-    where
-        [(); N + 2]: Sized,
-    {
-        let mut buffer = [0u8; N + 2];
-        buffer[0..2].copy_from_slice(reg);
-        buffer[2..].copy_from_slice(bytes);
-
-        self.write(addr, &buffer)
-            .map(|_| self.delay_us(crate::DELAY_TIME))
-            .map_err(crate::SeesawError::I2c)
+    fn delay_us(&mut self, us: u32) {
+        self.mutex.lock(|bus| bus.0.delay_us(us))
     }
+}
 
-    fn read<const N: usize>(
+// I2C implementations
+impl<'a, DELAY, I2C, M> i2c::Write for BusProxy<'a, M>
+where
+    DELAY: delay::DelayUs<u32>,
+    I2C: I2cDriver,
+    M: BusMutex<Bus = Bus<DELAY, I2C>>,
+{
+    type Error = I2C::I2cError;
+
+    fn write(&mut self, addr: u8, buffer: &[u8]) -> Result<(), Self::Error> {
+        self.mutex
+            .lock(|bus| bus.1.write(addr, buffer))
+            .map_err(|err| err.into())
+    }
+}
+
+impl<'a, DELAY, I2C, M> i2c::Read for BusProxy<'a, M>
+where
+    DELAY: delay::DelayUs<u32>,
+    I2C: I2cDriver,
+    M: BusMutex<Bus = Bus<DELAY, I2C>>,
+{
+    type Error = I2C::I2cError;
+
+    fn read(&mut self, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
+        self.mutex
+            .lock(|bus| bus.1.read(addr, buffer))
+            .map_err(|err| err.into())
+    }
+}
+
+impl<'a, DELAY, I2C, M> i2c::WriteRead for BusProxy<'a, M>
+where
+    DELAY: delay::DelayUs<u32>,
+    I2C: I2cDriver,
+    M: BusMutex<Bus = Bus<DELAY, I2C>>,
+{
+    type Error = I2C::I2cError;
+
+    fn write_read(
         &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &crate::Reg,
-    ) -> Result<[u8; N], crate::SeesawError<E>> {
-        let mut buffer = [0u8; N];
-        self.write(addr, reg)
-            .and_then(|_| {
-                self.delay_us(crate::DELAY_TIME);
-                self.write_read(addr, &[], &mut buffer)
-            })
-            .map_err(crate::SeesawError::I2c)
-            .map(|_| buffer)
+        addr: u8,
+        buffer_in: &[u8],
+        buffer_out: &mut [u8],
+    ) -> Result<(), Self::Error> {
+        self.mutex
+            .lock(|bus| bus.1.write_read(addr, buffer_in, buffer_out))
+            .map_err(|err| err.into())
     }
 }

@@ -1,64 +1,78 @@
 #![no_std]
-#![allow(dead_code, incomplete_features, const_evaluatable_unchecked)]
-#![feature(generic_const_exprs)]
-use embedded_hal::blocking::{delay, i2c};
-pub mod bus;
-use error::SeesawError;
-use modules::Reg;
+#![forbid(unsafe_code)]
+#![allow(const_evaluatable_unchecked, incomplete_features)]
+#![feature(const_convert, const_trait_impl, generic_const_exprs)]
+// TODO improve the organization of the exports/visibility
+use embedded_hal::blocking::delay;
+mod bus;
+mod common;
+pub mod device;
 pub mod devices;
-pub mod error;
+mod driver;
+mod macros;
 pub mod modules;
+pub use common::*;
+pub use driver::*;
+pub use modules::*;
+
+pub mod prelude {
+    pub use super::{devices::*, driver::DriverExt, modules::*};
+}
 
 const DELAY_TIME: u32 = 125;
+pub type SeesawSingleThread<BUS> = Seesaw<shared_bus::NullMutex<BUS>>;
 
-#[derive(Debug)]
-pub struct SeesawBus<I2C, DELAY> {
-    bus: I2C,
-    delay: DELAY,
+pub struct Seesaw<M> {
+    mutex: M,
 }
 
-impl<I2C, DELAY, E> SeesawBus<I2C, DELAY>
+impl<DELAY, I2C, M> Seesaw<M>
 where
     DELAY: delay::DelayUs<u32>,
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: I2cDriver,
+    M: shared_bus::BusMutex<Bus = bus::Bus<DELAY, I2C>>,
 {
-    pub fn new(bus: I2C, delay: DELAY) -> Self {
-        SeesawBus { bus, delay }
+    pub fn new(delay: DELAY, i2c: I2C) -> Self {
+        Seesaw {
+            mutex: M::create(bus::Bus(delay, i2c)),
+        }
+    }
+
+    pub fn connect_default_addr<'a, D: device::DeviceInit<bus::BusProxy<'a, M>>>(
+        &'a self,
+    ) -> Result<D, D::Error> {
+        let driver = bus::BusProxy { mutex: &self.mutex };
+        D::new(D::DEFAULT_ADDR, driver).init()
+    }
+
+    pub fn connect<'a, D: device::DeviceInit<bus::BusProxy<'a, M>>>(
+        &'a self,
+        addr: u8,
+    ) -> Result<D, D::Error> {
+        let driver = bus::BusProxy { mutex: &self.mutex };
+        D::new(addr, driver).init()
+    }
+
+    pub fn connect_with<
+        'a,
+        D: device::Device<bus::BusProxy<'a, M>>,
+        F: FnMut(D) -> Result<D, D::Error>,
+    >(
+        &'a self,
+        addr: u8,
+        mut init: F,
+    ) -> Result<D, D::Error> {
+        let driver = bus::BusProxy { mutex: &self.mutex };
+        let device = D::new(addr, driver);
+        init(device)
     }
 }
 
-impl<I2C, DELAY> delay::DelayUs<u32> for SeesawBus<I2C, DELAY>
-where
-    DELAY: delay::DelayUs<u32>,
-{
-    fn delay_us(&mut self, us: u32) {
-        self.delay.delay_us(us)
-    }
-}
+#[derive(Copy, Clone, Debug)]
+pub enum SeesawError<E> {
+    /// I2C bus error
+    I2c(E),
 
-impl<I2C, DELAY> i2c::Write for SeesawBus<I2C, DELAY>
-where
-    I2C: i2c::Write,
-{
-    type Error = <I2C as i2c::Write>::Error;
-
-    fn write(&mut self, address: u8, bytes: &[u8]) -> Result<(), Self::Error> {
-        self.bus.write(address, bytes)
-    }
-}
-
-impl<I2C, DELAY> i2c::WriteRead for SeesawBus<I2C, DELAY>
-where
-    I2C: i2c::WriteRead,
-{
-    type Error = <I2C as i2c::WriteRead>::Error;
-
-    fn write_read(
-        &mut self,
-        address: u8,
-        bytes: &[u8],
-        buffer: &mut [u8],
-    ) -> Result<(), Self::Error> {
-        self.bus.write_read(address, bytes, buffer)
-    }
+    /// Occurs when an invalid hardware ID is read
+    InvalidHardwareId(u8),
 }
