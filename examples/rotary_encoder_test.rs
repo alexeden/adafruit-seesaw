@@ -10,6 +10,7 @@ use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
+    rprintln!("Begin");
     let cp = cortex_m::Peripherals::take().unwrap();
     let dp = pac::Peripherals::take().unwrap();
     let gpiob = dp.GPIOB.split();
@@ -17,17 +18,19 @@ fn main() -> ! {
     let delay = cp.SYST.delay(&clocks);
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
-    let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
+    let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
     let seesaw = SeesawSingleThread::new(delay, i2c);
+    rprintln!("Seesaw created");
     let mut encoder = seesaw
         .connect_default_addr::<RotaryEncoder<_>>()
         .expect("Failed to connect");
 
     rprintln!(
-        "{:#?}",
+        "Capabilities {:#?}",
         encoder.capabilities().expect("Failed to get options")
     );
 
+    rprintln!("Looping...");
     loop {
         let position = encoder.position().expect("Failed to get position");
         let c = color_wheel(((position & 0xFF) as u8).wrapping_mul(3));
