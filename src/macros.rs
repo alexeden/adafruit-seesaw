@@ -1,12 +1,19 @@
 #[macro_export]
 macro_rules! seesaw_device {
-    ($(#[$attr:meta])* name: $name:ident, hardware_id: $hardware_id:expr, product_id: $product_id:expr, default_addr: $default_addr:expr) => {
+    (
+        $(#[$attr:meta])*
+        name: $name:ident,
+        hardware_id: $hardware_id:expr,
+        product_id: $product_id:expr,
+        default_addr: $default_addr:expr,
+        modules: [ $($module:tt),* ]
+    ) => {
         $(#[$attr])*
         ///
         /// [Adafruit Product Page](https://www.adafruit.com/product/$product_id)
         pub struct $name<M>(u8, M);
 
-        impl<D: $crate::driver::Driver> $crate::device::Device<D> for $name<D> {
+        impl<D: $crate::driver::Driver> $crate::SeesawDevice<D> for $name<D> {
             type Error = $crate::SeesawError<D::I2cError>;
 
             const DEFAULT_ADDR: u8 = $default_addr;
@@ -25,6 +32,17 @@ macro_rules! seesaw_device {
                 Self(addr, driver)
             }
         }
+
+        $(
+            $crate::impl_device_module! { $name, $module }
+        ),*
+    };
+}
+
+#[macro_export]
+macro_rules! impl_device_module {
+    ($device:ident, GpioModule) => {
+        impl<D: $crate::driver::Driver> $crate::GpioModule<D> for $device<D> {}
     };
 }
 
@@ -37,12 +55,12 @@ macro_rules! impl_device_encoder_module {
     };
 }
 
-#[macro_export]
-macro_rules! impl_device_gpio_module {
-    ($device:ident) => {
-        impl<D: $crate::driver::Driver> $crate::GpioModule<D> for $device<D> {}
-    };
-}
+// #[macro_export]
+// macro_rules! impl_device_gpio_module {
+//     ($device:ident) => {
+//         impl<D: $crate::driver::Driver> $crate::GpioModule<D> for $device<D>
+// {}     };
+// }
 
 #[macro_export]
 macro_rules! impl_device_neopixel_module {

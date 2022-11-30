@@ -1,8 +1,7 @@
 use crate::{
     common::{DeviceCapabilities, Modules, ProductDateCode, Reg},
-    device::Device,
     driver::Driver,
-    DriverExt,
+    DriverExt, SeesawDevice,
 };
 
 const STATUS_HW_ID: &Reg = &[Modules::Status.into(), 0x01];
@@ -11,7 +10,7 @@ const STATUS_OPTIONS: &Reg = &[Modules::Status.into(), 0x03];
 const STATUS_TEMP: &Reg = &[Modules::Status.into(), 0x04];
 const STATUS_SWRST: &Reg = &[Modules::Status.into(), 0x7F];
 
-pub trait StatusModule<D: Driver>: Device<D> {
+pub trait StatusModule<D: Driver>: SeesawDevice<D> {
     fn capabilities(&mut self) -> Result<DeviceCapabilities, crate::SeesawError<D::I2cError>> {
         let addr = self.addr();
 

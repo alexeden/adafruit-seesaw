@@ -6,7 +6,6 @@
 use embedded_hal::blocking::delay;
 mod bus;
 mod common;
-pub mod device;
 pub mod devices;
 mod driver;
 mod macros;
@@ -39,7 +38,7 @@ where
         }
     }
 
-    pub fn connect_default_addr<'a, D: device::DeviceInit<bus::BusProxy<'a, M>>>(
+    pub fn connect_default_addr<'a, D: SeesawDeviceInit<bus::BusProxy<'a, M>>>(
         &'a self,
     ) -> Result<D, D::Error> {
         let driver = bus::BusProxy { mutex: &self.mutex };
@@ -47,7 +46,7 @@ where
         device.init().map(|_| device)
     }
 
-    pub fn connect<'a, D: device::DeviceInit<bus::BusProxy<'a, M>>>(
+    pub fn connect<'a, D: SeesawDeviceInit<bus::BusProxy<'a, M>>>(
         &'a self,
         addr: u8,
     ) -> Result<D, D::Error> {
@@ -58,7 +57,7 @@ where
 
     pub fn connect_with<
         'a,
-        D: device::Device<bus::BusProxy<'a, M>>,
+        D: SeesawDevice<bus::BusProxy<'a, M>>,
         F: FnMut(&mut D) -> Result<(), D::Error>,
     >(
         &'a self,
@@ -75,10 +74,33 @@ where
 pub enum SeesawError<E> {
     /// I2C bus error
     I2c(E),
-
     /// Occurs when an invalid hardware ID is read
     InvalidHardwareId(u8),
 }
 
-/// All devices implement the status module
-impl<D: Driver, T: device::Device<D>> StatusModule<D> for T {}
+pub trait SeesawDevice<D: Driver> {
+    type Error;
+
+    const DEFAULT_ADDR: u8;
+    const HARDWARE_ID: u8;
+    const PRODUCT_ID: u16;
+
+    fn addr(&self) -> u8;
+
+    fn driver(&mut self) -> &mut D;
+
+    fn new(addr: u8, driver: D) -> Self;
+}
+
+/// At startup, Seesaw devices typically have a unique set of initialization
+/// calls to be made. e.g. for a Neokey1x4, we're need to enable the on-board
+/// neopixel and also do some pin mode setting to get everything working.
+/// All devices implement `DeviceInit` with a set of sensible defaults. You can
+/// override the default initialization function with your own by calling
+/// `Seesaw::connect_with` instead of `Seesaw::connect`.
+pub trait SeesawDeviceInit<D: Driver>: SeesawDevice<D>
+where
+    Self: Sized,
+{
+    fn init(&mut self) -> Result<(), Self::Error>;
+}
