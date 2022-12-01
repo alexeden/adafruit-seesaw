@@ -28,7 +28,7 @@ pub const SET_BUF: &Reg = &[Modules::Neopixel.into(), 0x04];
 /// arguments/data after the command.
 pub const SHOW: &Reg = &[Modules::Neopixel.into(), 0x05];
 
-pub trait NeopixelModule<D: Driver>: SeesawDevice<D> {
+pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
     const PIN: u8;
 
     /// The number of neopixels on the device

@@ -40,11 +40,10 @@ where
 
     pub fn attach<
         'a,
-        D: SeesawDevice<bus::BusProxy<'a, M>>,
+        D: SeesawDevice<Driver = bus::BusProxy<'a, M>>,
         F: FnMut(bus::BusProxy<'a, M>) -> Result<D, D::Error>,
     >(
         &'a self,
-        // addr: u8,
         mut ctor: F,
     ) -> Result<D, D::Error> {
         ctor(bus::BusProxy { mutex: &self.mutex })
@@ -69,7 +68,7 @@ where
 
     pub fn connect_with<
         'a,
-        D: SeesawDevice<bus::BusProxy<'a, M>>,
+        D: SeesawDevice<Driver = bus::BusProxy<'a, M>>,
         F: FnMut(&mut D) -> Result<(), D::Error>,
     >(
         &'a self,
@@ -90,8 +89,9 @@ pub enum SeesawError<E> {
     InvalidHardwareId(u8),
 }
 
-pub trait SeesawDevice<D: Driver> {
+pub trait SeesawDevice {
     type Error;
+    type Driver: Driver;
 
     const DEFAULT_ADDR: u8;
     const HARDWARE_ID: u8;
@@ -99,9 +99,11 @@ pub trait SeesawDevice<D: Driver> {
 
     fn addr(&self) -> u8;
 
-    fn driver(&mut self) -> &mut D;
+    fn driver(&mut self) -> &mut Self::Driver;
 
-    fn new(addr: u8, driver: D) -> Self;
+    fn new(addr: u8, driver: Self::Driver) -> Self;
+
+    fn new_with_default_addr(driver: Self::Driver) -> Self;
 }
 
 /// At startup, Seesaw devices typically have a unique set of initialization
@@ -110,7 +112,7 @@ pub trait SeesawDevice<D: Driver> {
 /// All devices implement `DeviceInit` with a set of sensible defaults. You can
 /// override the default initialization function with your own by calling
 /// `Seesaw::connect_with` instead of `Seesaw::connect`.
-pub trait SeesawDeviceInit<D: Driver>: SeesawDevice<D>
+pub trait SeesawDeviceInit<D: Driver>: SeesawDevice<Driver = D>
 where
     Self: Sized,
 {

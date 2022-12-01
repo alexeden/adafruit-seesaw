@@ -19,7 +19,20 @@ macro_rules! seesaw_device {
         /// [Adafruit Product Page](https://www.adafruit.com/product/stringify!($product_id))
         pub struct $name<M>(u8, M);
 
-        impl<D: $crate::driver::Driver> $crate::SeesawDevice<D> for $name<D> {
+        impl $name<()> {
+            pub const fn default_addr() -> u8 {
+                $default_addr
+            }
+            pub const fn hardware_id() -> $crate::common::HardwareId {
+                $hardware_id
+            }
+            pub const fn product_id() -> u16 {
+                $product_id
+            }
+        }
+
+        impl<D: $crate::driver::Driver> $crate::SeesawDevice for $name<D> {
+            type Driver = D;
             type Error = $crate::SeesawError<D::I2cError>;
             const DEFAULT_ADDR: u8 = $default_addr;
             const HARDWARE_ID: u8 = $hardware_id.into();
@@ -35,6 +48,10 @@ macro_rules! seesaw_device {
 
             fn new(addr: u8, driver: D) -> Self {
                 Self(addr, driver)
+            }
+
+            fn new_with_default_addr(driver: D) -> Self {
+                Self(Self::DEFAULT_ADDR, driver)
             }
         }
 

@@ -10,7 +10,7 @@ const STATUS_OPTIONS: &Reg = &[Modules::Status.into(), 0x03];
 const STATUS_TEMP: &Reg = &[Modules::Status.into(), 0x04];
 const STATUS_SWRST: &Reg = &[Modules::Status.into(), 0x7F];
 
-pub trait StatusModule<D: Driver>: SeesawDevice<D> {
+pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
     fn capabilities(&mut self) -> Result<DeviceCapabilities, crate::SeesawError<D::I2cError>> {
         let addr = self.addr();
 

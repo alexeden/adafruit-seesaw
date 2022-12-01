@@ -1,7 +1,7 @@
 use crate::{driver::Driver, modules::*, seesaw_device, HardwareId, SeesawDeviceInit};
 
 /// All devices implement the status module
-impl<D: Driver, T: super::SeesawDevice<D>> StatusModule<D> for T {}
+impl<D: Driver, T: super::SeesawDevice<Driver = D>> StatusModule<D> for T {}
 
 seesaw_device! {
     #[doc(hidden)]

@@ -71,7 +71,7 @@ const PULL_ENABLE: &Reg = &[Modules::Gpio.into(), 0x0B];
 #[allow(dead_code)]
 const PULL_DISABLE: &Reg = &[Modules::Gpio.into(), 0x0C];
 
-pub trait GpioModule<D: crate::Driver>: crate::SeesawDevice<D> {
+pub trait GpioModule<D: crate::Driver>: crate::SeesawDevice<Driver = D> {
     fn digital_read(&mut self, pin: u8) -> Result<bool, crate::SeesawError<D::I2cError>> {
         self.digital_read_bulk()
             .map(|pins| !matches!(pins >> pin & 0x1, 1))

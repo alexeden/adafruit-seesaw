@@ -1,7 +1,7 @@
 pub type Reg = [u8; 2];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum HardwareId {
+pub enum HardwareId {
     ATTINY817 = 0x87,
     SAMD09 = 0x55,
 }

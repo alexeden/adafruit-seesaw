@@ -1,8 +1,6 @@
 #![no_std]
 #![no_main]
-use adafruit_seesaw::{
-    devices::GenericDevice, prelude::*, SeesawDevice, SeesawDeviceInit, SeesawSingleThread, *,
-};
+use adafruit_seesaw::{devices::GenericDevice, prelude::*, SeesawDevice, SeesawSingleThread};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{
@@ -27,16 +25,9 @@ fn main() -> ! {
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
     let bus = shared_bus::BusManagerSimple::new(i2c);
     let seesaw = SeesawSingleThread::new(delay, bus.acquire_i2c());
-    // rprintln!("Default addr: {:?}", GenericDevice::default_addr());
     let mut device = seesaw
-        .connect_default_addr::<GenericDevice<_>>()
+        .attach(|driver| Ok(GenericDevice::new_with_default_addr(driver)))
         .expect("Failed to connect");
-    // let mut device = seesaw
-    //     .attach(|driver| {
-    //         let addr = GenericDevice::DEFAULT_ADDR;
-    //         Ok(GenericDevice::new(GenericDevice::DEFAULT_ADDR, driver))
-    //     })
-    //     .expect("Failed to connect");
 
     let id = device.hardware_id().expect("Failed to get hardware id");
     rprintln!("Hardware ID {:?}", id);
@@ -44,17 +35,10 @@ fn main() -> ! {
         "Capabilities {:#?}",
         device.capabilities().expect("Failed to get options")
     );
-    // let _generic_device = GenericDevice::connect(bus.acquire_i2c(), delay, 0x30)
-    //     .expect("Failed to connect generic device");
-    // let _generic_device2 = GenericDevice::connect(bus.acquire_i2c(), delay,
-    // 0x30);
-
-    // rprintln!(
-    //     "Product info {:#?}",
-    //     generic_device
-    //         .product_info()
-    //         .expect("failed to get product info")
-    // );
+    rprintln!(
+        "Product info {:#?}",
+        device.product_info().expect("failed to get product info")
+    );
     loop {}
 }
 
