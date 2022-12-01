@@ -1,23 +1,5 @@
-#[macro_export]
+#[macro_export(local_inner_macros)]
 macro_rules! seesaw_device {
-    (
-        $(#[$attr:meta])*
-        name: $name:ident,
-        hardware_id: $hardware_id:expr,
-        product_id: $product_id:expr,
-        default_addr: $default_addr:expr
-        $(,)?
-    ) => {
-        seesaw_device!(
-            $(#[$attr])*
-            name: $name,
-            hardware_id: $hardware_id,
-            product_id: $product_id,
-            default_addr: $default_addr,
-            modules: []
-        );
-    };
-
     (
         $(#[$attr:meta])*
         name: $name:ident,
@@ -25,7 +7,10 @@ macro_rules! seesaw_device {
         product_id: $product_id:expr,
         default_addr: $default_addr:expr,
         modules: [
-            $($module_name:ident {$($const_name:ident: $const_value:expr $(,)?),*}),* $(,)?
+            $($module_name:ident $({
+                $($const_name:ident: $const_value:expr $(,)?),*
+            })?),*
+            $(,)?
         ]
          $(,)?
     ) => {
@@ -36,7 +21,6 @@ macro_rules! seesaw_device {
 
         impl<D: $crate::driver::Driver> $crate::SeesawDevice<D> for $name<D> {
             type Error = $crate::SeesawError<D::I2cError>;
-
             const DEFAULT_ADDR: u8 = $default_addr;
             const HARDWARE_ID: u8 = $hardware_id.into();
             const PRODUCT_ID: u16 = $product_id;
@@ -55,42 +39,25 @@ macro_rules! seesaw_device {
         }
 
         $(
-            $crate::impl_device_module! { $name, $module_name {$($const_name: $const_value),*} }
+            impl_device_module! { $name, $module_name $({$($const_name: $const_value),*})* }
         )*
     };
 }
 
 #[macro_export]
 macro_rules! impl_device_module {
-    ($device:ident, GpioModule {}) => {
-        impl<D: $crate::driver::Driver> $crate::GpioModule<D> for $device<D> {}
-    };
     ($device:ident, EncoderModule { button_pin: $button_pin:expr }) => {
         impl<D: $crate::driver::Driver> $crate::EncoderModule<D> for $device<D> {
             const ENCODER_BTN_PIN: u8 = $button_pin;
         }
     };
-}
-
-#[macro_export]
-macro_rules! impl_device_encoder_module {
-    ($device:ident, button_pin: $button_pin:expr) => {
-        impl<D: $crate::driver::Driver> $crate::EncoderModule<D> for $device<D> {
-            const ENCODER_BTN_PIN: u8 = $button_pin;
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! impl_device_gpio_module {
-    ($device:ident) => {
+    ($device:ident, GpioModule $({})?) => {
         impl<D: $crate::driver::Driver> $crate::GpioModule<D> for $device<D> {}
     };
-}
-
-#[macro_export]
-macro_rules! impl_device_neopixel_module {
-    ($device:ident, num_leds: $num_leds:expr, pin: $pin:expr) => {
+    ($device:ident, StatusModule $({})?) => {
+        impl<D: $crate::driver::Driver> $crate::StatusModule<D> for $device<D> {}
+    };
+    ($device:ident, NeopixelModule { num_leds: $num_leds:expr, pin: $pin:expr }) => {
         impl<D: $crate::driver::Driver> $crate::NeopixelModule<D> for $device<D> {
             const N_LEDS: u16 = $num_leds;
             const PIN: u8 = $pin;

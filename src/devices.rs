@@ -1,7 +1,4 @@
-use crate::{
-    driver::Driver, impl_device_gpio_module, impl_device_neopixel_module, modules::*,
-    seesaw_device, HardwareId, SeesawDeviceInit,
-};
+use crate::{driver::Driver, modules::*, seesaw_device, HardwareId, SeesawDeviceInit};
 
 /// All devices implement the status module
 impl<D: Driver, T: super::SeesawDevice<D>> StatusModule<D> for T {}
@@ -11,7 +8,8 @@ seesaw_device! {
     name: GenericDevice,
     hardware_id: HardwareId::SAMD09,
     product_id: 0,
-    default_addr: 0x49
+    default_addr: 0x49,
+    modules: []
 }
 
 impl<D: Driver> SeesawDeviceInit<D> for GenericDevice<D> {
@@ -26,8 +24,10 @@ seesaw_device! {
     hardware_id: HardwareId::ATTINY817,
     product_id: 5296,
     default_addr: 0x3A,
+    modules: [
+        GpioModule,
+    ]
 }
-// impl_device_gpio_module!(ArcadeButton1x4);
 
 impl<D: Driver> SeesawDeviceInit<D> for ArcadeButton1x4<D> {
     fn init(&mut self) -> Result<(), Self::Error> {
@@ -39,16 +39,16 @@ impl<D: Driver> SeesawDeviceInit<D> for ArcadeButton1x4<D> {
 }
 
 seesaw_device! {
-  /// NeoKey1x4
-  name: NeoKey1x4,
-  hardware_id: HardwareId::SAMD09,
-  product_id: 4980,
-  default_addr: 0x30,
-  modules:[]
-      // GpioModule
+    /// NeoKey1x4
+    name: NeoKey1x4,
+    hardware_id: HardwareId::SAMD09,
+    product_id: 4980,
+    default_addr: 0x30,
+    modules: [
+        GpioModule,
+        NeopixelModule { num_leds: 4, pin: 3 },
+    ]
 }
-impl_device_gpio_module!(NeoKey1x4);
-impl_device_neopixel_module!(NeoKey1x4, num_leds: 4, pin: 3);
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoKey1x4<D> {
     fn init(&mut self) -> Result<(), Self::Error> {
@@ -77,10 +77,11 @@ seesaw_device!(
     hardware_id: HardwareId::ATTINY817,
     product_id: 5295,
     default_addr: 0x30,
-    modules: []
+    modules: [
+        GpioModule,
+        NeopixelModule { num_leds: 4, pin: 14},
+    ]
 );
-impl_device_gpio_module!(NeoSlider);
-impl_device_neopixel_module!(NeoSlider, num_leds: 4, pin: 14);
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoSlider<D> {
     fn init(&mut self) -> Result<(), Self::Error> {
@@ -89,7 +90,6 @@ impl<D: Driver> SeesawDeviceInit<D> for NeoSlider<D> {
     }
 }
 
-trace_macros!(true);
 seesaw_device! {
     /// RotaryEncoder
     name: RotaryEncoder,
@@ -97,16 +97,11 @@ seesaw_device! {
     product_id: 4991,
     default_addr: 0x36,
     modules:  [
-        GpioModule {},
-        EncoderModule { button_pin: 24, }
+        EncoderModule { button_pin: 24 },
+        GpioModule,
+        NeopixelModule { num_leds: 1, pin: 6 },
     ]
 }
-// trace_macros!(true);
-// [ button_pin: 24 ],
-// impl_device_encoder_module!(RotaryEncoder, button_pin: 24);
-trace_macros!(false);
-// impl_device_gpio_module!(RotaryEncoder);
-// impl_device_neopixel_module!(RotaryEncoder, num_leds: 1, pin: 6);
 
 impl<D: Driver> SeesawDeviceInit<D> for RotaryEncoder<D> {
     fn init(&mut self) -> Result<(), Self::Error> {

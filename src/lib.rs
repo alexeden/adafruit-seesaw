@@ -1,7 +1,6 @@
 #![no_std]
 #![forbid(unsafe_code)]
 #![allow(const_evaluatable_unchecked, incomplete_features)]
-#![feature(trace_macros)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
 use embedded_hal::blocking::delay;
@@ -37,6 +36,18 @@ where
         Seesaw {
             mutex: M::create(bus::Bus(delay, i2c)),
         }
+    }
+
+    pub fn attach<
+        'a,
+        D: SeesawDevice<bus::BusProxy<'a, M>>,
+        F: FnMut(bus::BusProxy<'a, M>) -> Result<D, D::Error>,
+    >(
+        &'a self,
+        // addr: u8,
+        mut ctor: F,
+    ) -> Result<D, D::Error> {
+        ctor(bus::BusProxy { mutex: &self.mutex })
     }
 
     pub fn connect_default_addr<'a, D: SeesawDeviceInit<bus::BusProxy<'a, M>>>(
