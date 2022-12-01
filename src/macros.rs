@@ -5,8 +5,29 @@ macro_rules! seesaw_device {
         name: $name:ident,
         hardware_id: $hardware_id:expr,
         product_id: $product_id:expr,
+        default_addr: $default_addr:expr
+        $(,)?
+    ) => {
+        seesaw_device!(
+            $(#[$attr])*
+            name: $name,
+            hardware_id: $hardware_id,
+            product_id: $product_id,
+            default_addr: $default_addr,
+            modules: []
+        );
+    };
+
+    (
+        $(#[$attr:meta])*
+        name: $name:ident,
+        hardware_id: $hardware_id:expr,
+        product_id: $product_id:expr,
         default_addr: $default_addr:expr,
-        modules: [$($module_name:ident $($consts:tt),*),*]
+        modules: [
+            $($module_name:ident {$($const_name:ident: $const_value:expr $(,)?),*}),* $(,)?
+        ]
+         $(,)?
     ) => {
         $(#[$attr])*
         ///
@@ -34,30 +55,19 @@ macro_rules! seesaw_device {
         }
 
         $(
-            $crate::impl_device_module! { $name, $module_name $($consts)* }
+            $crate::impl_device_module! { $name, $module_name {$($const_name: $const_value),*} }
         )*
     };
 }
 
 #[macro_export]
 macro_rules! impl_device_module {
-    // ($device:ident, GpioModule) => {
-    //     impl<D: $crate::driver::Driver> $crate::GpioModule<D> for $device<D> {}
-    // };
-    // ($device:ident, EncoderModule) => {
-    //     impl<D: $crate::driver::Driver> $crate::EncoderModule<D> for $device<D> {
-    //         const ENCODER_BTN_PIN: u8 = 0;
-    //     }
-    // };
-    // ($device:ident, $module:ident{ $($const_key_value:tt),*} ) => {
-    ($device:ident, EncoderModule { $($const_name:ident: $const_value:expr),*} ) => {
-        impl<D: $crate::driver::Driver> EncoderModule<D> for $device<D> {
-            const ENCODER_BTN_PIN: u8 = 0;
-        }
+    ($device:ident, GpioModule {}) => {
+        impl<D: $crate::driver::Driver> $crate::GpioModule<D> for $device<D> {}
     };
-    ($device:ident, $module:ident { $($const_name:ident: $const_value:expr),*} ) => {
-        impl<D: $crate::driver::Driver> $module<D> for $device<D> {
-            const ENCODER_BTN_PIN: u8 = 0;
+    ($device:ident, EncoderModule { button_pin: $button_pin:expr }) => {
+        impl<D: $crate::driver::Driver> $crate::EncoderModule<D> for $device<D> {
+            const ENCODER_BTN_PIN: u8 = $button_pin;
         }
     };
 }
