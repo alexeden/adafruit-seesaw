@@ -1,6 +1,7 @@
 #![no_std]
 #![forbid(unsafe_code)]
 #![allow(const_evaluatable_unchecked, incomplete_features)]
+#![feature(trace_macros)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
 use embedded_hal::blocking::delay;
