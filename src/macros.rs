@@ -61,6 +61,7 @@ macro_rules! seesaw_device {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! impl_device_module {
     ($device:ident, EncoderModule { button_pin: $button_pin:expr }) => {

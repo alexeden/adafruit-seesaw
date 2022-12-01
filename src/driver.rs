@@ -3,6 +3,7 @@ use embedded_hal::blocking::{delay, i2c};
 
 /// Blanket trait for something that implements I2C bus operations, with a
 /// combined Error associated type
+#[doc(hidden)]
 pub trait I2cDriver: i2c::Write + i2c::WriteRead + i2c::Read {
     type I2cError: From<<Self as i2c::Write>::Error>
         + From<<Self as i2c::WriteRead>::Error>
