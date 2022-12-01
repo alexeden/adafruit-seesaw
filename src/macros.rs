@@ -16,7 +16,7 @@ macro_rules! seesaw_device {
     ) => {
         $(#[$attr])*
         ///
-        /// [Adafruit Product Page](https://www.adafruit.com/product/stringify!($product_id))
+        #[doc=core::concat!("[Adafruit Product Page](https://www.adafruit.com/product/", core::stringify!($product_id),")")]
         pub struct $name<M>(u8, M);
 
         impl $name<()> {
