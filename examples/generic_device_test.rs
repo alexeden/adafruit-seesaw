@@ -1,6 +1,6 @@
 #![no_std]
 #![no_main]
-use adafruit_seesaw::{devices::GenericDevice, prelude::*, SeesawDevice, SeesawSingleThread};
+use adafruit_seesaw::{devices::GenericDevice, prelude::*, SeesawSingleThread};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{
@@ -25,9 +25,9 @@ fn main() -> ! {
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
     let bus = shared_bus::BusManagerSimple::new(i2c);
     let seesaw = SeesawSingleThread::new(delay, bus.acquire_i2c());
-    let mut device = seesaw
-        .attach(|driver| Ok(GenericDevice::new_with_default_addr(driver)))
-        .expect("Failed to connect");
+    let mut device = GenericDevice::new_with_default_addr(seesaw.acquire_driver())
+        .init()
+        .expect("Failed to init generic device");
 
     let id = device.hardware_id().expect("Failed to get hardware id");
     rprintln!("Hardware ID {:?}", id);

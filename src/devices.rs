@@ -13,8 +13,8 @@ seesaw_device! {
 }
 
 impl<D: Driver> SeesawDeviceInit<D> for GenericDevice<D> {
-    fn init(&mut self) -> Result<(), Self::Error> {
-        self.reset()
+    fn init(mut self) -> Result<Self, Self::Error> {
+        self.reset().map(|_| self)
     }
 }
 
@@ -30,8 +30,8 @@ seesaw_device! {
 }
 
 impl<D: Driver> SeesawDeviceInit<D> for ArcadeButton1x4<D> {
-    fn init(&mut self) -> Result<(), Self::Error> {
-        self.reset()
+    fn init(mut self) -> Result<Self, Self::Error> {
+        self.reset().map(|_| self)
         // self.reset_and_verify_seesaw()
         // Ok(())
         // .and_then(|_| self.enable_button_pins())
@@ -51,10 +51,11 @@ seesaw_device! {
 }
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoKey1x4<D> {
-    fn init(&mut self) -> Result<(), Self::Error> {
+    fn init(mut self) -> Result<Self, Self::Error> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_neopixel())
             .and_then(|_| self.enable_button_pins())
+            .map(|_| self)
     }
 }
 
@@ -84,9 +85,10 @@ seesaw_device!(
 );
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoSlider<D> {
-    fn init(&mut self) -> Result<(), Self::Error> {
+    fn init(mut self) -> Result<Self, Self::Error> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_neopixel())
+            .map(|_| self)
     }
 }
 
@@ -104,9 +106,10 @@ seesaw_device! {
 }
 
 impl<D: Driver> SeesawDeviceInit<D> for RotaryEncoder<D> {
-    fn init(&mut self) -> Result<(), Self::Error> {
+    fn init(mut self) -> Result<Self, Self::Error> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_button())
             .and_then(|_| self.enable_neopixel())
+            .map(|_| self)
     }
 }

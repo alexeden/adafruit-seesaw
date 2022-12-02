@@ -1,5 +1,4 @@
 #![no_std]
-#![forbid(unsafe_code)]
 #![allow(const_evaluatable_unchecked, incomplete_features)]
 #![feature(const_convert, const_trait_impl, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
@@ -16,10 +15,9 @@ pub use driver::*;
 pub use modules::*;
 
 pub mod prelude {
-    pub use super::{devices::*, driver::DriverExt, modules::*};
+    pub use super::{devices::*, driver::DriverExt, modules::*, SeesawDevice, SeesawDeviceInit};
 }
 
-const DELAY_TIME: u32 = 125;
 pub type SeesawSingleThread<BUS> = Seesaw<shared_bus::NullMutex<BUS>>;
 
 pub struct Seesaw<M> {
@@ -38,46 +36,8 @@ where
         }
     }
 
-    pub fn attach<
-        'a,
-        D: SeesawDevice<Driver = bus::BusProxy<'a, M>>,
-        F: FnMut(bus::BusProxy<'a, M>) -> Result<D, D::Error>,
-    >(
-        &'a self,
-        mut ctor: F,
-    ) -> Result<D, D::Error> {
-        ctor(bus::BusProxy { mutex: &self.mutex })
-    }
-
-    pub fn connect_default_addr<'a, D: SeesawDeviceInit<bus::BusProxy<'a, M>>>(
-        &'a self,
-    ) -> Result<D, D::Error> {
-        let driver = bus::BusProxy { mutex: &self.mutex };
-        let mut device = D::new(D::DEFAULT_ADDR, driver);
-        device.init().map(|_| device)
-    }
-
-    pub fn connect<'a, D: SeesawDeviceInit<bus::BusProxy<'a, M>>>(
-        &'a self,
-        addr: u8,
-    ) -> Result<D, D::Error> {
-        let driver = bus::BusProxy { mutex: &self.mutex };
-        let mut device = D::new(addr, driver);
-        device.init().map(|_| device)
-    }
-
-    pub fn connect_with<
-        'a,
-        D: SeesawDevice<Driver = bus::BusProxy<'a, M>>,
-        F: FnMut(&mut D) -> Result<(), D::Error>,
-    >(
-        &'a self,
-        addr: u8,
-        mut init: F,
-    ) -> Result<D, D::Error> {
-        let driver = bus::BusProxy { mutex: &self.mutex };
-        let mut device = D::new(addr, driver);
-        init(&mut device).map(|_| device)
+    pub fn acquire_driver(&self) -> bus::BusProxy<'_, M> {
+        bus::BusProxy { mutex: &self.mutex }
     }
 }
 
@@ -116,5 +76,5 @@ pub trait SeesawDeviceInit<D: Driver>: SeesawDevice<Driver = D>
 where
     Self: Sized,
 {
-    fn init(&mut self) -> Result<(), Self::Error>;
+    fn init(self) -> Result<Self, Self::Error>;
 }

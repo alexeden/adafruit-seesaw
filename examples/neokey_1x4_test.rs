@@ -22,9 +22,9 @@ fn main() -> ! {
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let seesaw = SeesawSingleThread::new(delay, i2c);
-    let mut neokeys = seesaw
-        .connect_default_addr::<NeoKey1x4<_>>()
-        .expect("Failed to connect");
+    let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver())
+        .init()
+        .expect("Failed to start NeoKey1x4");
 
     loop {
         let keys = neokeys.keys().expect("Failed to read keys");

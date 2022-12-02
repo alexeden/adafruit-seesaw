@@ -3,7 +3,6 @@ name = "adafruit-seesaw"
 version = "0.3.0"
 authors = ["Alex Eden <alexandereden91@gmail.com>"]
 edition = "2021"
-
 description = "Platform-agnostic implementation of the Adafruit Seesaw library."
 documentation = "https://docs.rs/adafruit-seesaw"
 categories = ["embedded", "no-std"]
