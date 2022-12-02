@@ -1,6 +1,8 @@
 use crate::common::Reg;
 use embedded_hal::blocking::{delay, i2c};
 
+const DELAY_TIME: u32 = 125;
+
 /// Blanket trait for something that implements I2C bus operations, with a
 /// combined Error associated type
 #[doc(hidden)]
@@ -20,6 +22,28 @@ where
 pub trait Driver: I2cDriver + delay::DelayUs<u32> {}
 impl<T> Driver for T where T: I2cDriver + delay::DelayUs<u32> {}
 
+macro_rules! impl_integer_write {
+    ($fn:ident $nty:tt) => {
+        fn $fn(
+            &mut self,
+            addr: i2c::SevenBitAddress,
+            reg: &Reg,
+            value: $nty,
+        ) -> Result<(), Self::Error> {
+            self.register_write(addr, reg, &<$nty>::to_be_bytes(value))
+        }
+    };
+}
+
+macro_rules! impl_integer_read {
+    ($fn:ident $nty:tt) => {
+        fn $fn(&mut self, addr: i2c::SevenBitAddress, reg: &Reg) -> Result<$nty, Self::Error> {
+            self.register_read::<{ ($nty::BITS / 8) as usize }>(addr, reg)
+                .map($nty::from_be_bytes)
+        }
+    };
+}
+
 pub trait DriverExt {
     type Error;
 
@@ -38,57 +62,22 @@ pub trait DriverExt {
     where
         [(); N + 2]: Sized;
 
-    fn read_u8(&mut self, addr: i2c::SevenBitAddress, reg: &Reg) -> Result<u8, Self::Error> {
-        self.register_read::<1>(addr, reg).map(|buf| buf[0])
-    }
-
-    fn read_i32(&mut self, addr: i2c::SevenBitAddress, reg: &Reg) -> Result<i32, Self::Error> {
-        self.register_read::<4>(addr, reg).map(i32::from_be_bytes)
-    }
-
-    fn read_u16(&mut self, addr: i2c::SevenBitAddress, reg: &Reg) -> Result<u16, Self::Error> {
-        self.register_read::<2>(addr, reg).map(u16::from_be_bytes)
-    }
-
-    fn read_u32(&mut self, addr: i2c::SevenBitAddress, reg: &Reg) -> Result<u32, Self::Error> {
-        self.register_read::<4>(addr, reg).map(u32::from_be_bytes)
-    }
-
-    fn write_u8(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &Reg,
-        value: u8,
-    ) -> Result<(), Self::Error> {
-        self.register_write(addr, reg, &[value])
-    }
-
-    fn write_u16(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &Reg,
-        value: u16,
-    ) -> Result<(), Self::Error> {
-        self.register_write(addr, reg, &u16::to_be_bytes(value))
-    }
-
-    fn write_i32(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &Reg,
-        value: i32,
-    ) -> Result<(), Self::Error> {
-        self.register_write(addr, reg, &i32::to_be_bytes(value))
-    }
-
-    fn write_u32(
-        &mut self,
-        addr: i2c::SevenBitAddress,
-        reg: &Reg,
-        value: u32,
-    ) -> Result<(), Self::Error> {
-        self.register_write(addr, reg, &u32::to_be_bytes(value))
-    }
+    impl_integer_read! { read_u8 u8 }
+    impl_integer_read! { read_u16 u16 }
+    impl_integer_read! { read_u32 u32 }
+    impl_integer_read! { read_u64 u64 }
+    impl_integer_read! { read_i8 i8 }
+    impl_integer_read! { read_i16 i16 }
+    impl_integer_read! { read_i32 i32 }
+    impl_integer_read! { read_i64 i64 }
+    impl_integer_write! { write_u8 u8 }
+    impl_integer_write! { write_u16 u16 }
+    impl_integer_write! { write_u32 u32 }
+    impl_integer_write! { write_u64 u64 }
+    impl_integer_write! { write_i8 i8 }
+    impl_integer_write! { write_i16 i16 }
+    impl_integer_write! { write_i32 i32 }
+    impl_integer_write! { write_i64 i64 }
 }
 
 impl<T: Driver> DriverExt for T {
@@ -101,7 +90,7 @@ impl<T: Driver> DriverExt for T {
     ) -> Result<[u8; N], Self::Error> {
         let mut buffer = [0u8; N];
         self.write(addr, reg)?;
-        self.delay_us(crate::DELAY_TIME);
+        self.delay_us(DELAY_TIME);
         self.write_read(addr, &[], &mut buffer)?;
         Ok(buffer)
     }
@@ -120,7 +109,7 @@ impl<T: Driver> DriverExt for T {
         buffer[2..].copy_from_slice(bytes);
 
         self.write(addr, &buffer)?;
-        self.delay_us(crate::DELAY_TIME);
+        self.delay_us(DELAY_TIME);
         Ok(())
     }
 }
