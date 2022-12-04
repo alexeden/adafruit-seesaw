@@ -1,6 +1,6 @@
 [package]
 name = "adafruit-seesaw"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Alex Eden <alexandereden91@gmail.com>"]
 edition = "2021"
 description = "Platform-agnostic implementation for communicating with devices that run the Seesaw firmware."
