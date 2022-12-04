@@ -3,10 +3,10 @@ name = "adafruit-seesaw"
 version = "0.4.0"
 authors = ["Alex Eden <alexandereden91@gmail.com>"]
 edition = "2021"
-description = "Platform-agnostic implementation of the Adafruit Seesaw library."
+description = "Platform-agnostic implementation for communicating with devices that run the Seesaw firmware."
 documentation = "https://docs.rs/adafruit-seesaw"
 categories = ["embedded", "no-std"]
-keywords = ["shared-bus", "seesaw", "adafruit", "i2c", "bus"]
+keywords = ["shared-bus", "seesaw", "adafruit", "i2c", "embedded"]
 exclude = [".cargo", "memory.x"]
 license = "MIT/Apache-2.0"
 readme = "README.md"
@@ -30,8 +30,8 @@ rtt-target = { version = "0.3", features = ["cortex-m"] }
 stm32f4xx-hal = { features = ["rt", "stm32f405", "sdio"], version = "0.13" }
 
 [profile.release]
-codegen-units = 1   # better optimizations
-debug = true        # symbols are nice and they don't increase the size on Flash
-lto = true          # better optimizations
+codegen-units = 1
+debug = true
+lto = true
 incremental = false
 opt-level = 's'

@@ -1,5 +1,5 @@
 use crate::{
-    common::{Modules, NeopixelSpeed, Reg},
+    common::{Modules, Reg},
     driver::Driver,
     DriverExt, SeesawDevice, SeesawError,
 };
@@ -114,4 +114,12 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .map(|_| self.driver().delay_us(125))
             .map_err(SeesawError::I2c)
     }
+}
+
+/// NeopixelModule: The Neopixel protocol speed
+#[derive(Debug, Default)]
+pub enum NeopixelSpeed {
+    Khz400 = 0,
+    #[default]
+    Khz800 = 1,
 }
