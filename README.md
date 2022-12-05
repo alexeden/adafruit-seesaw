@@ -70,7 +70,7 @@ Calling `init` is of course optional, but without it you'll have to handle initi
 
 # Creating Your Own Devices
 
-So far, this library only implements a Seesaw devices (i.e., the ones that I currently own). You can define your own device using the `seesaw_device!` macro.
+So far, this library only implements a few Seesaw devices (i.e., the ones that I currently own). You can define your own device using the `seesaw_device!` macro.
 
 Let's assume you have some future Adafruit Neokey-esque device that has 6 buttons and 6 neopixels.
 
