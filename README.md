@@ -117,12 +117,9 @@ _Modules_
 | Seesaw Module | Implemented |
 | ------------- | ----------- |
 | ADC           | ⬜️         |
-| DAC           | ⬜️         |
-| DAP           | ⬜️         |
 | EEPROM        | ⬜️         |
 | Encoder       | ✅          |
 | GPIO          | ✅          |
-| Interrupt     | ⬜️         |
 | Keypad        | ⬜️         |
 | Neopixel      | ✅          |
 | Sercom0       | ⬜️         |

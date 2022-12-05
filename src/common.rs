@@ -19,8 +19,11 @@ pub(crate) enum Modules {
     Sercom0 = 0x02,
     Timer = 0x08,
     Adc = 0x09,
+    /// `Dac` has a value in the C++ Seesaw library but is not used
     Dac = 0x0A,
+    /// `Interrupt` has a value in the C++ Seesaw library but is not used
     Interrupt = 0x0B,
+    /// `Dap` has a value in the C++ Seesaw library but is not used
     Dap = 0x0C,
     Eeprom = 0x0D,
     Neopixel = 0x0E,
