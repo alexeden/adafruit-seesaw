@@ -17,7 +17,7 @@ macro_rules! seesaw_device {
         $(#[$attr])*
         ///
         #[doc=core::concat!("[Adafruit Product Page](https://www.adafruit.com/product/", core::stringify!($product_id),")")]
-        pub struct $name<M>(u8, M);
+        pub struct $name<D>(u8, D);
 
         impl $name<()> {
             pub const fn default_addr() -> u8 {
@@ -62,21 +62,23 @@ macro_rules! seesaw_device {
 }
 
 #[doc(hidden)]
-#[macro_export]
+#[macro_export(local_inner_macros)]
 macro_rules! impl_device_module {
     ($device:ident, EncoderModule { button_pin: $button_pin:expr }) => {
-        impl<D: $crate::driver::Driver> $crate::EncoderModule<D> for $device<D> {
+        impl<D: $crate::driver::Driver> $crate::modules::encoder::EncoderModule<D> for $device<D> {
             const ENCODER_BTN_PIN: u8 = $button_pin;
         }
     };
     ($device:ident, GpioModule $({})?) => {
-        impl<D: $crate::driver::Driver> $crate::GpioModule<D> for $device<D> {}
+        impl<D: $crate::driver::Driver> $crate::modules::gpio::GpioModule<D> for $device<D> {}
     };
     ($device:ident, StatusModule $({})?) => {
-        impl<D: $crate::driver::Driver> $crate::StatusModule<D> for $device<D> {}
+        impl<D: $crate::driver::Driver> $crate::modules::StatusModule<D> for $device<D> {}
     };
     ($device:ident, NeopixelModule { num_leds: $num_leds:expr, pin: $pin:expr }) => {
-        impl<D: $crate::driver::Driver> $crate::NeopixelModule<D> for $device<D> {
+        impl<D: $crate::driver::Driver> $crate::modules::neopixel::NeopixelModule<D>
+            for $device<D>
+        {
             const N_LEDS: u16 = $num_leds;
             const PIN: u8 = $pin;
         }
