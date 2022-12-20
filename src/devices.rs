@@ -1,4 +1,13 @@
-use crate::{driver::Driver, modules::*, seesaw_device, HardwareId, SeesawDeviceInit};
+use crate::{
+    driver::Driver,
+    modules::{
+        encoder::EncoderModule,
+        gpio::{GpioModule, PinMode},
+        neopixel::NeopixelModule,
+        status::StatusModule,
+    },
+    seesaw_device, HardwareId, SeesawDeviceInit,
+};
 
 /// All devices implement the status module
 impl<D: Driver, T: super::SeesawDevice<Driver = D>> StatusModule<D> for T {}

@@ -12,10 +12,14 @@ pub mod modules;
 pub use common::*;
 pub use devices::*;
 pub use driver::*;
-pub use modules::*;
 
 pub mod prelude {
-    pub use super::{devices::*, driver::DriverExt, modules::*, SeesawDevice, SeesawDeviceInit};
+    pub use super::{
+        devices::*,
+        driver::DriverExt,
+        modules::{adc::*, encoder::*, gpio::*, neopixel::*, status::*},
+        SeesawDevice, SeesawDeviceInit,
+    };
 }
 
 pub type SeesawSingleThread<BUS> = Seesaw<shared_bus::NullMutex<BUS>>;
