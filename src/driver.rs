@@ -89,7 +89,9 @@ impl<T: Driver> DriverExt for T {
         reg: &Reg,
     ) -> Result<[u8; N], Self::Error> {
         let mut buffer = [0u8; N];
-        self.write_read(addr, reg, &mut buffer)?;
+        self.write(addr, reg)?;
+        self.delay_us(DELAY_TIME);
+        self.read(addr, &mut buffer)?;
         Ok(buffer)
     }
 
