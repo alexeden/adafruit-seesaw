@@ -35,7 +35,7 @@ macro_rules! seesaw_device {
             type Driver = D;
             type Error = $crate::SeesawError<D::I2cError>;
             const DEFAULT_ADDR: u8 = $default_addr;
-            const HARDWARE_ID: u8 = $hardware_id.into();
+            const HARDWARE_ID: $crate::common::HardwareId = $hardware_id;
             const PRODUCT_ID: u16 = $product_id;
 
             fn addr(&self) -> u8 {
@@ -64,6 +64,9 @@ macro_rules! seesaw_device {
 #[doc(hidden)]
 #[macro_export(local_inner_macros)]
 macro_rules! impl_device_module {
+    ($device:ident, AdcModule $({})?) => {
+        impl<D: $crate::driver::Driver> $crate::modules::adc::AdcModule<D> for $device<D> {}
+    };
     ($device:ident, EncoderModule { button_pin: $button_pin:expr }) => {
         impl<D: $crate::driver::Driver> $crate::modules::encoder::EncoderModule<D> for $device<D> {
             const ENCODER_BTN_PIN: u8 = $button_pin;
@@ -72,9 +75,6 @@ macro_rules! impl_device_module {
     ($device:ident, GpioModule $({})?) => {
         impl<D: $crate::driver::Driver> $crate::modules::gpio::GpioModule<D> for $device<D> {}
     };
-    ($device:ident, StatusModule $({})?) => {
-        impl<D: $crate::driver::Driver> $crate::modules::StatusModule<D> for $device<D> {}
-    };
     ($device:ident, NeopixelModule { num_leds: $num_leds:expr, pin: $pin:expr }) => {
         impl<D: $crate::driver::Driver> $crate::modules::neopixel::NeopixelModule<D>
             for $device<D>
@@ -82,5 +82,11 @@ macro_rules! impl_device_module {
             const N_LEDS: u16 = $num_leds;
             const PIN: u8 = $pin;
         }
+    };
+    ($device:ident, StatusModule $({})?) => {
+        impl<D: $crate::driver::Driver> $crate::modules::StatusModule<D> for $device<D> {}
+    };
+    ($device:ident, TimerModule $({})?) => {
+        impl<D: $crate::driver::Driver> $crate::modules::timer::TimerModule<D> for $device<D> {}
     };
 }

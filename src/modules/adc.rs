@@ -1,9 +1,10 @@
 use crate::{
     common::{Modules, Reg},
-    DriverExt,
+    DriverExt, HardwareId,
 };
 
 /// RO - 8 bits
+#[allow(dead_code)]
 const STATUS: &Reg = &[Modules::Adc.into(), 0x00];
 
 /// WO - 8 bits
@@ -56,6 +57,20 @@ const CHANNEL_0: &Reg = &[Modules::Adc.into(), 0x07];
 /// channels.
 pub trait AdcModule<D: crate::Driver>: crate::SeesawDevice<Driver = D> {
     fn analog_read(&mut self, pin: u8) -> Result<u16, crate::SeesawError<D::I2cError>> {
-        Ok(0)
+        let pin_offset = match Self::HARDWARE_ID {
+            HardwareId::ATTINY817 => pin,
+            HardwareId::SAMD09 => match pin {
+                2 => 0,
+                3 => 1,
+                4 => 2,
+                5 => 3,
+                _ => 0,
+            },
+        };
+
+        let addr = self.addr();
+        self.driver()
+            .read_u16(addr, &[CHANNEL_0[0], CHANNEL_0[1] + pin_offset])
+            .map_err(crate::SeesawError::I2c)
     }
 }
