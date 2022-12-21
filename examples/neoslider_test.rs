@@ -23,13 +23,14 @@ fn main() -> ! {
         .init()
         .expect("Failed to start NeoSlider");
 
-    neoslider
-        .set_neopixel_colors(&[(255, 0, 255), (255, 0, 255), (255, 0, 255), (255, 0, 255)])
-        .and_then(|_| neoslider.sync_neopixel())
-        .expect("Failed to set neopixel colors");
-
-    // It never gets this far...
-    loop {}
+    loop {
+        let value = neoslider.slider_value().expect("Failed to read slider");
+        let color = color_wheel((value / 3 & 0xFF) as u8);
+        neoslider
+            .set_neopixel_colors(&[color.into(), color.into(), color.into(), color.into()])
+            .and_then(|_| neoslider.sync_neopixel())
+            .expect("Failed to set neopixel colors");
+    }
 }
 
 #[panic_handler]
@@ -40,4 +41,21 @@ fn handle_panic(info: &core::panic::PanicInfo) -> ! {
         rprintln!("Payload {:?}", pl);
     }
     loop {}
+}
+
+fn color_wheel(byte: u8) -> Color {
+    match byte {
+        0..=84 => Color(255 - byte * 3, 0, byte * 3),
+        85..=169 => Color(0, (byte - 85) * 3, 255 - (byte - 85) * 3),
+        _ => Color((byte - 170) * 3, 255 - (byte - 170) * 3, 0),
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+struct Color(pub u8, pub u8, pub u8);
+
+impl From<Color> for (u8, u8, u8) {
+    fn from(value: Color) -> Self {
+        (value.0, value.1, value.2)
+    }
 }
