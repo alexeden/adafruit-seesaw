@@ -91,7 +91,7 @@ impl<T: Driver> DriverExt for T {
         let mut buffer = [0u8; N];
         self.write(addr, reg)?;
         self.delay_us(DELAY_TIME);
-        self.write_read(addr, &[], &mut buffer)?;
+        self.read(addr, &mut buffer)?;
         Ok(buffer)
     }
 

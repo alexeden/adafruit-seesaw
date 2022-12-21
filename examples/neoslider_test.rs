@@ -19,12 +19,18 @@ fn main() -> ! {
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
     let seesaw = SeesawSingleThread::new(delay, i2c);
-    let mut _neoslider = NeoSlider::new_with_default_addr(seesaw.acquire_driver())
+    let mut neoslider = NeoSlider::new_with_default_addr(seesaw.acquire_driver())
         .init()
         .expect("Failed to start NeoSlider");
 
-    // It never gets this far...
-    loop {}
+    loop {
+        let value = neoslider.slider_value().expect("Failed to read slider");
+        let color = color_wheel((value / 3 & 0xFF) as u8);
+        neoslider
+            .set_neopixel_colors(&[color.into(), color.into(), color.into(), color.into()])
+            .and_then(|_| neoslider.sync_neopixel())
+            .expect("Failed to set neopixel colors");
+    }
 }
 
 #[panic_handler]
@@ -35,4 +41,21 @@ fn handle_panic(info: &core::panic::PanicInfo) -> ! {
         rprintln!("Payload {:?}", pl);
     }
     loop {}
+}
+
+fn color_wheel(byte: u8) -> Color {
+    match byte {
+        0..=84 => Color(255 - byte * 3, 0, byte * 3),
+        85..=169 => Color(0, (byte - 85) * 3, 255 - (byte - 85) * 3),
+        _ => Color((byte - 170) * 3, 255 - (byte - 170) * 3, 0),
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+struct Color(pub u8, pub u8, pub u8);
+
+impl From<Color> for (u8, u8, u8) {
+    fn from(value: Color) -> Self {
+        (value.0, value.1, value.2)
+    }
 }

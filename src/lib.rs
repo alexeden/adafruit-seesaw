@@ -1,6 +1,6 @@
 #![no_std]
 #![allow(const_evaluatable_unchecked, incomplete_features)]
-#![feature(const_convert, const_trait_impl, generic_const_exprs)]
+#![feature(array_try_map, const_convert, const_trait_impl, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
 use embedded_hal::blocking::delay;
 mod bus;
@@ -12,10 +12,14 @@ pub mod modules;
 pub use common::*;
 pub use devices::*;
 pub use driver::*;
-pub use modules::*;
 
 pub mod prelude {
-    pub use super::{devices::*, driver::DriverExt, modules::*, SeesawDevice, SeesawDeviceInit};
+    pub use super::{
+        devices::*,
+        driver::DriverExt,
+        modules::{adc::*, encoder::*, gpio::*, neopixel::*, status::*, timer::*},
+        SeesawDevice, SeesawDeviceInit,
+    };
 }
 
 pub type SeesawSingleThread<BUS> = Seesaw<shared_bus::NullMutex<BUS>>;
@@ -54,7 +58,7 @@ pub trait SeesawDevice {
     type Driver: Driver;
 
     const DEFAULT_ADDR: u8;
-    const HARDWARE_ID: u8;
+    const HARDWARE_ID: HardwareId;
     const PRODUCT_ID: u16;
 
     fn addr(&self) -> u8;

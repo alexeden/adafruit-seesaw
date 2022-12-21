@@ -44,7 +44,7 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
     fn reset_and_verify_seesaw(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
         let hw_id = Self::HARDWARE_ID;
         self.reset().and_then(|_| match self.hardware_id() {
-            Ok(id) if id == hw_id => Ok(()),
+            Ok(id) if id == hw_id.into() => Ok(()),
             Ok(id) => Err(crate::SeesawError::InvalidHardwareId(id)),
             Err(e) => Err(e),
         })
@@ -104,7 +104,7 @@ impl From<u32> for DeviceCapabilities {
 #[derive(Debug)]
 pub struct ProductDateCode {
     pub id: u16,
-    pub year: u8,
+    pub year: u16,
     pub month: u8,
     pub day: u8,
 }
@@ -113,7 +113,7 @@ impl From<u32> for ProductDateCode {
     fn from(vers: u32) -> Self {
         Self {
             id: (vers >> 16) as u16,
-            year: (vers & 0x3F) as u8,
+            year: ((vers & 0x3F) + 2000) as u16,
             month: ((vers >> 7) & 0xF) as u8,
             day: ((vers >> 11) & 0x1F) as u8,
         }

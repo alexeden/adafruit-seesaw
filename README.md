@@ -61,10 +61,10 @@ let neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver())
 
 For instance, the `init` function for our `Neokey1x4` does the following:
 
-* Resets the device
-* Reads & verifies the device hardware ID
-* Enables the on-device neopixels
-* Enables the on-device buttons
+- Resets the device
+- Reads & verifies the device hardware ID
+- Enables the on-device neopixels
+- Enables the on-device buttons
 
 Calling `init` is of course optional, but without it you'll have to handle initialization yourself.
 
@@ -116,7 +116,7 @@ _Modules_
 
 | Seesaw Module | Implemented |
 | ------------- | ----------- |
-| ADC           | ⬜️         |
+| ADC           | ✅          |
 | EEPROM        | ⬜️         |
 | Encoder       | ✅          |
 | GPIO          | ✅          |
@@ -125,19 +125,19 @@ _Modules_
 | Sercom0       | ⬜️         |
 | Spectrum      | ⬜️         |
 | Status        | ✅          |
-| Timer         | ⬜️         |
+| Timer         | ✅          |
 | Touch         | ⬜️         |
 
 _Devices_
 
 - ⬜️ Ask Adafruit nicely for a list of their products that use the Seesaw firmware
 
-| Device                                               | Product ID | MCU       | Implemented                                 |
-| ---------------------------------------------------- | ---------- | --------- | ------------------------------------------- |
-| [ArcadeButton1x4](https://adafruit.com/product/5296) | 5296       | ATTiny8x7 | ⬜️                                         |
-| [NeoKey1x4](https://adafruit.com/product/4980)       | 4980       | SAMD09    | ✅                                          |
-| [NeoSlider](https://adafruit.com/product/5295)       | 5295       | ATTiny8x7 | ❓ (impl'd, but refuses to work in example) |
-| [RotaryEncoder](https://adafruit.com/product/4991)   | 4991       | SAMD09    | ✅                                          |
+| Device                                               | Product ID | MCU       | Implemented |
+| ---------------------------------------------------- | ---------- | --------- | ----------- |
+| [ArcadeButton1x4](https://adafruit.com/product/5296) | 5296       | ATTiny8x7 | ✅          |
+| [NeoKey1x4](https://adafruit.com/product/4980)       | 4980       | SAMD09    | ✅          |
+| [NeoSlider](https://adafruit.com/product/5295)       | 5295       | ATTiny8x7 | ✅          |
+| [RotaryEncoder](https://adafruit.com/product/4991)   | 4991       | SAMD09    | ✅          |
 
 ### Library/API-related
 

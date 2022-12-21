@@ -19,16 +19,25 @@ fn main() -> ! {
     let mut i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
 
     // Reset device
-    i2c.write(ADDR, &[0x00, 0x7F, 0xFF])
-        .map(|_| delay.delay_us(125_000u32))
-        .expect("Failed to write to reset register");
+    // i2c.write(ADDR, &[0x00, 0x7F, 0xFF])
+    //     .map(|_| delay.delay_us(125_000u32))
+    //     .expect("Failed to write to reset register");
 
     // Read hardware ID
+    // let mut id_buf = [0x00u8];
+    // i2c.write_read(ADDR, &[0x00, 0x01], &mut id_buf)
+    //     .expect("Failed to read hardware ID register");
+
     let mut id_buf = [0x00u8];
     i2c.write(ADDR, &[0x00, 0x01])
         .map(|_| delay.delay_us(125u32))
-        .and_then(|_| i2c.write_read(ADDR, &[], &mut id_buf))
+        .and_then(|_| i2c.read(ADDR, &mut id_buf))
         .expect("Failed to read hardware ID register");
+    // let mut id_buf = [0x00u8];
+    // i2c.write(ADDR, &[0x00, 0x01])
+    //     .map(|_| delay.delay_us(125u32))
+    //     .and_then(|_| i2c.write_read(ADDR, &[0x00, 0x01], &mut id_buf))
+    //     .expect("Failed to read hardware ID register");
 
     rprintln!("Hardware ID {:x?}", id_buf[0]);
 

@@ -71,6 +71,17 @@ const PULL_ENABLE: &Reg = &[Modules::Gpio.into(), 0x0B];
 #[allow(dead_code)]
 const PULL_DISABLE: &Reg = &[Modules::Gpio.into(), 0x0C];
 
+/// The GPIO module provides every day input and outputs. You'll get logic GPIO
+/// pins that can act as outputs or inputs. With pullups or pulldowns. When
+/// inputs, you can also create pin-change interrupts that are routed the the
+/// IRQ pin.
+///
+/// On SAMD09-based boards the GPIO is 3V only.
+///
+/// On ATtiny-based boards, the GPIO logic is whatever the power pin is, 3V or
+/// 5V.
+///
+/// The module base register address for the GPIO module is 0x01.
 pub trait GpioModule<D: crate::Driver>: crate::SeesawDevice<Driver = D> {
     fn digital_read(&mut self, pin: u8) -> Result<bool, crate::SeesawError<D::I2cError>> {
         self.digital_read_bulk()
