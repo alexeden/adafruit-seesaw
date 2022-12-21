@@ -5,9 +5,6 @@ use crate::{
 };
 
 /// WO - 8 bits
-/// Not documented.
-const STATUS: &Reg = &[Modules::Neopixel.into(), 0x00];
-/// WO - 8 bits
 /// This register sets the pin number (PORTA) that is used for the NeoPixel
 /// output.
 const SET_PIN: &Reg = &[Modules::Neopixel.into(), 0x01];
