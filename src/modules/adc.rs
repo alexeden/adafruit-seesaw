@@ -1,17 +1,17 @@
 use crate::{
-    common::{Modules, Reg},
+    common::{MODULE_ADC, Reg},
     DriverExt, HardwareId,
 };
 
 /// RO - 8 bits
 #[allow(dead_code)]
-const STATUS: &Reg = &[Modules::Adc.into(), 0x00];
+const STATUS: &Reg = &[MODULE_ADC, 0x00];
 
 /// WO - 8 bits
 /// Writing a 1 to any bit in this register enables the corresponding interrupt.
 /// Writing zeros to this register has no effect.
 #[allow(dead_code)]
-const INTENSET: &Reg = &[Modules::Adc.into(), 0x02];
+const INTENSET: &Reg = &[MODULE_ADC, 0x02];
 
 /// NOT SUPPORTED BY SEESAW PLATFORM
 ///
@@ -19,14 +19,14 @@ const INTENSET: &Reg = &[Modules::Adc.into(), 0x02];
 /// Writing a 1 to any bit in this register enables the corresponding interrupt.
 /// Writing zeros to this register has no effect.
 #[allow(dead_code)]
-const INTENCLR: &Reg = &[Modules::Adc.into(), 0x03];
+const INTENCLR: &Reg = &[MODULE_ADC, 0x03];
 
 /// NOT SUPPORTED BY SEESAW PLATFORM
 ///
 /// WO
 /// Writing 1 to this register sets window control.
 #[allow(dead_code)]
-const WINMODE: &Reg = &[Modules::Adc.into(), 0x04];
+const WINMODE: &Reg = &[MODULE_ADC, 0x04];
 
 /// NOT SUPPORTED BY SEESAW PLATFORM
 ///
@@ -35,11 +35,11 @@ const WINMODE: &Reg = &[Modules::Adc.into(), 0x04];
 /// B31 - B16: High threshold
 /// B15 - B0: Low threshold
 #[allow(dead_code)]
-const WINTHRESH: &Reg = &[Modules::Adc.into(), 0x05];
+const WINTHRESH: &Reg = &[MODULE_ADC, 0x05];
 
 /// RO - 16bits
 /// ADC value for channel 0
-const CHANNEL_0: &Reg = &[Modules::Adc.into(), 0x07];
+const CHANNEL_0: &Reg = &[MODULE_ADC, 0x07];
 
 /// The ADC provides the ability to measure analog voltages at 10-bit
 /// resolution. The SAMD09 seesaw has 4 ADC inputs, the Attiny8x7 has 11 ADC

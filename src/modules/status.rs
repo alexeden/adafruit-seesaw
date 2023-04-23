@@ -1,10 +1,10 @@
-use crate::{driver::Driver, DriverExt, Modules, Reg, SeesawDevice};
+use crate::{driver::Driver, DriverExt, MODULE_STATUS, MODULE_GPIO, MODULE_SERCOM0, MODULE_TIMER, MODULE_ADC, MODULE_DAC, MODULE_INTERRUPT, MODULE_DAP, MODULE_EEPROM, MODULE_NEOPIXEL, MODULE_TOUCH, MODULE_KEYPAD, MODULE_ENCODER, MODULE_SPECTRUM, Reg, SeesawDevice};
 
-const STATUS_HW_ID: &Reg = &[Modules::Status.into(), 0x01];
-const STATUS_VERSION: &Reg = &[Modules::Status.into(), 0x02];
-const STATUS_OPTIONS: &Reg = &[Modules::Status.into(), 0x03];
-const STATUS_TEMP: &Reg = &[Modules::Status.into(), 0x04];
-const STATUS_SWRST: &Reg = &[Modules::Status.into(), 0x7F];
+const STATUS_HW_ID: &Reg = &[MODULE_STATUS, 0x01];
+const STATUS_VERSION: &Reg = &[MODULE_STATUS, 0x02];
+const STATUS_OPTIONS: &Reg = &[MODULE_STATUS, 0x03];
+const STATUS_TEMP: &Reg = &[MODULE_STATUS, 0x04];
+const STATUS_SWRST: &Reg = &[MODULE_STATUS, 0x7F];
 
 pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
     fn capabilities(&mut self) -> Result<DeviceCapabilities, crate::SeesawError<D::I2cError>> {
@@ -82,20 +82,20 @@ pub struct DeviceCapabilities {
 impl From<u32> for DeviceCapabilities {
     fn from(value: u32) -> Self {
         DeviceCapabilities {
-            adc: value >> Modules::Adc as u8 & 1 == 1,
-            dac: value >> Modules::Dac as u8 & 1 == 1,
-            dap: value >> Modules::Dap as u8 & 1 == 1,
-            eeprom: value >> Modules::Eeprom as u8 & 1 == 1,
-            encoder: value >> Modules::Encoder as u8 & 1 == 1,
-            gpio: value >> Modules::Gpio as u8 & 1 == 1,
-            interrupt: value >> Modules::Interrupt as u8 & 1 == 1,
-            keypad: value >> Modules::Keypad as u8 & 1 == 1,
-            neopixel: value >> Modules::Neopixel as u8 & 1 == 1,
-            sercom0: value >> Modules::Sercom0 as u8 & 1 == 1,
-            spectrum: value >> Modules::Spectrum as u8 & 1 == 1,
-            status: value >> Modules::Status as u8 & 1 == 1,
-            timer: value >> Modules::Timer as u8 & 1 == 1,
-            touch: value >> Modules::Touch as u8 & 1 == 1,
+            adc: value >> MODULE_ADC as u8 & 1 == 1,
+            dac: value >> MODULE_DAC as u8 & 1 == 1,
+            dap: value >> MODULE_DAP as u8 & 1 == 1,
+            eeprom: value >> MODULE_EEPROM as u8 & 1 == 1,
+            encoder: value >> MODULE_ENCODER as u8 & 1 == 1,
+            gpio: value >> MODULE_GPIO as u8 & 1 == 1,
+            interrupt: value >> MODULE_INTERRUPT as u8 & 1 == 1,
+            keypad: value >> MODULE_KEYPAD as u8 & 1 == 1,
+            neopixel: value >> MODULE_NEOPIXEL as u8 & 1 == 1,
+            sercom0: value >> MODULE_SERCOM0 as u8 & 1 == 1,
+            spectrum: value >> MODULE_SPECTRUM as u8 & 1 == 1,
+            status: value >> MODULE_STATUS as u8 & 1 == 1,
+            timer: value >> MODULE_TIMER as u8 & 1 == 1,
+            touch: value >> MODULE_TOUCH as u8 & 1 == 1,
         }
     }
 }

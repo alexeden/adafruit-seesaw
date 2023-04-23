@@ -1,5 +1,5 @@
 use crate::{
-    common::{Modules, Reg},
+    common::{MODULE_NEOPIXEL, Reg},
     driver::Driver,
     DriverExt, SeesawDevice, SeesawError,
 };
@@ -7,23 +7,23 @@ use crate::{
 /// WO - 8 bits
 /// This register sets the pin number (PORTA) that is used for the NeoPixel
 /// output.
-const SET_PIN: &Reg = &[Modules::Neopixel.into(), 0x01];
+const SET_PIN: &Reg = &[MODULE_NEOPIXEL, 0x01];
 /// WO - 8 bits
 /// The protocol speed. (see `NeopixelSpeed`) Default is 800khz.
-const SET_SPEED: &Reg = &[Modules::Neopixel.into(), 0x02];
+const SET_SPEED: &Reg = &[MODULE_NEOPIXEL, 0x02];
 /// WO - 16 bits
 /// The number of bytes currently used for the pixel array. This is
 /// dependent on when the pixels you are using are RGB or RGBW.
-const SET_LEN: &Reg = &[Modules::Neopixel.into(), 0x03];
+const SET_LEN: &Reg = &[MODULE_NEOPIXEL, 0x03];
 /// WO - 256 bits (32 bytes)
 /// The data buffer. The first 2 bytes are the start address, and the data
 /// to write follows. Data should be written in blocks of maximum size 30
 /// bytes at a time.
-const SET_BUF: &Reg = &[Modules::Neopixel.into(), 0x04];
+const SET_BUF: &Reg = &[MODULE_NEOPIXEL, 0x04];
 /// W0 - Zero bits
 /// Sending the SHOW command will cause the output to update. There's no
 /// arguments/data after the command.
-const SHOW: &Reg = &[Modules::Neopixel.into(), 0x05];
+const SHOW: &Reg = &[MODULE_NEOPIXEL, 0x05];
 
 pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
     const PIN: u8;

@@ -1,15 +1,15 @@
 use super::gpio::{GpioModule, PinMode};
 use crate::{
-    common::{Modules, Reg},
-    DriverExt,
+    common::Reg,
+    DriverExt, MODULE_ENCODER,
 };
 
 #[allow(dead_code)]
-const STATUS: &Reg = &[Modules::Encoder.into(), 0x00];
-const INT_SET: &Reg = &[Modules::Encoder.into(), 0x10];
-const INT_CLR: &Reg = &[Modules::Encoder.into(), 0x20];
-const POSITION: &Reg = &[Modules::Encoder.into(), 0x30];
-const DELTA: &Reg = &[Modules::Encoder.into(), 0x40];
+const STATUS: &Reg = &[MODULE_ENCODER, 0x00];
+const INT_SET: &Reg = &[MODULE_ENCODER, 0x10];
+const INT_CLR: &Reg = &[MODULE_ENCODER, 0x20];
+const POSITION: &Reg = &[MODULE_ENCODER, 0x30];
+const DELTA: &Reg = &[MODULE_ENCODER, 0x40];
 
 pub trait EncoderModule<D: crate::Driver>: GpioModule<D> {
     const ENCODER_BTN_PIN: u8;
