@@ -1,6 +1,6 @@
 #![no_std]
 #![allow(const_evaluatable_unchecked, incomplete_features)]
-#![feature(array_try_map, const_convert, const_trait_impl, generic_const_exprs)]
+#![feature(array_try_map, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
 use embedded_hal::blocking::delay;
 mod bus;
