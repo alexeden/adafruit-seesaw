@@ -6,7 +6,7 @@ use crate::{
 /// WO - 16 bits
 /// The first byte of the register indicates which PWM pin will have its value
 /// set The second byte is the actual PWM value
-const PWM_VAL: &Reg = &[Modules::Timer.into(), 0x01];
+const PWM_VAL: &Reg = &[Modules::Timer.into_u8(), 0x01];
 
 /// The PWM module provides up to 4 8-bit PWM outputs.
 /// The module base register address for the PWM module is 0x08.

@@ -7,55 +7,55 @@ use crate::{
 /// Writing a 1 to any bit in this register sets the direction of the
 /// corresponding pin to OUTPUT. Writing 0 has no effect.
 #[allow(dead_code)]
-const SET_OUTPUT: &Reg = &[Modules::Gpio.into(), 0x02];
+const SET_OUTPUT: &Reg = &[Modules::Gpio.into_u8(), 0x02];
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register sets the direction of the
 /// corresponding pin to INPUT. Writing 0 has no effect.
-const SET_INPUT: &Reg = &[Modules::Gpio.into(), 0x03];
+const SET_INPUT: &Reg = &[Modules::Gpio.into_u8(), 0x03];
 
 /// WR - 32 bits
 /// When written to, all bits that are set to 0 will have their
 /// corresponding pins set LOW. All bits that are set to 1 will
 /// have their corresponding pins set HIGH.
 /// Reading this register reads all pins on PORTA of the seesaw device.
-const GPIO: &Reg = &[Modules::Gpio.into(), 0x04];
+const GPIO: &Reg = &[Modules::Gpio.into_u8(), 0x04];
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register writes the corresponding pin
 /// HIGH. Writing 0 has no effect.
-const SET_HIGH: &Reg = &[Modules::Gpio.into(), 0x05];
+const SET_HIGH: &Reg = &[Modules::Gpio.into_u8(), 0x05];
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register writes the corresponding pin
 /// LOW. Writing 0 has no effect.
-const SET_LOW: &Reg = &[Modules::Gpio.into(), 0x06];
+const SET_LOW: &Reg = &[Modules::Gpio.into_u8(), 0x06];
 
 /// W0 - 32 bits
 /// Writing a 1 to any bit in this register toggles the corresponding pin.
 /// Writing 0 has no effect.
 #[allow(dead_code)]
-const TOGGLE: &Reg = &[Modules::Gpio.into(), 0x07];
+const TOGGLE: &Reg = &[Modules::Gpio.into_u8(), 0x07];
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register enables the interrupt on the
 /// corresponding pin. When the value on this pin changes, the corresponding
 /// bit will be set in the INTFLAG register. Writing 0 has no effect.
 #[allow(dead_code)]
-const INT_ENABLE: &Reg = &[Modules::Gpio.into(), 0x08];
+const INT_ENABLE: &Reg = &[Modules::Gpio.into_u8(), 0x08];
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register disables the interrupt on the
 /// corresponding pin. Writing 0 has no effect.
 #[allow(dead_code)]
-const INT_DISABLE: &Reg = &[Modules::Gpio.into(), 0x09];
+const INT_DISABLE: &Reg = &[Modules::Gpio.into_u8(), 0x09];
 
 /// RO - 32 bits
 /// This register hold the status of all GPIO interrupts.
 /// When an interrupt fires, the corresponding bit in this register gets
 /// set. Reading this register clears all interrupts.
 #[allow(dead_code)]
-const INT_FLAG: &Reg = &[Modules::Gpio.into(), 0x0A];
+const INT_FLAG: &Reg = &[Modules::Gpio.into_u8(), 0x0A];
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register enables the internal pullup or
@@ -63,13 +63,13 @@ const INT_FLAG: &Reg = &[Modules::Gpio.into(), 0x0A];
 /// determined by the GPIO (output) value - if the corresponding GPIO
 /// register bit is low,  its a pulldown. High, its a pullup. Writing 0 has
 /// no effect.
-const PULL_ENABLE: &Reg = &[Modules::Gpio.into(), 0x0B];
+const PULL_ENABLE: &Reg = &[Modules::Gpio.into_u8(), 0x0B];
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register disables the pull up/down on the
 /// corresponding pin. Writing 0 has no effect.
 #[allow(dead_code)]
-const PULL_DISABLE: &Reg = &[Modules::Gpio.into(), 0x0C];
+const PULL_DISABLE: &Reg = &[Modules::Gpio.into_u8(), 0x0C];
 
 /// The GPIO module provides every day input and outputs. You'll get logic GPIO
 /// pins that can act as outputs or inputs. With pullups or pulldowns. When
@@ -149,7 +149,7 @@ pub enum PinMode {
     Analog = 0xC0,
 }
 
-impl const From<PinMode> for u8 {
+impl From<PinMode> for u8 {
     fn from(value: PinMode) -> Self {
         value as u8
     }
@@ -168,7 +168,7 @@ pub enum InterruptMode {
     OnhighWe = 0x0D,
 }
 
-impl const From<InterruptMode> for u8 {
+impl From<InterruptMode> for u8 {
     fn from(value: InterruptMode) -> Self {
         value as u8
     }

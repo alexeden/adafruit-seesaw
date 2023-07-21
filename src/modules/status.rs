@@ -1,10 +1,10 @@
 use crate::{driver::Driver, DriverExt, Modules, Reg, SeesawDevice};
 
-const STATUS_HW_ID: &Reg = &[Modules::Status.into(), 0x01];
-const STATUS_VERSION: &Reg = &[Modules::Status.into(), 0x02];
-const STATUS_OPTIONS: &Reg = &[Modules::Status.into(), 0x03];
-const STATUS_TEMP: &Reg = &[Modules::Status.into(), 0x04];
-const STATUS_SWRST: &Reg = &[Modules::Status.into(), 0x7F];
+const STATUS_HW_ID: &Reg = &[Modules::Status.into_u8(), 0x01];
+const STATUS_VERSION: &Reg = &[Modules::Status.into_u8(), 0x02];
+const STATUS_OPTIONS: &Reg = &[Modules::Status.into_u8(), 0x03];
+const STATUS_TEMP: &Reg = &[Modules::Status.into_u8(), 0x04];
+const STATUS_SWRST: &Reg = &[Modules::Status.into_u8(), 0x7F];
 
 pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
     fn capabilities(&mut self) -> Result<DeviceCapabilities, crate::SeesawError<D::I2cError>> {

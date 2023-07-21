@@ -6,7 +6,7 @@ pub enum HardwareId {
     SAMD09 = 0x55,
 }
 
-impl const From<HardwareId> for u8 {
+impl From<HardwareId> for u8 {
     fn from(value: HardwareId) -> Self {
         value as u8
     }
@@ -33,8 +33,8 @@ pub(crate) enum Modules {
     Spectrum = 0x12,
 }
 
-impl const From<Modules> for u8 {
-    fn from(value: Modules) -> Self {
-        value as u8
+impl Modules {
+    pub const fn into_u8(self) -> u8 {
+        self as u8
     }
 }

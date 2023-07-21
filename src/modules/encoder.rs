@@ -5,11 +5,11 @@ use crate::{
 };
 
 #[allow(dead_code)]
-const STATUS: &Reg = &[Modules::Encoder.into(), 0x00];
-const INT_SET: &Reg = &[Modules::Encoder.into(), 0x10];
-const INT_CLR: &Reg = &[Modules::Encoder.into(), 0x20];
-const POSITION: &Reg = &[Modules::Encoder.into(), 0x30];
-const DELTA: &Reg = &[Modules::Encoder.into(), 0x40];
+const STATUS: &Reg = &[Modules::Encoder.into_u8(), 0x00];
+const INT_SET: &Reg = &[Modules::Encoder.into_u8(), 0x10];
+const INT_CLR: &Reg = &[Modules::Encoder.into_u8(), 0x20];
+const POSITION: &Reg = &[Modules::Encoder.into_u8(), 0x30];
+const DELTA: &Reg = &[Modules::Encoder.into_u8(), 0x40];
 
 pub trait EncoderModule<D: crate::Driver>: GpioModule<D> {
     const ENCODER_BTN_PIN: u8;
