@@ -3,7 +3,7 @@
 #![feature(array_try_map, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
 use embedded_hal::blocking::delay;
-mod bus;
+pub mod bus;
 mod common;
 pub mod devices;
 mod driver;
