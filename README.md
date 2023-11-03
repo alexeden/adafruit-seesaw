@@ -23,7 +23,74 @@ let seesaw = SeesawSingleThread::new(delay, i2c);
 
 # Using across multiple threads
 
-[WIP] Pending implementation of `Seesaw` for other `BusMutex` types.
+Example usage of using multi-threaded `Seesaw` in a `std` context, running on an ESP32-S3:
+
+```rs
+use adafruit_seesaw::{prelude::*, RotaryEncoder, Seesaw};
+use esp_idf_hal::{
+    self,
+    delay::Delay,
+    gpio::PinDriver,
+    i2c::{I2cConfig, I2cDriver},
+    peripherals::Peripherals,
+    prelude::*,
+};
+use shared_bus::{once_cell, I2cProxy};
+use std::time::Duration;
+
+type SeesawMultiThread<BUS> = Seesaw<std::sync::Mutex<BUS>>;
+
+fn main() -> ! {
+    esp_idf_sys::link_patches();
+    esp_idf_svc::log::EspLogger::initialize_default();
+
+    // System
+    let peripherals = Peripherals::take().unwrap();
+    let mut i2c_power = PinDriver::output(peripherals.pins.gpio7).unwrap();
+    i2c_power.set_low().expect("Failed to turn off I2C power");
+
+    // I2C
+    let (sda, scl) = (peripherals.pins.gpio3, peripherals.pins.gpio4);
+    let config = I2cConfig::new().baudrate(400.kHz().into());
+    let i2c = I2cDriver::<'static>::new(peripherals.i2c0, sda, scl, &config)
+        .expect("Failed to create I2C driver");
+    i2c_power.set_high().expect("Failed to turn on I2C power");
+    std::thread::sleep(Duration::from_millis(50));
+
+    let bus: &'static _ = shared_bus::new_std!(I2cDriver = i2c).unwrap();
+    let seesaw: &'static _ = {
+        use once_cell::sync::OnceCell;
+
+        static MANAGER: OnceCell<
+            Seesaw<
+                std::sync::Mutex<
+                    adafruit_seesaw::bus::Bus<
+                        Delay,
+                        I2cProxy<'_, std::sync::Mutex<I2cDriver<'_>>>,
+                    >,
+                >,
+            >,
+        > = OnceCell::new();
+
+        let m = SeesawMultiThread::new(Delay, bus.acquire_i2c());
+        match MANAGER.set(m) {
+            Ok(_) => MANAGER.get(),
+            Err(_) => None,
+        }
+    }
+    .unwrap();
+
+    let _encoder =
+        RotaryEncoder::new_with_default_addr(seesaw.acquire_driver())
+            .init()
+            .expect("Failed to start rotary encoder.");
+
+    loop {
+        // Do stuff with rotary encoder
+    }
+}
+```
+
 
 # Creating a Device
 
