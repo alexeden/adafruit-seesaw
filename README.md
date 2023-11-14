@@ -187,7 +187,7 @@ _Modules_
 | EEPROM        | ⬜️         |
 | Encoder       | ✅          |
 | GPIO          | ✅          |
-| Keypad        | ⬜️         |
+| Keypad        | ✅         |
 | Neopixel      | ✅          |
 | Sercom0       | ⬜️         |
 | Spectrum      | ⬜️         |
@@ -204,6 +204,7 @@ _Devices_
 | [ArcadeButton1x4](https://adafruit.com/product/5296) | 5296       | ATTiny8x7 | ✅          |
 | [NeoKey1x4](https://adafruit.com/product/4980)       | 4980       | SAMD09    | ✅          |
 | [NeoSlider](https://adafruit.com/product/5295)       | 5295       | ATTiny8x7 | ✅          |
+| [NeoTrellis](https://adafruit.com/product/3954)       | 3954       | SAMD09 | ✅          |
 | [RotaryEncoder](https://adafruit.com/product/4991)   | 4991       | SAMD09    | ✅          |
 
 ### Library/API-related
