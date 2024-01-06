@@ -74,10 +74,10 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
         x: Range<u8>,
         y: Range<u8>,
         types: &[EventType],
-    ) -> Result<(), SeesawError<D::Error>> {
+    ) -> Result<(), (u8, u8, SeesawError<D::Error>)> {
         for y in y {
             for x in x.clone() {
-                self.watch_event(x, y, types, true)?;
+                self.watch_event(x, y, types, true).map_err(|e| (x, y, e))?;
             }
         }
         Ok(())
@@ -85,20 +85,20 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
 
     fn poll(&mut self) -> Result<KeyEventIter, crate::SeesawError<D::Error>> {
         let addr = self.addr();
-        let mut kei = KeyEventIter::default();
-        kei.count = self
-            .driver()
-            .read_u8(addr, COUNT)
-            .map_err(SeesawError::I2c)?;
+        let mut kei = KeyEventIter {
+            count: self
+                .driver()
+                .read_u8(addr, COUNT)
+                .map_err(SeesawError::I2c)?,
+            ..Default::default()
+        };
         if kei.count == 0 {
             return Ok(kei);
         }
         if kei.count > 16 {
             kei.count = 16;
         }
-        // problems with error type
-        // self.driver().read(addr, &mut kei.buf[0..(kei.count as
-        // usize)]).map_err(SeesawError::I2c)?; this may read too much.
+
         kei.buf = self
             .driver()
             .register_read(addr, FIFO)
@@ -121,7 +121,7 @@ impl Iterator for KeyEventIter {
         if self.cur >= self.count {
             return None;
         }
-        let mut rec: u8 = self.buf[self.cur as usize];
+        let rec: u8 = self.buf[self.cur as usize];
         self.cur += 1;
         let event = match rec & 3 {
             0 => EventType::IsDown,
@@ -130,10 +130,9 @@ impl Iterator for KeyEventIter {
             3 => EventType::Pressed,
             _ => unreachable!(),
         };
-        rec >>= 2;
-        let x = rec & 0x07;
-        rec >>= 3;
-        let y = rec;
+        let key = rec >> 2;
+        let x = key & 0x07;
+        let y = key >> 3;
         Some(KeyEvent { event, x, y })
     }
 }
