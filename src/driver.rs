@@ -1,26 +1,24 @@
 use crate::common::Reg;
-use embedded_hal::blocking::{delay, i2c};
+use embedded_hal::{delay, i2c};
 
 const DELAY_TIME: u32 = 125;
 
 /// Blanket trait for something that implements I2C bus operations, with a
 /// combined Error associated type
 #[doc(hidden)]
-pub trait I2cDriver: i2c::Write + i2c::WriteRead + i2c::Read {
-    type I2cError: From<<Self as i2c::Write>::Error>
-        + From<<Self as i2c::WriteRead>::Error>
-        + From<<Self as i2c::Read>::Error>;
+pub trait I2cDriver: i2c::I2c {
+    type I2cError: From<<Self as i2c::ErrorType>::Error>;
 }
 
 impl<T, E> I2cDriver for T
 where
-    T: i2c::Write<Error = E> + i2c::WriteRead<Error = E> + i2c::Read<Error = E>,
+    T: i2c::I2c<Error = E>,
 {
     type I2cError = E;
 }
 
-pub trait Driver: I2cDriver + delay::DelayUs<u32> {}
-impl<T> Driver for T where T: I2cDriver + delay::DelayUs<u32> {}
+pub trait Driver: I2cDriver + delay::DelayNs {}
+impl<T> Driver for T where T: I2cDriver + delay::DelayNs {}
 
 macro_rules! impl_integer_write {
     ($fn:ident $nty:tt) => {

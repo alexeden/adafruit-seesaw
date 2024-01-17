@@ -2,7 +2,7 @@
 #![allow(const_evaluatable_unchecked, incomplete_features)]
 #![feature(array_try_map, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
-use embedded_hal::blocking::delay;
+use embedded_hal::delay;
 pub mod bus;
 mod common;
 pub mod devices;
@@ -30,7 +30,7 @@ pub struct Seesaw<M> {
 
 impl<DELAY, I2C, M> Seesaw<M>
 where
-    DELAY: delay::DelayUs<u32>,
+    DELAY: delay::DelayNs,
     I2C: I2cDriver,
     M: shared_bus::BusMutex<Bus = bus::Bus<DELAY, I2C>>,
 {
