@@ -112,7 +112,7 @@ pub trait GpioModule<D: crate::Driver>: crate::SeesawDevice<Driver = D> {
         let bus = self.driver();
 
         match mode {
-            PinMode::Output => bus.write_u32(addr, GPIO, pins),
+            PinMode::Output => bus.write_u32(addr, SET_OUTPUT, pins),
             PinMode::Input => bus.write_u32(addr, SET_INPUT, pins),
             PinMode::InputPullup => bus
                 .write_u32(addr, SET_INPUT, pins)
