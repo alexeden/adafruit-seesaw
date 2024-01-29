@@ -28,11 +28,11 @@ impl<T> BusMutex for RefCellBus<T> {
 }
 
 #[cfg(feature = "std")]
-impl<T> BusMutex for ::std::sync::Mutex<T> {
+impl<T> BusMutex for std::sync::Mutex<T> {
     type Bus = T;
 
     fn create(v: Self::Bus) -> Self {
-        ::std::sync::Mutex::new(v)
+        std::sync::Mutex::new(v)
     }
 
     fn lock<R, F: FnOnce(&mut Self::Bus) -> R>(&self, f: F) -> R {

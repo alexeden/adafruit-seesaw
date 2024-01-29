@@ -29,9 +29,8 @@ pub type SeesawRefCell<BUS> = Seesaw<RefCellBus<BUS>>;
 #[cfg(feature = "std")]
 pub type SeesawStdMutex<BUS> = Seesaw<std::sync::Mutex<BUS>>;
 
-pub struct Seesaw<M> {
-    mutex: M,
-}
+/// The owner of the driver from which new seesaw devices can be created
+pub struct Seesaw<M>(M);
 
 impl<DELAY, I2C, M> Seesaw<M>
 where
@@ -40,13 +39,11 @@ where
     M: BusMutex<Bus = (DELAY, I2C)>,
 {
     pub fn new(delay: DELAY, i2c: I2C) -> Self {
-        Seesaw {
-            mutex: M::create((delay, i2c)),
-        }
+        Seesaw(M::create((delay, i2c)))
     }
 
     pub fn acquire_driver(&self) -> Bus<'_, M> {
-        Bus(&self.mutex)
+        Bus(&self.0)
     }
 }
 

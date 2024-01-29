@@ -7,17 +7,6 @@ use embedded_hal::{
 #[derive(Debug)]
 pub struct Bus<'a, M>(pub(crate) &'a M);
 
-impl<'a, DELAY, I2C, M> Clone for Bus<'a, M>
-where
-    DELAY: DelayNs,
-    I2C: I2c,
-    M: BusMutex<Bus = (DELAY, I2C)>,
-{
-    fn clone(&self) -> Self {
-        Self(self.0)
-    }
-}
-
 // Delay implementation
 impl<'a, DELAY, I2C, M> DelayNs for Bus<'a, M>
 where
