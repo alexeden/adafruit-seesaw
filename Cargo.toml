@@ -14,20 +14,23 @@ repository = "https://github.com/alexeden/adafruit-seesaw"
 
 [package.metadata.docs.rs]
 all-features = true
+features = ["std"]
+
+[features]
+std = []
 
 [lib]
 bench = false
 test = false
 
 [dependencies]
-embedded-hal = "0.2"
-shared-bus = "0.2"
+embedded-hal = "1.0.0"
 
 [dev-dependencies]
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
-rtt-target = { version = "0.3", features = ["cortex-m"] }
-stm32f4xx-hal = { features = ["rt", "stm32f405", "sdio"], version = "0.13" }
+rtt-target = { version = "0.5" }
+stm32f4xx-hal = { features = ["stm32f405", "sdio"], version = "0.20" }
 
 [profile.release]
 codegen-units = 1
