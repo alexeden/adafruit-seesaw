@@ -1,86 +1,57 @@
-use crate::driver::I2cDriver;
-use embedded_hal::blocking::{delay, i2c};
-use shared_bus::BusMutex;
+use crate::mutex::BusMutex;
+use embedded_hal::{
+    delay::DelayNs,
+    i2c::{self, ErrorType, I2c},
+};
 
 #[derive(Debug)]
-pub struct BusProxy<'a, M> {
-    pub(crate) mutex: &'a M,
-}
+pub struct Bus<'a, M>(pub(crate) &'a M);
 
-#[derive(Debug)]
-pub struct Bus<DELAY, I2C>(pub(crate) DELAY, pub(crate) I2C);
-
-// Clone implementation
-impl<'a, DELAY, I2C, M> Clone for BusProxy<'a, M>
+impl<'a, DELAY, I2C, M> Clone for Bus<'a, M>
 where
-    DELAY: delay::DelayUs<u32>,
-    I2C: I2cDriver,
-    M: BusMutex<Bus = Bus<DELAY, I2C>>,
+    DELAY: DelayNs,
+    I2C: I2c,
+    M: BusMutex<Bus = (DELAY, I2C)>,
 {
     fn clone(&self) -> Self {
-        Self { mutex: self.mutex }
+        Self(self.0)
     }
 }
 
 // Delay implementation
-impl<'a, DELAY, I2C, M> delay::DelayUs<u32> for BusProxy<'a, M>
+impl<'a, DELAY, I2C, M> DelayNs for Bus<'a, M>
 where
-    DELAY: delay::DelayUs<u32>,
-    I2C: I2cDriver,
-    M: BusMutex<Bus = Bus<DELAY, I2C>>,
+    DELAY: DelayNs,
+    I2C: I2c,
+    M: BusMutex<Bus = (DELAY, I2C)>,
 {
-    fn delay_us(&mut self, us: u32) {
-        self.mutex.lock(|bus| bus.0.delay_us(us))
+    fn delay_ns(&mut self, ns: u32) {
+        self.0.lock(|bus| bus.0.delay_ns(ns))
     }
 }
 
-// I2C implementations
-impl<'a, DELAY, I2C, M> i2c::Write for BusProxy<'a, M>
+impl<'a, DELAY, I2C, M> ErrorType for Bus<'a, M>
 where
-    DELAY: delay::DelayUs<u32>,
-    I2C: I2cDriver,
-    M: BusMutex<Bus = Bus<DELAY, I2C>>,
+    DELAY: DelayNs,
+    I2C: I2c,
+    M: BusMutex<Bus = (DELAY, I2C)>,
 {
-    type Error = I2C::I2cError;
-
-    fn write(&mut self, addr: u8, buffer: &[u8]) -> Result<(), Self::Error> {
-        self.mutex
-            .lock(|bus| bus.1.write(addr, buffer))
-            .map_err(|err| err.into())
-    }
+    type Error = I2C::Error;
 }
 
-impl<'a, DELAY, I2C, M> i2c::Read for BusProxy<'a, M>
+impl<'a, DELAY, I2C, M> I2c for Bus<'a, M>
 where
-    DELAY: delay::DelayUs<u32>,
-    I2C: I2cDriver,
-    M: BusMutex<Bus = Bus<DELAY, I2C>>,
+    DELAY: DelayNs,
+    I2C: I2c,
+    M: BusMutex<Bus = (DELAY, I2C)>,
 {
-    type Error = I2C::I2cError;
-
-    fn read(&mut self, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
-        self.mutex
-            .lock(|bus| bus.1.read(addr, buffer))
-            .map_err(|err| err.into())
-    }
-}
-
-impl<'a, DELAY, I2C, M> i2c::WriteRead for BusProxy<'a, M>
-where
-    DELAY: delay::DelayUs<u32>,
-    I2C: I2cDriver,
-    M: BusMutex<Bus = Bus<DELAY, I2C>>,
-{
-    type Error = I2C::I2cError;
-
-    fn write_read(
+    fn transaction(
         &mut self,
-        addr: u8,
-        buffer_in: &[u8],
-        buffer_out: &mut [u8],
+        address: u8,
+        operations: &mut [i2c::Operation<'_>],
     ) -> Result<(), Self::Error> {
-        self.mutex
-            .lock(|bus| bus.1.write_read(addr, buffer_in, buffer_out))
+        self.0
+            .lock(|bus| bus.1.transaction(address, operations))
             .map_err(|err| err.into())
     }
 }
