@@ -83,23 +83,19 @@ const PULL_DISABLE: &Reg = &[Modules::Gpio.into_u8(), 0x0C];
 ///
 /// The module base register address for the GPIO module is 0x01.
 pub trait GpioModule<D: crate::Driver>: crate::SeesawDevice<Driver = D> {
-    fn digital_read(&mut self, pin: u8) -> Result<bool, crate::SeesawError<D::I2cError>> {
+    fn digital_read(&mut self, pin: u8) -> Result<bool, crate::SeesawError<D::Error>> {
         self.digital_read_bulk()
             .map(|pins| !matches!(pins >> pin & 0x1, 1))
     }
 
-    fn digital_read_bulk(&mut self) -> Result<u32, crate::SeesawError<D::I2cError>> {
+    fn digital_read_bulk(&mut self) -> Result<u32, crate::SeesawError<D::Error>> {
         let addr = self.addr();
         self.driver()
             .read_u32(addr, GPIO)
             .map_err(crate::SeesawError::I2c)
     }
 
-    fn set_pin_mode(
-        &mut self,
-        pin: u8,
-        mode: PinMode,
-    ) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn set_pin_mode(&mut self, pin: u8, mode: PinMode) -> Result<(), crate::SeesawError<D::Error>> {
         self.set_pin_mode_bulk(1 << pin, mode)
     }
 
@@ -107,7 +103,7 @@ pub trait GpioModule<D: crate::Driver>: crate::SeesawDevice<Driver = D> {
         &mut self,
         pins: u32,
         mode: PinMode,
-    ) -> Result<(), crate::SeesawError<D::I2cError>> {
+    ) -> Result<(), crate::SeesawError<D::Error>> {
         let addr = self.addr();
         let bus = self.driver();
 

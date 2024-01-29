@@ -7,7 +7,7 @@ const STATUS_TEMP: &Reg = &[Modules::Status.into_u8(), 0x04];
 const STATUS_SWRST: &Reg = &[Modules::Status.into_u8(), 0x7F];
 
 pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
-    fn capabilities(&mut self) -> Result<DeviceCapabilities, crate::SeesawError<D::I2cError>> {
+    fn capabilities(&mut self) -> Result<DeviceCapabilities, crate::SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()
@@ -16,14 +16,14 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(crate::SeesawError::I2c)
     }
 
-    fn hardware_id(&mut self) -> Result<u8, crate::SeesawError<D::I2cError>> {
+    fn hardware_id(&mut self) -> Result<u8, crate::SeesawError<D::Error>> {
         let addr = self.addr();
         self.driver()
             .read_u8(addr, STATUS_HW_ID)
             .map_err(crate::SeesawError::I2c)
     }
 
-    fn product_info(&mut self) -> Result<ProductDateCode, crate::SeesawError<D::I2cError>> {
+    fn product_info(&mut self) -> Result<ProductDateCode, crate::SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()
@@ -32,7 +32,7 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(crate::SeesawError::I2c)
     }
 
-    fn reset(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn reset(&mut self) -> Result<(), crate::SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()
@@ -41,7 +41,7 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(crate::SeesawError::I2c)
     }
 
-    fn reset_and_verify_seesaw(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn reset_and_verify_seesaw(&mut self) -> Result<(), crate::SeesawError<D::Error>> {
         let hw_id = Self::HARDWARE_ID;
         self.reset().and_then(|_| match self.hardware_id() {
             Ok(id) if id == hw_id.into() => Ok(()),
@@ -50,7 +50,7 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
         })
     }
 
-    fn temp(&mut self) -> Result<f32, crate::SeesawError<D::I2cError>> {
+    fn temp(&mut self) -> Result<f32, crate::SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()

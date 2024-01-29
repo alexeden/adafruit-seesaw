@@ -65,12 +65,12 @@ impl<D: Driver> SeesawDeviceInit<D> for ArcadeButton1x4<D> {
 }
 
 impl<D: Driver> ArcadeButton1x4<D> {
-    pub fn button_values(&mut self) -> Result<[bool; 4], crate::SeesawError<D::I2cError>> {
+    pub fn button_values(&mut self) -> Result<[bool; 4], crate::SeesawError<D::Error>> {
         [18, 19, 20, 2].try_map(|pin| self.digital_read(pin))
     }
 
     /// Set the pin mode of the 4 buttons to input pullup:
-    pub fn enable_buttons(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+    pub fn enable_buttons(&mut self) -> Result<(), crate::SeesawError<D::Error>> {
         self.set_pin_mode(18, PinMode::InputPullup)?;
         self.set_pin_mode(19, PinMode::InputPullup)?;
         self.set_pin_mode(20, PinMode::InputPullup)?;
@@ -81,7 +81,7 @@ impl<D: Driver> ArcadeButton1x4<D> {
     pub fn set_led_duty_cycles(
         &mut self,
         pwms: &[u8; 4],
-    ) -> Result<(), crate::SeesawError<D::I2cError>> {
+    ) -> Result<(), crate::SeesawError<D::Error>> {
         [12u8, 13, 0, 1]
             .iter()
             .enumerate()
@@ -111,14 +111,14 @@ impl<D: Driver> SeesawDeviceInit<D> for NeoKey1x4<D> {
 }
 
 impl<D: Driver> NeoKey1x4<D> {
-    pub fn enable_button_pins(&mut self) -> Result<(), crate::SeesawError<D::I2cError>> {
+    pub fn enable_button_pins(&mut self) -> Result<(), crate::SeesawError<D::Error>> {
         self.set_pin_mode_bulk(
             (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7),
             PinMode::InputPullup,
         )
     }
 
-    pub fn keys(&mut self) -> Result<u8, crate::SeesawError<D::I2cError>> {
+    pub fn keys(&mut self) -> Result<u8, crate::SeesawError<D::Error>> {
         self.digital_read_bulk().map(|r| (r >> 4 & 0xF) as u8)
     }
 }
@@ -145,7 +145,7 @@ impl<D: Driver> SeesawDeviceInit<D> for NeoSlider<D> {
 }
 
 impl<D: Driver> NeoSlider<D> {
-    pub fn slider_value(&mut self) -> Result<u16, crate::SeesawError<D::I2cError>> {
+    pub fn slider_value(&mut self) -> Result<u16, crate::SeesawError<D::Error>> {
         self.analog_read(18)
     }
 }

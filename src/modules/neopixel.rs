@@ -31,7 +31,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
     /// The number of neopixels on the device
     const N_LEDS: u16 = 1;
 
-    fn enable_neopixel(&mut self) -> Result<(), SeesawError<D::I2cError>> {
+    fn enable_neopixel(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()
@@ -44,7 +44,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    fn set_neopixel_speed(&mut self, speed: NeopixelSpeed) -> Result<(), SeesawError<D::I2cError>> {
+    fn set_neopixel_speed(&mut self, speed: NeopixelSpeed) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()
@@ -60,7 +60,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    fn set_neopixel_color(&mut self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<D::I2cError>> {
+    fn set_neopixel_color(&mut self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<D::Error>> {
         self.set_nth_neopixel_color(0, r, g, b)
     }
 
@@ -70,7 +70,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
         r: u8,
         g: u8,
         b: u8,
-    ) -> Result<(), SeesawError<D::I2cError>> {
+    ) -> Result<(), SeesawError<D::Error>> {
         assert!(n < Self::N_LEDS);
         let [zero, one] = u16::to_be_bytes(3 * n);
         let addr = self.addr();
@@ -83,7 +83,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
     fn set_neopixel_colors(
         &mut self,
         colors: &[(u8, u8, u8); Self::N_LEDS as usize],
-    ) -> Result<(), SeesawError<D::I2cError>>
+    ) -> Result<(), SeesawError<D::Error>>
     where
         [(); Self::N_LEDS as usize]: Sized,
     {
@@ -103,7 +103,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    fn sync_neopixel(&mut self) -> Result<(), SeesawError<D::I2cError>> {
+    fn sync_neopixel(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()

@@ -1,18 +1,20 @@
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 #![allow(const_evaluatable_unchecked, incomplete_features)]
 #![feature(array_try_map, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
-use embedded_hal::blocking::delay;
+use embedded_hal::{delay::DelayNs, i2c::I2c};
 pub mod bus;
 mod common;
 pub mod devices;
 mod driver;
 mod macros;
 pub mod modules;
+pub mod mutex;
+use bus::Bus;
 pub use common::*;
 pub use devices::*;
 pub use driver::*;
-
+use mutex::{BusMutex, RefCellBus};
 pub mod prelude {
     pub use super::{
         devices::*,
@@ -22,7 +24,10 @@ pub mod prelude {
     };
 }
 
-pub type SeesawSingleThread<BUS> = Seesaw<shared_bus::NullMutex<BUS>>;
+pub type SeesawRefCell<BUS> = Seesaw<RefCellBus<BUS>>;
+
+#[cfg(feature = "std")]
+pub type SeesawStdMutex<BUS> = Seesaw<std::sync::Mutex<BUS>>;
 
 pub struct Seesaw<M> {
     mutex: M,
@@ -30,18 +35,18 @@ pub struct Seesaw<M> {
 
 impl<DELAY, I2C, M> Seesaw<M>
 where
-    DELAY: delay::DelayUs<u32>,
-    I2C: I2cDriver,
-    M: shared_bus::BusMutex<Bus = bus::Bus<DELAY, I2C>>,
+    DELAY: DelayNs,
+    I2C: I2c,
+    M: BusMutex<Bus = (DELAY, I2C)>,
 {
     pub fn new(delay: DELAY, i2c: I2C) -> Self {
         Seesaw {
-            mutex: M::create(bus::Bus(delay, i2c)),
+            mutex: M::create((delay, i2c)),
         }
     }
 
-    pub fn acquire_driver(&self) -> bus::BusProxy<'_, M> {
-        bus::BusProxy { mutex: &self.mutex }
+    pub fn acquire_driver(&self) -> Bus<'_, M> {
+        Bus(&self.mutex)
     }
 }
 

@@ -34,7 +34,7 @@ macro_rules! seesaw_device {
 
         impl<D: $crate::Driver> $crate::SeesawDevice for $name<D> {
             type Driver = D;
-            type Error = $crate::SeesawError<D::I2cError>;
+            type Error = $crate::SeesawError<D::Error>;
             const DEFAULT_ADDR: u8 = $default_addr;
             const HARDWARE_ID: $crate::HardwareId = $hardware_id;
             const PRODUCT_ID: u16 = $product_id;

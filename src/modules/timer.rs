@@ -12,7 +12,7 @@ const PWM_VAL: &Reg = &[Modules::Timer.into_u8(), 0x01];
 /// The module base register address for the PWM module is 0x08.
 /// PWM outputs are available on pins PA04, PA05, PA06, and PA07.
 pub trait TimerModule<D: crate::Driver>: crate::SeesawDevice<Driver = D> {
-    fn analog_write(&mut self, pin: u8, value: u8) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn analog_write(&mut self, pin: u8, value: u8) -> Result<(), crate::SeesawError<D::Error>> {
         let mapped_pin = match Self::HARDWARE_ID {
             HardwareId::ATTINY817 => pin,
             HardwareId::SAMD09 => match pin {
