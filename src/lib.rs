@@ -73,11 +73,9 @@ pub trait SeesawDevice {
 }
 
 /// At startup, Seesaw devices typically have a unique set of initialization
-/// calls to be made. e.g. for a Neokey1x4, we're need to enable the on-board
+/// calls to be made. e.g. for a Neokey1x4, we need to enable the on-board
 /// neopixel and also do some pin mode setting to get everything working.
-/// All devices implement `DeviceInit` with a set of sensible defaults. You can
-/// override the default initialization function with your own by calling
-/// `Seesaw::connect_with` instead of `Seesaw::connect`.
+/// All devices implement `DeviceInit` with a set of sensible defaults.
 pub trait SeesawDeviceInit<D: Driver>: SeesawDevice<Driver = D>
 where
     Self: Sized,
