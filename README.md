@@ -1,5 +1,3 @@
-# adafruit-seesaw
-
 ![Adafruit Seesaw Logo](/docs/seesaw-logo.png)
 
  [![crates.io page](https://img.shields.io/crates/v/adafruit-seesaw)](https://crates.io/crates/adafruit-seesaw) [![docs.rs](https://docs.rs/adafruit-seesaw/badge.svg)](https://docs.rs/adafruit-seesaw)
