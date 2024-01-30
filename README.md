@@ -1,16 +1,18 @@
-# adafruit-seesaw [![crates.io page](https://img.shields.io/crates/v/adafruit-seesaw)](https://crates.io/crates/adafruit-seesaw) [![docs.rs](https://docs.rs/adafruit-seesaw/badge.svg)](https://docs.rs/adafruit-seesaw)
+![Adafruit Seesaw Logo](/docs/seesaw-logo.png)
+
+ [![crates.io page](https://img.shields.io/crates/v/adafruit-seesaw)](https://crates.io/crates/adafruit-seesaw) [![docs.rs](https://docs.rs/adafruit-seesaw/badge.svg)](https://docs.rs/adafruit-seesaw)
 
 Platform-agnostic driver to communicate with devices that implement the [Adafruit Seesaw firmware.](https://github.com/adafruit/Adafruit_Seesaw) See the Seesaw [guide](https://learn.adafruit.com/adafruit-seesaw-atsamd09-breakout) for more information on the firmware.
 
 # Introduction
 
-The library uses and follows the patterns of the [`shared-bus`](https://github.com/Rahix/shared-bus) library so that multiple devices can be connected and communicated with without owning the I2C bus.
+The library follows the patterns of the [`shared-bus`](https://github.com/Rahix/shared-bus) library so that multiple devices can be connected and communicated with without owning the I2C bus.
 
 Communicating with Seesaw devices requires a bus that implements both `I2C` traits and `Delay` from `embedded-hal`.
 
-# Using within a single thread
+# Using in a `#![no_std]` context
 
-If you're communicating with devices within a single thread, use the `SeesawSingleThread` struct, which uses the `NullMutex` bus mutex implementation from `shared-bus:
+If you're communicating with devices within a single thread, use the `SeesawRefCell` typed struct, which uses the `RefCellBus` wrapper to enable sharing of the bus across multiple Seesaw devices.
 
 ```rs
 // Setup on an STM32F405
@@ -18,15 +20,22 @@ let cp = cortex_m::Peripherals::take().unwrap();
 let clocks = dp.RCC.constrain().cfgr.freeze();
 let delay = cp.SYST.delay(&clocks);
 let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-let seesaw = SeesawSingleThread::new(delay, i2c);
+let seesaw = SeesawRefCell::new(delay, i2c);
+let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver())
+    .init()
+    .expect("Failed to start NeoKey1x4");
 ```
 
 # Using across multiple threads
 
+> This requires turning on the `std` feature flag.
+
+For multi-threaded purposes, use the `SeesawStdMutex` typed struct, which wraps the bus in a std `Mutex`.
+
 Example usage of using multi-threaded `Seesaw` in a `std` context, running on an ESP32-S3:
 
 ```rs
-use adafruit_seesaw::{prelude::*, RotaryEncoder, Seesaw};
+use adafruit_seesaw::{devices::RotaryEncoder, prelude::*, SeesawStdMutex};
 use esp_idf_hal::{
     self,
     delay::Delay,
@@ -35,45 +44,31 @@ use esp_idf_hal::{
     peripherals::Peripherals,
     prelude::*,
 };
-use shared_bus::{once_cell, I2cProxy};
 use std::time::Duration;
 
-type SeesawMultiThread<BUS> = Seesaw<std::sync::Mutex<BUS>>;
-
-fn main() -> ! {
-    esp_idf_sys::link_patches();
+fn main() -> Result<(), anyhow::Error> {
+    esp_idf_hal::sys::link_patches();
     esp_idf_svc::log::EspLogger::initialize_default();
 
     // System
     let peripherals = Peripherals::take().unwrap();
     let mut i2c_power = PinDriver::output(peripherals.pins.gpio7).unwrap();
-    i2c_power.set_low().expect("Failed to turn off I2C power");
+    i2c_power.set_low()?;
+    std::thread::sleep(Duration::from_millis(333));
 
     // I2C
     let (sda, scl) = (peripherals.pins.gpio3, peripherals.pins.gpio4);
     let config = I2cConfig::new().baudrate(400.kHz().into());
-    let i2c = I2cDriver::<'static>::new(peripherals.i2c0, sda, scl, &config)
-        .expect("Failed to create I2C driver");
-    i2c_power.set_high().expect("Failed to turn on I2C power");
-    std::thread::sleep(Duration::from_millis(50));
+    let i2c = I2cDriver::new(peripherals.i2c0, sda, scl, &config)?;
+    i2c_power.set_high()?;
+    std::thread::sleep(Duration::from_millis(333));
 
-    let bus: &'static _ = shared_bus::new_std!(I2cDriver = i2c).unwrap();
     let seesaw: &'static _ = {
         use once_cell::sync::OnceCell;
+        static MANAGER: OnceCell<SeesawStdMutex<(Delay, I2cDriver<'_>)>> =
+            OnceCell::new();
 
-        static MANAGER: OnceCell<
-            Seesaw<
-                std::sync::Mutex<
-                    adafruit_seesaw::bus::Bus<
-                        Delay,
-                        I2cProxy<'_, std::sync::Mutex<I2cDriver<'_>>>,
-                    >,
-                >,
-            >,
-        > = OnceCell::new();
-
-        let m = SeesawMultiThread::new(Delay, bus.acquire_i2c());
-        match MANAGER.set(m) {
+        match MANAGER.set(SeesawStdMutex::new(Delay::new_default(), i2c)) {
             Ok(_) => MANAGER.get(),
             Err(_) => None,
         }
@@ -90,7 +85,6 @@ fn main() -> ! {
     }
 }
 ```
-
 
 # Creating a Device
 
@@ -175,43 +169,34 @@ let neokeys = NeoKey2x3::new_with_default_addr(seesaw.acquire_driver())
     .expect("Failed to initialize NeoKey1x4");
 ```
 
-# TODOs
+# Implementation Progress
 
-### Seesaw-related
+| Seesaw Module | Implemented                                                       |
+| ------------- | ----------------------------------------------------------------- |
+| ADC           | ✅                                                                |
+| EEPROM        | ⬜️                                                               |
+| Encoder       | ✅                                                                |
+| GPIO          | ✅                                                                |
+| Keypad        | ⬜️ [Pending](https://github.com/alexeden/adafruit-seesaw/pull/6) |
+| Neopixel      | ✅                                                                |
+| Sercom0       | ⬜️                                                               |
+| Spectrum      | ⬜️                                                               |
+| Status        | ✅                                                                |
+| Timer         | ✅                                                                |
+| Touch         | ⬜️                                                               |
 
-_Modules_
+| Device                                               | Product ID | MCU       | Implemented                                                       |
+| ---------------------------------------------------- | ---------- | --------- | ----------------------------------------------------------------- |
+| [ArcadeButton1x4](https://adafruit.com/product/5296) | 5296       | ATTiny8x7 | ✅                                                                |
+| [NeoKey1x4](https://adafruit.com/product/4980)       | 4980       | SAMD09    | ✅                                                                |
+| [NeoSlider](https://adafruit.com/product/5295)       | 5295       | ATTiny8x7 | ✅                                                                |
+| [NeoTrellis](https://adafruit.com/product/3954)      | 3954       | SAMD09    | ⬜️ [Pending](https://github.com/alexeden/adafruit-seesaw/pull/6) |
+| [RotaryEncoder](https://adafruit.com/product/4991)   | 4991       | SAMD09    | ✅                                                                |
 
-| Seesaw Module | Implemented |
-| ------------- | ----------- |
-| ADC           | ✅          |
-| EEPROM        | ⬜️         |
-| Encoder       | ✅          |
-| GPIO          | ✅          |
-| Keypad        | ⬜️         |
-| Neopixel      | ✅          |
-| Sercom0       | ⬜️         |
-| Spectrum      | ⬜️         |
-| Status        | ✅          |
-| Timer         | ✅          |
-| Touch         | ⬜️         |
-
-_Devices_
+### Other tasks
 
 - ⬜️ Ask Adafruit nicely for a list of their products that use the Seesaw firmware
-
-| Device                                               | Product ID | MCU       | Implemented |
-| ---------------------------------------------------- | ---------- | --------- | ----------- |
-| [ArcadeButton1x4](https://adafruit.com/product/5296) | 5296       | ATTiny8x7 | ✅          |
-| [NeoKey1x4](https://adafruit.com/product/4980)       | 4980       | SAMD09    | ✅          |
-| [NeoSlider](https://adafruit.com/product/5295)       | 5295       | ATTiny8x7 | ✅          |
-| [RotaryEncoder](https://adafruit.com/product/4991)   | 4991       | SAMD09    | ✅          |
-
-### Library/API-related
-
-- ⬜️ Add feature flag and implementations for using eh alpha
-- ⬜️ Add features for using platform-specific mutexes ([these flags will be coupled directly with the feaure flags of `shared-bus`](https://docs.rs/crate/shared-bus/latest/features))
-
-- ⬜️ Setup github actions for CI porpoises
+- ⬜️ Setup github actions for CI
 
 # License
 

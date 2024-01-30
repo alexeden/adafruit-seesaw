@@ -1,7 +1,5 @@
-use crate::{
-    common::{Modules, Reg},
-    DriverExt,
-};
+use super::{Modules, Reg};
+use crate::{devices::SeesawDevice, Driver, DriverExt, SeesawError};
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register sets the direction of the
@@ -82,32 +80,22 @@ const PULL_DISABLE: &Reg = &[Modules::Gpio.into_u8(), 0x0C];
 /// 5V.
 ///
 /// The module base register address for the GPIO module is 0x01.
-pub trait GpioModule<D: crate::Driver>: crate::SeesawDevice<Driver = D> {
-    fn digital_read(&mut self, pin: u8) -> Result<bool, crate::SeesawError<D::I2cError>> {
+pub trait GpioModule<D: Driver>: SeesawDevice<Driver = D> {
+    fn digital_read(&mut self, pin: u8) -> Result<bool, SeesawError<D::Error>> {
         self.digital_read_bulk()
             .map(|pins| !matches!(pins >> pin & 0x1, 1))
     }
 
-    fn digital_read_bulk(&mut self) -> Result<u32, crate::SeesawError<D::I2cError>> {
+    fn digital_read_bulk(&mut self) -> Result<u32, SeesawError<D::Error>> {
         let addr = self.addr();
-        self.driver()
-            .read_u32(addr, GPIO)
-            .map_err(crate::SeesawError::I2c)
+        self.driver().read_u32(addr, GPIO).map_err(SeesawError::I2c)
     }
 
-    fn set_pin_mode(
-        &mut self,
-        pin: u8,
-        mode: PinMode,
-    ) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn set_pin_mode(&mut self, pin: u8, mode: PinMode) -> Result<(), SeesawError<D::Error>> {
         self.set_pin_mode_bulk(1 << pin, mode)
     }
 
-    fn set_pin_mode_bulk(
-        &mut self,
-        pins: u32,
-        mode: PinMode,
-    ) -> Result<(), crate::SeesawError<D::I2cError>> {
+    fn set_pin_mode_bulk(&mut self, pins: u32, mode: PinMode) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
         let bus = self.driver();
 
@@ -124,7 +112,7 @@ pub trait GpioModule<D: crate::Driver>: crate::SeesawDevice<Driver = D> {
                 .and_then(|_| bus.write_u32(addr, SET_LOW, pins)),
             _ => unimplemented!("Other pins modes are not supported."),
         }
-        .map_err(crate::SeesawError::I2c)
+        .map_err(SeesawError::I2c)
     }
 }
 
