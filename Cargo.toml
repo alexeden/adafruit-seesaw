@@ -14,7 +14,7 @@ repository = "https://github.com/alexeden/adafruit-seesaw"
 
 [package.metadata.docs.rs]
 all-features = true
-features = ["std"]
+rustdoc-args = ["--generate-link-to-definition"]
 
 [features]
 std = []
