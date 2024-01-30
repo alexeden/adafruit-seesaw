@@ -1,7 +1,5 @@
-use crate::{
-    common::{Modules, Reg},
-    DriverExt, HardwareId,
-};
+use super::{Modules, Reg};
+use crate::{DriverExt, HardwareId};
 
 /// WO - 16 bits
 /// The first byte of the register indicates which PWM pin will have its value

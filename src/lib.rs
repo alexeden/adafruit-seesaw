@@ -1,20 +1,12 @@
+#![doc = include_str!("../README.md")]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(const_evaluatable_unchecked, incomplete_features)]
 #![feature(array_try_map, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
-use embedded_hal::{delay::DelayNs, i2c::I2c};
 pub mod bus;
-mod common;
 pub mod devices;
-mod driver;
-mod macros;
 pub mod modules;
 pub mod mutex;
-use bus::Bus;
-pub use common::*;
-pub use devices::*;
-pub use driver::*;
-use mutex::{BusMutex, RefCellBus};
 pub mod prelude {
     pub use super::{
         devices::*,
@@ -23,6 +15,16 @@ pub mod prelude {
         SeesawDevice, SeesawDeviceInit,
     };
 }
+pub use devices::*;
+pub use driver::*;
+
+mod driver;
+mod macros;
+
+use bus::Bus;
+use embedded_hal::{delay::DelayNs, i2c::I2c};
+use modules::HardwareId;
+use mutex::{BusMutex, RefCellBus};
 
 pub type SeesawRefCell<BUS> = Seesaw<RefCellBus<BUS>>;
 

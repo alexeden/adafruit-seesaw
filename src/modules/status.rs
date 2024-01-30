@@ -1,4 +1,5 @@
-use crate::{driver::Driver, DriverExt, Modules, Reg, SeesawDevice};
+use super::{Modules, Reg};
+use crate::{driver::Driver, DriverExt, SeesawDevice};
 
 const STATUS_HW_ID: &Reg = &[Modules::Status.into_u8(), 0x01];
 const STATUS_VERSION: &Reg = &[Modules::Status.into_u8(), 0x02];

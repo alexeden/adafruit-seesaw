@@ -1,4 +1,4 @@
-use crate::common::Reg;
+use crate::modules::Reg;
 use embedded_hal::{
     delay::DelayNs,
     i2c::{I2c, SevenBitAddress},

@@ -1,7 +1,5 @@
-use crate::{
-    common::{Modules, Reg},
-    DriverExt, HardwareId,
-};
+use super::{HardwareId, Modules, Reg};
+use crate::DriverExt;
 
 /// RO - 8 bits
 #[allow(dead_code)]

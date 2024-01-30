@@ -7,8 +7,9 @@ use crate::{
         neopixel::NeopixelModule,
         status::StatusModule,
         timer::TimerModule,
+        HardwareId,
     },
-    seesaw_device, HardwareId, SeesawDeviceInit,
+    seesaw_device, SeesawDeviceInit,
 };
 
 /// All devices implement the status module
