@@ -13,9 +13,12 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 - Implementation of the Seesaw Keypad module [PR here](https://github.com/alexeden/adafruit-seesaw/pull/6)
 - [Add definition for the NeoDriver meopixel driver board](https://www.adafruit.com/product/5766)
 
-### To Be Changed
+## [0.6.1] - 2024-01-29
+
+### Changed
 
 - Fix issues caused by extraneous byte written when setting neopixel color [PR here](https://github.com/alexeden/adafruit-seesaw/pull/5)
+
 
 ## [0.6.0] - 2024-01-29
 
