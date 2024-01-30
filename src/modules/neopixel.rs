@@ -73,7 +73,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
         let addr = self.addr();
 
         self.driver()
-            .register_write(addr, SET_BUF, &[zero, one, r, g, b, 0x00])
+            .register_write(addr, SET_BUF, &[zero, one, r, g, b])
             .map_err(SeesawError::I2c)
     }
 
@@ -94,7 +94,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
                 self.driver().register_write(
                     addr,
                     SET_BUF,
-                    &[zero, one, color.0, color.1, color.2, 0x00],
+                    &[zero, one, color.0, color.1, color.2],
                 )
             })
             .map_err(SeesawError::I2c)
