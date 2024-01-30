@@ -10,7 +10,7 @@ pub mod prelude {
     pub use super::{
         devices::{SeesawDevice, SeesawDeviceInit},
         driver::DriverExt,
-        modules::{adc::*, encoder::*, gpio::*, neopixel::*, status::*, timer::*},
+        modules::{adc::*, encoder::*, gpio::*, neopixel::*, status::*, timer::*, HardwareId},
     };
 }
 mod driver;

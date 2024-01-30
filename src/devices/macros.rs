@@ -23,7 +23,7 @@ macro_rules! seesaw_device {
             pub const fn default_addr() -> u8 {
                 $default_addr
             }
-            pub const fn hardware_id() -> $crate::HardwareId {
+            pub const fn hardware_id() -> $crate::modules::HardwareId {
                 $hardware_id
             }
             pub const fn product_id() -> u16 {
@@ -35,7 +35,7 @@ macro_rules! seesaw_device {
             type Driver = D;
             type Error = $crate::SeesawError<D::Error>;
             const DEFAULT_ADDR: u8 = $default_addr;
-            const HARDWARE_ID: $crate::HardwareId = $hardware_id;
+            const HARDWARE_ID: $crate::modules::HardwareId = $hardware_id;
             const PRODUCT_ID: u16 = $product_id;
 
             fn addr(&self) -> u8 {
