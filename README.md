@@ -1,4 +1,8 @@
-# adafruit-seesaw [![crates.io page](https://img.shields.io/crates/v/adafruit-seesaw)](https://crates.io/crates/adafruit-seesaw) [![docs.rs](https://docs.rs/adafruit-seesaw/badge.svg)](https://docs.rs/adafruit-seesaw)
+# adafruit-seesaw
+
+![Adafruit Seesaw Logo](/docs/seesaw-logo.png)
+
+ [![crates.io page](https://img.shields.io/crates/v/adafruit-seesaw)](https://crates.io/crates/adafruit-seesaw) [![docs.rs](https://docs.rs/adafruit-seesaw/badge.svg)](https://docs.rs/adafruit-seesaw)
 
 Platform-agnostic driver to communicate with devices that implement the [Adafruit Seesaw firmware.](https://github.com/adafruit/Adafruit_Seesaw) See the Seesaw [guide](https://learn.adafruit.com/adafruit-seesaw-atsamd09-breakout) for more information on the firmware.
 
