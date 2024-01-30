@@ -1,30 +1,23 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(const_evaluatable_unchecked, incomplete_features)]
+#![allow(const_evaluatable_unchecked, incomplete_features, rustdoc::bare_urls)]
 #![feature(array_try_map, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
 pub mod bus;
 pub mod devices;
 pub mod modules;
-pub mod mutex;
 pub mod prelude {
     pub use super::{
-        devices::*,
+        devices::{SeesawDevice, SeesawDeviceInit},
         driver::DriverExt,
         modules::{adc::*, encoder::*, gpio::*, neopixel::*, status::*, timer::*},
-        SeesawDevice, SeesawDeviceInit,
     };
 }
-pub use devices::*;
-pub use driver::*;
-
 mod driver;
-mod macros;
-
-use bus::Bus;
+use bus::{Bus, BusMutex, RefCellBus};
+pub use driver::*;
 use embedded_hal::{delay::DelayNs, i2c::I2c};
 use modules::HardwareId;
-use mutex::{BusMutex, RefCellBus};
 
 pub type SeesawRefCell<BUS> = Seesaw<RefCellBus<BUS>>;
 
@@ -55,32 +48,4 @@ pub enum SeesawError<E> {
     I2c(E),
     /// Occurs when an invalid hardware ID is read
     InvalidHardwareId(u8),
-}
-
-pub trait SeesawDevice {
-    type Error;
-    type Driver: Driver;
-
-    const DEFAULT_ADDR: u8;
-    const HARDWARE_ID: HardwareId;
-    const PRODUCT_ID: u16;
-
-    fn addr(&self) -> u8;
-
-    fn driver(&mut self) -> &mut Self::Driver;
-
-    fn new(addr: u8, driver: Self::Driver) -> Self;
-
-    fn new_with_default_addr(driver: Self::Driver) -> Self;
-}
-
-/// At startup, Seesaw devices typically have a unique set of initialization
-/// calls to be made. e.g. for a Neokey1x4, we need to enable the on-board
-/// neopixel and also do some pin mode setting to get everything working.
-/// All devices implement `DeviceInit` with a set of sensible defaults.
-pub trait SeesawDeviceInit<D: Driver>: SeesawDevice<Driver = D>
-where
-    Self: Sized,
-{
-    fn init(self) -> Result<Self, Self::Error>;
 }

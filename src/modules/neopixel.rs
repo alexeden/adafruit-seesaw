@@ -1,5 +1,5 @@
 use super::{Modules, Reg};
-use crate::{driver::Driver, DriverExt, SeesawDevice, SeesawError};
+use crate::{devices::SeesawDevice, driver::Driver, DriverExt, SeesawError};
 
 /// WO - 8 bits
 /// This register sets the pin number (PORTA) that is used for the NeoPixel

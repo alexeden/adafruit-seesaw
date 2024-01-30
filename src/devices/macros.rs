@@ -14,9 +14,8 @@ macro_rules! seesaw_device {
         ]
          $(,)?
     ) => {
+        #[doc=core::concat!("[Product Page](https://www.adafruit.com/product/", core::stringify!($product_id),")")]
         $(#[$attr])*
-        ///
-        #[doc=core::concat!("[Adafruit Product Page](https://www.adafruit.com/product/", core::stringify!($product_id),")")]
         #[derive(Debug)]
         pub struct $name<D>(u8, D);
 
@@ -32,7 +31,7 @@ macro_rules! seesaw_device {
             }
         }
 
-        impl<D: $crate::Driver> $crate::SeesawDevice for $name<D> {
+        impl<D: $crate::Driver> $crate::devices::SeesawDevice for $name<D> {
             type Driver = D;
             type Error = $crate::SeesawError<D::Error>;
             const DEFAULT_ADDR: u8 = $default_addr;
