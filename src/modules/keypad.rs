@@ -1,10 +1,6 @@
+use super::{Modules, Reg};
+use crate::{devices::SeesawDevice, driver::Driver, DriverExt, SeesawError};
 use core::ops::Range;
-
-use crate::{
-    common::{Modules, Reg},
-    driver::Driver,
-    DriverExt, SeesawDevice, SeesawError,
-};
 
 #[allow(dead_code)]
 const STATUS: &Reg = &[Modules::Keypad.into_u8(), 0x00];
@@ -36,14 +32,14 @@ pub struct KeyEvent {
 }
 
 pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
-    fn disable_interrupt(&mut self) -> Result<(), SeesawError<D::I2cError>> {
+    fn disable_interrupt(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
         self.driver()
             .write_u8(addr, INT_CLR, 1)
             .map_err(SeesawError::I2c)
     }
 
-    fn enable_interrupt(&mut self) -> Result<(), SeesawError<D::I2cError>> {
+    fn enable_interrupt(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
         self.driver()
             .write_u8(addr, INT_SET, 1)
@@ -56,7 +52,7 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
         y: u8,
         types: &[EventType],
         enable: bool,
-    ) -> Result<(), SeesawError<D::I2cError>> {
+    ) -> Result<(), SeesawError<D::Error>> {
         let mut v = types.iter().map(|e| 2_u8 << (*e as u8)).sum();
         if enable {
             v += 1;
@@ -73,7 +69,7 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
         x: Range<u8>,
         y: Range<u8>,
         types: &[EventType],
-    ) -> Result<(), SeesawError<D::I2cError>> {
+    ) -> Result<(), SeesawError<D::Error>> {
         for y in y {
             for x in x.clone() {
                 self.watch_event(x, y, types, true)?;
@@ -82,7 +78,7 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
         Ok(())
     }
 
-    fn poll(&mut self) -> Result<KeyEventIter, crate::SeesawError<D::I2cError>> {
+    fn poll(&mut self) -> Result<KeyEventIter, crate::SeesawError<D::Error>> {
         let addr = self.addr();
         let mut kei = KeyEventIter::default();
         kei.count = self

@@ -1,10 +1,10 @@
-[build]
-target = "thumbv7em-none-eabihf"
+# [build]
+# target = "thumbv7em-none-eabihf"
 
-[target.'cfg(all(target_arch = "arm", target_os = "none"))']
-rustflags = ["-C", "link-arg=-Tlink.x", "-C", "link-arg=--nmagic"]
-# runner = "probe-run --connect-under-reset --chip nRF52840_xxAA" # Use this for nordic
-runner = "probe-run --chip STM32F405rgt" # Use this for STM32F4
+# [target.'cfg(all(target_arch = "arm", target_os = "none"))']
+# # rustflags = ["-C", "link-arg=-Tlink.x", "-C", "link-arg=--nmagic"]
+# # runner = "probe-run --connect-under-reset --chip nRF52840_xxAA" # Use this for nordic
+# runner = "probe-run --chip STM32F405rgt" # Use this for STM32F4
 
-[unstable]
-build-std = ["core"]
+# [unstable]
+# build-std = ["core"]
