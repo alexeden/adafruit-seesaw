@@ -4,6 +4,7 @@ pub mod gpio;
 pub mod neopixel;
 pub mod status;
 pub mod timer;
+pub mod quad_encoder;
 
 pub type Reg = [u8; 2];
 
