@@ -1,14 +1,11 @@
-use super::{RotaryEncoder, SeesawDeviceInit};
+use super::SeesawDeviceInit;
 use crate::{
     modules::{
-	gpio::{GpioModule, PinMode},
 	status::StatusModule,
-	neopixel::NeopixelModule,
 	quad_encoder::QuadEncoderModule,
-	timer::TimerModule,
 	HardwareId,
     },
-    seesaw_device, Driver, SeesawError,
+    seesaw_device, Driver,
 };
 
 seesaw_device! {
