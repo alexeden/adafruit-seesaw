@@ -3,6 +3,7 @@ use crate::{
     modules::{
 	status::StatusModule,
 	quad_encoder::QuadEncoderModule,
+	neopixel::NeopixelModule,
 	HardwareId,
     },
     seesaw_device, Driver,
@@ -23,6 +24,7 @@ seesaw_device! {
 impl<D: Driver> SeesawDeviceInit<D> for NeoRotary4<D> {
     fn init(mut self) -> Result<Self, Self::Error> {
 	self.reset_and_verify_seesaw()
+	    .and_then(|_| self.enable_neopixel())
 	    .and_then(|_| self.enable_button(0))
 	    .and_then(|_| self.enable_button(1))
 	    .and_then(|_| self.enable_button(2))
