@@ -87,4 +87,7 @@ macro_rules! impl_device_module {
     ($device:ident, TimerModule $({})?) => {
         impl<D: $crate::Driver> $crate::modules::timer::TimerModule<D> for $device<D> {}
     };
+    ($device:ident, QuadEncoderModule $({})?) => {
+        impl<D: $crate::Driver> $crate::modules::quad_encoder::QuadEncoderModule<D> for $device<D> {}
+    };
 }
