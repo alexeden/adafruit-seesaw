@@ -2,11 +2,13 @@ mod arcade_button_1x4;
 mod generic_device;
 pub mod macros;
 mod neokey_1x4;
+mod neorotary4;
 mod neoslider;
 mod rotary_encoder;
 pub use arcade_button_1x4::*;
 pub use generic_device::*;
 pub use neokey_1x4::*;
+pub use neorotary4::*;
 pub use neoslider::*;
 pub use rotary_encoder::*;
 
