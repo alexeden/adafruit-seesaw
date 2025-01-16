@@ -7,7 +7,7 @@ macro_rules! seesaw_device {
         product_id: $product_id:expr,
         default_addr: $default_addr:expr,
         modules: [
-            $($module_name:ident $({
+            $($module_name:ident$(<$module_param:ty>)? $({
                 $($const_name:ident: $const_value:expr $(,)?),*
             })?),*
             $(,)?
@@ -56,7 +56,7 @@ macro_rules! seesaw_device {
         }
 
         $(
-            impl_device_module! { $name, $module_name $({$($const_name: $const_value),*})* }
+            impl_device_module! { $name, $module_name$(<$module_param>)? $({$($const_name: $const_value),*})* }
         )*
     };
 }
@@ -78,8 +78,10 @@ macro_rules! impl_device_module {
     ($device:ident, KeypadModule $({})?) => {
         impl<D: $crate::Driver> $crate::modules::keypad::KeypadModule<D> for $device<D> {}
     };
-    ($device:ident, NeopixelModule { num_leds: $num_leds:expr, pin: $pin:expr }) => {
-        impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelModule<D> for $device<D> {
+    ($device:ident, NeopixelModule<$colors:ty> { num_leds: $num_leds:expr, pin: $pin:expr }) => {
+        impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelModule<D, $colors>
+            for $device<D>
+        {
             const N_LEDS: u16 = $num_leds;
             const PIN: u8 = $pin;
         }

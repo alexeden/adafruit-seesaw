@@ -1,6 +1,10 @@
 use super::SeesawDeviceInit;
 use crate::{
-    modules::{neopixel::NeopixelModule, status::StatusModule, HardwareId},
+    modules::{
+        neopixel::{NeopixelModule, GRB},
+        status::StatusModule,
+        HardwareId,
+    },
     seesaw_device, Driver,
 };
 
@@ -10,7 +14,7 @@ seesaw_device! {
     product_id: 3954,
     default_addr: 0x2E,
     modules: [
-        NeopixelModule { num_leds: 16, pin: 3 },
+        NeopixelModule<GRB> { num_leds: 16, pin: 3 },
         KeypadModule,
     ]
 }

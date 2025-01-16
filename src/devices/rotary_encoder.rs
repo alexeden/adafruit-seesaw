@@ -1,6 +1,11 @@
 use super::SeesawDeviceInit;
 use crate::{
-    modules::{encoder::EncoderModule, neopixel::NeopixelModule, status::StatusModule, HardwareId},
+    modules::{
+        encoder::EncoderModule,
+        neopixel::{NeopixelModule, RGB},
+        status::StatusModule,
+        HardwareId,
+    },
     seesaw_device, Driver,
 };
 
@@ -13,7 +18,7 @@ seesaw_device! {
   modules:  [
       EncoderModule { button_pin: 24 },
       GpioModule,
-      NeopixelModule { num_leds: 1, pin: 6 },
+      NeopixelModule<RGB> { num_leds: 1, pin: 6 },
   ]
 }
 
