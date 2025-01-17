@@ -1,7 +1,7 @@
 use crate::modules::Reg;
 use embedded_hal::{
     delay::DelayNs,
-    i2c::{I2c, SevenBitAddress},
+    i2c::{I2c, Operation, SevenBitAddress},
 };
 
 const DELAY_TIME: u32 = 125;
@@ -41,14 +41,12 @@ pub trait DriverExt {
         reg: &Reg,
     ) -> Result<[u8; N], Self::Error>;
 
-    fn register_write<const N: usize>(
+    fn register_write(
         &mut self,
         addr: SevenBitAddress,
         reg: &Reg,
-        bytes: &[u8; N],
-    ) -> Result<(), Self::Error>
-    where
-        [(); N + 2]: Sized;
+        bytes: &[u8],
+    ) -> Result<(), Self::Error>;
 
     impl_integer_read! { read_u8 u8 }
     impl_integer_read! { read_u16 u16 }
@@ -83,20 +81,13 @@ impl<T: Driver> DriverExt for T {
         Ok(buffer)
     }
 
-    fn register_write<const N: usize>(
+    fn register_write(
         &mut self,
         addr: SevenBitAddress,
         reg: &Reg,
-        bytes: &[u8; N],
-    ) -> Result<(), Self::Error>
-    where
-        [(); N + 2]: Sized,
-    {
-        let mut buffer = [0u8; N + 2];
-        buffer[0..2].copy_from_slice(reg);
-        buffer[2..].copy_from_slice(bytes);
-
-        self.write(addr, &buffer)?;
+        bytes: &[u8],
+    ) -> Result<(), Self::Error> {
+        self.transaction(addr, &mut [Operation::Write(reg), Operation::Write(bytes)])?;
         self.delay_us(DELAY_TIME);
         Ok(())
     }

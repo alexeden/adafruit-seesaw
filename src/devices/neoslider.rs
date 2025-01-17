@@ -1,6 +1,11 @@
 use super::SeesawDeviceInit;
 use crate::{
-    modules::{adc::AdcModule, neopixel::NeopixelModule, status::StatusModule, HardwareId},
+    modules::{
+        adc::AdcModule,
+        neopixel::{NeopixelModule, RGB},
+        status::StatusModule,
+        HardwareId,
+    },
     seesaw_device, Driver, SeesawError,
 };
 
@@ -13,7 +18,7 @@ seesaw_device!(
   modules: [
       AdcModule,
       GpioModule,
-      NeopixelModule { num_leds: 4, pin: 14},
+      NeopixelModule<RGB> { num_leds: 4, pin: 14},
   ]
 );
 
