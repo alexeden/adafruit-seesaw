@@ -2,7 +2,7 @@ use super::SeesawDeviceInit;
 use crate::{
     modules::{
         gpio::{GpioModule, PinMode},
-        neopixel::NeopixelModule,
+        neopixel::{NeopixelModule, RGB},
         status::StatusModule,
         HardwareId,
     },
@@ -17,7 +17,7 @@ seesaw_device! {
   default_addr: 0x30,
   modules: [
       GpioModule,
-      NeopixelModule { num_leds: 4, pin: 3 },
+      NeopixelModule<RGB> { num_leds: 4, pin: 3 },
   ]
 }
 
