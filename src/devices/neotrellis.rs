@@ -24,6 +24,14 @@ impl<D: Driver> SeesawDeviceInit<D> for NeoTrellis<D> {
 }
 
 impl<D: Driver> NeoTrellis<D> {
+    pub const fn num_cols(&self) -> u8 {
+        Self::NUM_COLS
+    }
+
+    pub const fn num_rows(&self) -> u8 {
+        Self::NUM_ROWS
+    }
+
     pub fn set_xy_neopixel_color(
         &mut self,
         x: u8,
@@ -32,6 +40,6 @@ impl<D: Driver> NeoTrellis<D> {
         g: u8,
         b: u8,
     ) -> Result<(), SeesawError<D::Error>> {
-        self.set_nth_neopixel_color((y * self.cols() + x).into(), r, g, b)
+        self.set_nth_neopixel_color((y * Self::NUM_COLS + x).into(), r, g, b)
     }
 }

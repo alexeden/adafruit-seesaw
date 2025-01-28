@@ -17,14 +17,6 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
     const NUM_COLS: u8;
     const NUM_ROWS: u8;
 
-    fn cols(&self) -> u8 {
-        Self::NUM_COLS
-    }
-
-    fn rows(&self) -> u8 {
-        Self::NUM_ROWS
-    }
-
     fn disable_interrupt(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
         self.driver()
@@ -66,8 +58,8 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
         types: &[KeyEventType],
         enable: bool,
     ) -> Result<(), SeesawError<D::Error>> {
-        assert!(x < self.cols(), "x greater than cols");
-        assert!(y < self.rows(), "y greater than rows");
+        assert!(x < Self::NUM_COLS, "x greater than cols");
+        assert!(y < Self::NUM_ROWS, "y greater than rows");
         let addr = self.addr();
         let key = (y << 3) + x;
         let edges = types.iter().fold(if enable { 1 } else { 0 }, |acc, e| {
