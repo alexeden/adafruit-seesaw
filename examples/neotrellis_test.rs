@@ -32,7 +32,12 @@ fn main() -> ! {
     for x in 0..trellis.cols() {
         for y in 0..trellis.rows() {
             trellis
-                .set_key_events(x, y, &[KeyEventType::Pressed, KeyEventType::Released], true)
+                .set_key_event_triggers(
+                    x,
+                    y,
+                    &[KeyEventType::Pressed, KeyEventType::Released],
+                    true,
+                )
                 .and_then(|_| trellis.set_xy_neopixel_color(x, y, 0, 50, 0))
                 .expect("Failed to set key events and neopixel color");
         }
@@ -45,7 +50,7 @@ fn main() -> ! {
     rprintln!("Looping...");
 
     loop {
-        let events_iter = trellis.read().expect("Failed to read events");
+        let events_iter = trellis.read_key_events().expect("Failed to read events");
         for event in events_iter {
             rprintln!("Event {:#?}", event);
             match event.event {

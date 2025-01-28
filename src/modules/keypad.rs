@@ -39,26 +39,7 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    fn set_key_events(
-        &mut self,
-        x: u8,
-        y: u8,
-        types: &[KeyEventType],
-        enable: bool,
-    ) -> Result<(), SeesawError<D::Error>> {
-        assert!(x < self.cols(), "x greater than cols");
-        assert!(y < self.rows(), "y greater than rows");
-        let addr = self.addr();
-        let key = (y << 3) + x;
-        let edges = types.iter().fold(if enable { 1 } else { 0 }, |acc, e| {
-            acc + (2_u8 << (*e as u8))
-        });
-        self.driver()
-            .register_write(addr, EVENT, &[key, edges])
-            .map_err(SeesawError::I2c)
-    }
-
-    fn read(&mut self) -> Result<KeyEventIter, SeesawError<D::Error>> {
+    fn read_key_events(&mut self) -> Result<KeyEventIter, SeesawError<D::Error>> {
         let addr = self.addr();
         let n = self
             .driver()
@@ -76,6 +57,25 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
             buf[i] = Some(events[i].into());
         }
         Ok(KeyEventIter { buf, curr: 0 })
+    }
+
+    fn set_key_event_triggers(
+        &mut self,
+        x: u8,
+        y: u8,
+        types: &[KeyEventType],
+        enable: bool,
+    ) -> Result<(), SeesawError<D::Error>> {
+        assert!(x < self.cols(), "x greater than cols");
+        assert!(y < self.rows(), "y greater than rows");
+        let addr = self.addr();
+        let key = (y << 3) + x;
+        let edges = types.iter().fold(if enable { 1 } else { 0 }, |acc, e| {
+            acc + (2_u8 << (*e as u8))
+        });
+        self.driver()
+            .register_write(addr, EVENT, &[key, edges])
+            .map_err(SeesawError::I2c)
     }
 }
 
