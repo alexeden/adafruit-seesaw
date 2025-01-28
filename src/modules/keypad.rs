@@ -68,15 +68,11 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
         types: &[KeyEventType],
         enable: bool,
     ) -> Result<(), SeesawError<D::Error>> {
-        // let mut v = types.iter().map(|e| 2_u8 << (*e as u8)).sum();
-        // if enable {
-        //     v += 1;
-        // }
+        let addr = self.addr();
         let key = (y << 3) + x;
         let edges = types.iter().fold(if enable { 1 } else { 0 }, |acc, e| {
-            acc + 2_u8 << (*e as u8)
+            acc + (2_u8 << (*e as u8))
         });
-        let addr = self.addr();
         self.driver()
             .register_write(addr, EVENT, &[key, edges])
             .map_err(SeesawError::I2c)
