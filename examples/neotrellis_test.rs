@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
-#![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
+#![recursion_limit = "512"]
 use adafruit_seesaw::{devices::NeoTrellis, prelude::*, SeesawRefCell};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
@@ -34,23 +33,10 @@ fn main() -> ! {
         for y in 0..trellis.rows() {
             trellis
                 .set_key_events(x, y, &[KeyEventType::Pressed, KeyEventType::Released], true)
-                .expect("Failed to set key events");
-            trellis
-                .set_nth_neopixel_color((y * trellis.cols() + x).into(), 0, 50, 0)
-                .expect("Failed to set neopixel color");
+                .and_then(|_| trellis.set_xy_neopixel_color(x, y, 0, 50, 0))
+                .expect("Failed to set key events and neopixel color");
         }
     }
-    // NeoTrellis::<I2c>::keys().for_each(|k| {
-    //     trellis
-    //         .set_key_events(
-    //             k.x(),
-    //             k.y(),
-    //             &[KeyEventType::Pressed, KeyEventType::Released],
-    //             true,
-    //         )
-    //         .and_then(|_| trellis.set_nth_neopixel_color(k.index() as u16, 0, 0,
-    // 0))         .expect("Failed to set key events");
-    // });
 
     trellis.sync_neopixel().expect("Failed to sync neopixel");
     let color1 = color_wheel(0);
@@ -59,42 +45,25 @@ fn main() -> ! {
     rprintln!("Looping...");
 
     loop {
-        // let mut events: [Option<KeyEvent>; 16] = [None; 16];
-        let events_iter = trellis.read_events().expect("Failed to read events");
-        // events_iter.m
+        let events_iter = trellis.read().expect("Failed to read events");
         for event in events_iter {
             rprintln!("Event {:#?}", event);
             match event.event {
                 KeyEventType::Pressed => {
-                    // rprintln!("Pressed");
                     trellis
-                        .set_nth_neopixel_color(
-                            (event.x + event.y * 4) as u16,
-                            color2.0,
-                            color2.1,
-                            color2.2,
-                        )
+                        .set_xy_neopixel_color(event.x, event.y, color2.0, color2.1, color2.2)
                         .and_then(|_| trellis.sync_neopixel())
                         .expect("Failed to set neopixel color");
                 }
                 KeyEventType::Released => {
                     trellis
-                        .set_nth_neopixel_color(
-                            (event.x + event.y * 4) as u16,
-                            color1.0,
-                            color1.1,
-                            color1.2,
-                        )
+                        .set_xy_neopixel_color(event.x, event.y, color1.0, color1.1, color1.2)
                         .and_then(|_| trellis.sync_neopixel())
                         .expect("Failed to set neopixel color");
-                    // rprintln!("Released");
                 }
                 _ => {}
             }
-            // rprintln!("Event {:#?}", event);
         }
-        // rprintln!("Events {:#?}", events);
-        // delay.delay_ms(100);
     }
 }
 
