@@ -91,8 +91,7 @@ fn main() -> ! {
                 for (i, color) in matrix.iter_mut().enumerate() {
                     let dist = ripple.center.cheby_dist(&Point::new_from_index(i));
                     let z = RIPPLE_SPREAD - (ripple.radius - dist).abs();
-                    let add_color = ripple.color * z;
-                    *color += add_color;
+                    *color += ripple.color * z;
                 }
             });
 
