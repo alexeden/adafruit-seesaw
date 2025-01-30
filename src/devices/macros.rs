@@ -75,6 +75,12 @@ macro_rules! impl_device_module {
     ($device:ident, GpioModule $({})?) => {
         impl<D: $crate::Driver> $crate::modules::gpio::GpioModule<D> for $device<D> {}
     };
+    ($device:ident, KeypadModule { num_cols: $num_cols:expr, num_rows: $num_rows:expr }) => {
+        impl<D: $crate::Driver> $crate::modules::keypad::KeypadModule<D> for $device<D> {
+            const NUM_COLS: u8 = $num_cols;
+            const NUM_ROWS: u8 = $num_rows;
+        }
+    };
     ($device:ident, NeopixelModule { num_leds: $num_leds:expr, pin: $pin:expr }) => {
         impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelModule<D> for $device<D> {
             const N_LEDS: u16 = $num_leds;
