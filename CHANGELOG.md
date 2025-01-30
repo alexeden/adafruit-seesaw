@@ -19,7 +19,7 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 - Add support for the `keypad` Seesaw module
 - Add `NeoTrellis` device definition for the [NeoTrellis 4x4 Keypad](https://www.adafruit.com/product/3954)
 - Add NeoTrellis example similar to the [`ripples.ino` example](https://github.com/adafruit/Adafruit_Seesaw/blob/master/examples/NeoTrellis/ripples/ripples.ino)
-  - [Demo video here]()
+  - [Demo video here](https://storage.googleapis.com/apemedia/neotrellis576.mp4)
 
 ## [0.7.0] - 2025-01-15
 
