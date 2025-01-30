@@ -119,7 +119,7 @@ impl From<u8> for KeyEvent {
             3 => KeyEventType::Pressed,
             _ => unreachable!(),
         };
-        let x = (value >> 2) & 0x07;
+        let x = (value >> 2) & 7;
         let y = (value >> 2) >> 3;
         Self { event, x, y }
     }
