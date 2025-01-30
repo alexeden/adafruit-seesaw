@@ -2,8 +2,8 @@
 #![no_main]
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
-use adafruit_seesaw::{devices::NeoTrellis, prelude::*, SeesawRefCell};
 /// https://github.com/adafruit/Adafruit_Seesaw/blob/master/examples/NeoTrellis/ripples/ripples.ino
+use adafruit_seesaw::{devices::NeoTrellis, prelude::*, SeesawRefCell};
 use core::ops::{Add, AddAssign, Mul};
 use cortex_m_rt::entry;
 use heapless::Deque;
@@ -42,6 +42,7 @@ fn main() -> ! {
 
     rprintln!("Trellis started");
 
+    // Listen for key presses
     for x in 0..trellis.num_cols() {
         for y in 0..trellis.num_rows() {
             trellis
@@ -50,17 +51,14 @@ fn main() -> ! {
         }
     }
 
-    let mut ripples: Deque<Ripple, 16> = Deque::new();
-    // : [Option<Ripple>; 16] = [None; 16];
     let mut color_wheel = ColorWheel::default();
+    let mut ripples: Deque<Ripple, 16> = Deque::new();
     let mut matrix: [Color; 16] = [Color::default(); 16];
 
     // Start a ripple on init
     ripples
         .push_back(Ripple::new(0., 0., color_wheel.next_color()))
         .unwrap();
-
-    rprintln!("Looping...");
 
     loop {
         matrix.fill(Color::default());
@@ -69,36 +67,36 @@ fn main() -> ! {
         for event in trellis.read_key_events().expect("Failed to read events") {
             match event.event {
                 KeyEventType::Pressed => {
-                    for maybe_ripple in ripples.iter_mut() {
-                        if let None = maybe_ripple {
-                            *maybe_ripple = Some(Ripple::new(
-                                event.x as f32,
-                                event.y as f32,
-                                color_wheel.next_color(),
-                            ));
-                            break;
-                        }
+                    if ripples.is_full() {
+                        ripples.pop_front().unwrap();
                     }
+                    ripples
+                        .push_back(Ripple::new(
+                            event.x as f32,
+                            event.y as f32,
+                            color_wheel.next_color(),
+                        ))
+                        .unwrap();
                 }
                 _ => {}
             }
         }
 
-        for maybe_ripple in ripples.iter_mut() {
-            if let Some(ripple) = maybe_ripple {
+        // Process ripples
+        ripples
+            .iter_mut()
+            .filter(|r| r.radius <= MAX_RADIUS)
+            .for_each(|ripple| {
+                ripple.radius += RIPPLE_RATE;
                 for (i, color) in matrix.iter_mut().enumerate() {
                     let dist = ripple.center.cheby_dist(&Point::new_from_index(i));
                     let z = RIPPLE_SPREAD - (ripple.radius - dist).abs();
                     let add_color = ripple.color * z;
                     *color += add_color;
                 }
-                ripple.radius += RIPPLE_RATE;
-                if ripple.radius > MAX_RADIUS {
-                    *maybe_ripple = None;
-                }
-            }
-        }
+            });
 
+        // Update neopixels
         trellis
             .set_neopixel_colors(&matrix.map(|c| c.into()))
             .and_then(|_| trellis.sync_neopixel())
