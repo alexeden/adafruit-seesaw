@@ -1,6 +1,6 @@
 ![Adafruit Seesaw Logo](/docs/seesaw-logo.png)
 
- [![crates.io page](https://img.shields.io/crates/v/adafruit-seesaw)](https://crates.io/crates/adafruit-seesaw) [![docs.rs](https://docs.rs/adafruit-seesaw/badge.svg)](https://docs.rs/adafruit-seesaw)
+[![crates.io page](https://img.shields.io/crates/v/adafruit-seesaw)](https://crates.io/crates/adafruit-seesaw) [![docs.rs](https://docs.rs/adafruit-seesaw/badge.svg)](https://docs.rs/adafruit-seesaw)
 
 Platform-agnostic driver to communicate with devices that implement the [Adafruit Seesaw firmware.](https://github.com/adafruit/Adafruit_Seesaw) See the Seesaw [guide](https://learn.adafruit.com/adafruit-seesaw-atsamd09-breakout) for more information on the firmware.
 
@@ -171,27 +171,28 @@ let neokeys = NeoKey2x3::new_with_default_addr(seesaw.acquire_driver())
 
 # Implementation Progress
 
-| Seesaw Module | Implemented                                                       |
-| ------------- | ----------------------------------------------------------------- |
-| ADC           | ✅                                                                |
-| EEPROM        | ⬜️                                                               |
-| Encoder       | ✅                                                                |
-| GPIO          | ✅                                                                |
-| Keypad        | ⬜️ [Pending](https://github.com/alexeden/adafruit-seesaw/pull/6) |
-| Neopixel      | ✅                                                                |
-| Sercom0       | ⬜️                                                               |
-| Spectrum      | ⬜️                                                               |
-| Status        | ✅                                                                |
-| Timer         | ✅                                                                |
-| Touch         | ⬜️                                                               |
+| Seesaw Module | Implemented |
+| ------------- | ----------- |
+| ADC           | ✅          |
+| EEPROM        | ⬜️         |
+| Encoder       | ✅          |
+| GPIO          | ✅          |
+| Keypad        | ✅          |
+| Neopixel      | ✅          |
+| Sercom0       | ⬜️         |
+| Spectrum      | ⬜️         |
+| Status        | ✅          |
+| Timer         | ✅          |
+| Touch         | ⬜️         |
 
-| Device                                               | Product ID | MCU       | Implemented                                                       |
-| ---------------------------------------------------- | ---------- | --------- | ----------------------------------------------------------------- |
-| [ArcadeButton1x4](https://adafruit.com/product/5296) | 5296       | ATTiny8x7 | ✅                                                                |
-| [NeoKey1x4](https://adafruit.com/product/4980)       | 4980       | SAMD09    | ✅                                                                |
-| [NeoSlider](https://adafruit.com/product/5295)       | 5295       | ATTiny8x7 | ✅                                                                |
-| [NeoTrellis](https://adafruit.com/product/3954)      | 3954       | SAMD09    | ⬜️ [Pending](https://github.com/alexeden/adafruit-seesaw/pull/6) |
-| [RotaryEncoder](https://adafruit.com/product/4991)   | 4991       | SAMD09    | ✅                                                                |
+| Device                                                 | Product ID | MCU       | Impl'd | Notes                                                                                                   |
+| ------------------------------------------------------ | ---------- | --------- | ------ | ------------------------------------------------------------------------------------------------------- |
+| [ArcadeButton1x4](https://adafruit.com/product/5296)   | 5296       | ATTiny8x7 | ✅     |                                                                                                         |
+| [NeoKey1x4](https://adafruit.com/product/4980)         | 4980       | SAMD09    | ✅     |                                                                                                         |
+| [NeoSlider](https://adafruit.com/product/5295)         | 5295       | ATTiny8x7 | ✅     |                                                                                                         |
+| [NeoTrellis](https://adafruit.com/product/3954)        | 3954       | SAMD09    | ✅     | [Example demo video `neotrellis_ripples.rs`](https://storage.googleapis.com/apemedia/neotrellis576.mp4) |
+| [QuadRotaryEncoder](https://adafruit.com/product/5297) | 5297       | ATTiny8x7 | ✅     |                                                                                                         |
+| [RotaryEncoder](https://adafruit.com/product/4991)     | 4991       | SAMD09    | ✅     |                                                                                                         |
 
 ### Other tasks
 
