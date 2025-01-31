@@ -66,6 +66,7 @@ fn main() -> ! {
 
         // Process events
         for event in trellis.read_key_events().expect("Failed to read events") {
+            #[allow(clippy::single_match)]
             match event.event {
                 KeyEventType::Pressed => {
                     if ripples.is_full() {

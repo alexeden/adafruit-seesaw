@@ -83,7 +83,7 @@ const PULL_DISABLE: &Reg = &[Modules::Gpio.into_u8(), 0x0C];
 pub trait GpioModule<D: Driver>: SeesawDevice<Driver = D> {
     fn digital_read(&mut self, pin: u8) -> Result<bool, SeesawError<D::Error>> {
         self.digital_read_bulk()
-            .map(|pins| !matches!(pins >> pin & 0x1, 1))
+            .map(|pins| !matches!((pins >> pin) & 0x1, 1))
     }
 
     fn digital_read_bulk(&mut self) -> Result<u32, SeesawError<D::Error>> {

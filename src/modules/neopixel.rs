@@ -87,7 +87,6 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
         let addr = self.addr();
 
         (0..Self::N_LEDS)
-            .into_iter()
             .try_for_each(|n| {
                 let [zero, one] = u16::to_be_bytes(3 * n);
                 let color = colors[n as usize];

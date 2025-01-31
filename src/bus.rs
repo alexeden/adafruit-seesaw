@@ -50,7 +50,7 @@ impl<T> BusMutex for std::sync::Mutex<T> {
 pub struct Bus<'a, M>(pub(crate) &'a M);
 
 // Delay implementation
-impl<'a, DELAY, I2C, M> DelayNs for Bus<'a, M>
+impl<DELAY, I2C, M> DelayNs for Bus<'_, M>
 where
     DELAY: DelayNs,
     I2C: I2c,
@@ -61,7 +61,7 @@ where
     }
 }
 
-impl<'a, DELAY, I2C, M> ErrorType for Bus<'a, M>
+impl<DELAY, I2C, M> ErrorType for Bus<'_, M>
 where
     DELAY: DelayNs,
     I2C: I2c,
@@ -70,7 +70,7 @@ where
     type Error = I2C::Error;
 }
 
-impl<'a, DELAY, I2C, M> I2c for Bus<'a, M>
+impl<DELAY, I2C, M> I2c for Bus<'_, M>
 where
     DELAY: DelayNs,
     I2C: I2c,
@@ -81,8 +81,6 @@ where
         address: u8,
         operations: &mut [i2c::Operation<'_>],
     ) -> Result<(), Self::Error> {
-        self.0
-            .lock(|bus| bus.1.transaction(address, operations))
-            .map_err(|err| err.into())
+        self.0.lock(|bus| bus.1.transaction(address, operations))
     }
 }

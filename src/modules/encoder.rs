@@ -33,7 +33,7 @@ pub trait EncoderModule<D: Driver, const N_ENCODERS: usize>: GpioModule<D> {
         let addr = self.addr();
         let reg = &[INT_CLR[0], INT_CLR[1] | encoder as u8];
         self.driver()
-            .write_u8(addr, &reg, 1)
+            .write_u8(addr, reg, 1)
             .map_err(SeesawError::I2c)
     }
 
@@ -41,7 +41,7 @@ pub trait EncoderModule<D: Driver, const N_ENCODERS: usize>: GpioModule<D> {
         let addr = self.addr();
         let reg = &[INT_SET[0], INT_SET[1] | encoder as u8];
         self.driver()
-            .write_u8(addr, &reg, 1)
+            .write_u8(addr, reg, 1)
             .map_err(SeesawError::I2c)
     }
 

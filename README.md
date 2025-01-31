@@ -191,7 +191,7 @@ let neokeys = NeoKey2x3::new_with_default_addr(seesaw.acquire_driver())
 | [NeoKey1x4](https://adafruit.com/product/4980)         | 4980       | SAMD09    | ✅     |                                                                                                         |
 | [NeoSlider](https://adafruit.com/product/5295)         | 5295       | ATTiny8x7 | ✅     |                                                                                                         |
 | [NeoTrellis](https://adafruit.com/product/3954)        | 3954       | SAMD09    | ✅     | [Example demo video `neotrellis_ripples.rs`](https://storage.googleapis.com/apemedia/neotrellis576.mp4) |
-| [QuadRotaryEncoder](https://adafruit.com/product/5297) | 5297       | ATTiny8x7 | ✅     |                                                                                                         |
+| [QuadRotaryEncoder](https://adafruit.com/product/5752) | 5752       | ATTiny8x7 | ✅     |                                                                                                         |
 | [RotaryEncoder](https://adafruit.com/product/4991)     | 4991       | SAMD09    | ✅     |                                                                                                         |
 
 ### Other tasks

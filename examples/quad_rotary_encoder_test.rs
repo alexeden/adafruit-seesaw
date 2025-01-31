@@ -30,10 +30,10 @@ fn main() -> ! {
     let mut positions = [0i32; 4];
 
     loop {
-        for i in 0..4usize {
+        for (i, current_position) in positions.iter_mut().enumerate() {
             let position = encoder.position(i).expect("Failed to get position");
-            if position != positions[i] {
-                positions[i] = position;
+            if position != *current_position {
+                *current_position = position;
                 rprintln!("Position {} changed to {}", i, position);
             }
             let c = color_wheel(((position & 0xFF) as u8).wrapping_mul(3));
