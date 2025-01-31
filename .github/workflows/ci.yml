@@ -21,4 +21,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: rustup toolchain install nightly --profile minimal
+      - run: rustup default nightly
       - run: cargo clippy --all-targets --all-features
