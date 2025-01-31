@@ -5,6 +5,10 @@ use crate::{
 };
 
 seesaw_device! {
+    /// Anecdotally, I've had a lot of issues with the quad rotary encoder.
+    ///
+    /// Specifically, calls to set/reset the encoders' position seem to have no
+    /// effect on the firmware's internal position counters.
     name: NeoRotary4,
     hardware_id: HardwareId::ATTINY817,
     product_id: 5752,

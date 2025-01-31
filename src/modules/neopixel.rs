@@ -63,13 +63,13 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
 
     fn set_nth_neopixel_color(
         &mut self,
-        n: u16,
+        n: usize,
         r: u8,
         g: u8,
         b: u8,
     ) -> Result<(), SeesawError<D::Error>> {
-        assert!(n < Self::N_LEDS);
-        let [zero, one] = u16::to_be_bytes(3 * n);
+        assert!(n < Self::N_LEDS as usize);
+        let [zero, one] = u16::to_be_bytes(3 * n as u16);
         let addr = self.addr();
 
         self.driver()
@@ -91,11 +91,8 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .try_for_each(|n| {
                 let [zero, one] = u16::to_be_bytes(3 * n);
                 let color = colors[n as usize];
-                self.driver().register_write(
-                    addr,
-                    SET_BUF,
-                    &[zero, one, color.0, color.1, color.2],
-                )
+                self.driver()
+                    .register_write(addr, SET_BUF, &[zero, one, color.0, color.1, color.2])
             })
             .map_err(SeesawError::I2c)
     }

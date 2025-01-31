@@ -24,19 +24,14 @@ fn main() -> ! {
     let mut encoder = NeoRotary4::new_with_default_addr(seesaw.acquire_driver())
         .init()
         .expect("Failed to start NeoRotary4");
-
     rprintln!("Started");
-    // rprintln!(
-    //     "Capabilities {:#?}",
-    //     encoder.capabilities().expect("Failed to get options")
-    // );
 
     rprintln!("Looping...");
     let mut positions = [0i32; 4];
 
     loop {
         for i in 0..4usize {
-            let position = encoder.position(i as u16).expect("Failed to get position");
+            let position = encoder.position(i).expect("Failed to get position");
             if position != positions[i] {
                 positions[i] = position;
                 rprintln!("Position {} changed to {}", i, position);
@@ -45,14 +40,12 @@ fn main() -> ! {
             let Color(r, g, b) = c.set_brightness(255);
 
             encoder
-                .set_nth_neopixel_color(i as u16, r, g, b)
+                .set_nth_neopixel_color(i, r, g, b)
                 .expect("Failed to set neopixel");
 
             if let Ok(true) = encoder.button(i) {
                 rprintln!("Button {} pressed", i);
-                encoder
-                    .set_position(i as u16, 0)
-                    .expect("Failed to set position");
+                encoder.set_position(i, 0).expect("Failed to set position");
             }
         }
 

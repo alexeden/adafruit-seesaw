@@ -5,7 +5,6 @@ use crate::{
 };
 
 seesaw_device! {
-  /// RotaryEncoder
   name: RotaryEncoder,
   hardware_id: HardwareId::SAMD09,
   product_id: 4991,

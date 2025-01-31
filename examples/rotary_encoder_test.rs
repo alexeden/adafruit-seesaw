@@ -31,8 +31,13 @@ fn main() -> ! {
     );
 
     rprintln!("Looping...");
+    let mut prev_position = 0;
     loop {
-        let position = encoder.position().expect("Failed to get position");
+        let position = encoder.position(0).expect("Failed to get position");
+        if position != prev_position {
+            prev_position = position;
+            rprintln!("Position changed to {}", position);
+        }
         let c = color_wheel(((position & 0xFF) as u8).wrapping_mul(3));
         let Color(r, g, b) = c.set_brightness(255);
 
@@ -41,8 +46,9 @@ fn main() -> ! {
             .and_then(|_| encoder.sync_neopixel())
             .expect("Failed to set neopixel");
 
-        if let Ok(true) = encoder.button() {
-            encoder.set_position(0).expect("Failed to set position");
+        if let Ok(true) = encoder.button(0) {
+            rprintln!("Button pressed");
+            encoder.set_position(0, 0).expect("Failed to set position");
         }
     }
 }
