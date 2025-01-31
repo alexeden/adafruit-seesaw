@@ -41,6 +41,7 @@ fn main() -> ! {
 
     rprintln!("Hardware ID {:x?}", id_buf[0]);
 
+    #[allow(clippy::empty_loop)]
     loop {}
 }
 

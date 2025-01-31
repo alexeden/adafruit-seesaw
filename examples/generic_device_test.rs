@@ -38,6 +38,8 @@ fn main() -> ! {
         "Product info {:#?}",
         device.product_info().expect("failed to get product info")
     );
+
+    #[allow(clippy::empty_loop)]
     loop {}
 }
 

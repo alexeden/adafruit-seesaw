@@ -25,7 +25,7 @@ fn main() -> ! {
 
     loop {
         let value = neoslider.slider_value().expect("Failed to read slider");
-        let color = color_wheel((value / 3 & 0xFF) as u8);
+        let color = color_wheel(((value / 3) & 0xFF) as u8);
         neoslider
             .set_neopixel_colors(&[color.into(), color.into(), color.into(), color.into()])
             .and_then(|_| neoslider.sync_neopixel())

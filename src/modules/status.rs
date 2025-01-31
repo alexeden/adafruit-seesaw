@@ -83,20 +83,20 @@ pub struct DeviceCapabilities {
 impl From<u32> for DeviceCapabilities {
     fn from(value: u32) -> Self {
         DeviceCapabilities {
-            adc: value >> Modules::Adc as u8 & 1 == 1,
-            dac: value >> Modules::Dac as u8 & 1 == 1,
-            dap: value >> Modules::Dap as u8 & 1 == 1,
-            eeprom: value >> Modules::Eeprom as u8 & 1 == 1,
-            encoder: value >> Modules::Encoder as u8 & 1 == 1,
-            gpio: value >> Modules::Gpio as u8 & 1 == 1,
-            interrupt: value >> Modules::Interrupt as u8 & 1 == 1,
-            keypad: value >> Modules::Keypad as u8 & 1 == 1,
-            neopixel: value >> Modules::Neopixel as u8 & 1 == 1,
-            sercom0: value >> Modules::Sercom0 as u8 & 1 == 1,
-            spectrum: value >> Modules::Spectrum as u8 & 1 == 1,
-            status: value >> Modules::Status as u8 & 1 == 1,
-            timer: value >> Modules::Timer as u8 & 1 == 1,
-            touch: value >> Modules::Touch as u8 & 1 == 1,
+            adc: (value >> Modules::Adc as u8) & 1 == 1,
+            dac: (value >> Modules::Dac as u8) & 1 == 1,
+            dap: (value >> Modules::Dap as u8) & 1 == 1,
+            eeprom: (value >> Modules::Eeprom as u8) & 1 == 1,
+            encoder: (value >> Modules::Encoder as u8) & 1 == 1,
+            gpio: (value >> Modules::Gpio as u8) & 1 == 1,
+            interrupt: (value >> Modules::Interrupt as u8) & 1 == 1,
+            keypad: (value >> Modules::Keypad as u8) & 1 == 1,
+            neopixel: (value >> Modules::Neopixel as u8) & 1 == 1,
+            sercom0: (value >> Modules::Sercom0 as u8) & 1 == 1,
+            spectrum: (value >> Modules::Spectrum as u8) & 1 == 1,
+            status: (value >> Modules::Status as u8) & 1 == 1,
+            timer: (value >> Modules::Timer as u8) & 1 == 1,
+            touch: (value >> Modules::Touch as u8) & 1 == 1,
         }
     }
 }

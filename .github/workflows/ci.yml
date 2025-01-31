@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+
+env:
+  # Disable incremental compilation for faster from-scratch builds
+  CARGO_INCREMENTAL: 0
+  # Make sure CI fails on all warnings, including Clippy lints
+  RUSTFLAGS: "-Dwarnings"
+
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install nightly --profile minimal --component clippy
+      - run: rustup default nightly
+      - run: cargo clippy

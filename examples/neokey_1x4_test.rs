@@ -31,7 +31,7 @@ fn main() -> ! {
 
         neokeys
             .set_neopixel_colors(&[
-                if (keys >> 0) & 1 == 0 { GREEN } else { RED },
+                if keys & 1 == 0 { GREEN } else { RED },
                 if (keys >> 1) & 1 == 0 { GREEN } else { RED },
                 if (keys >> 2) & 1 == 0 { GREEN } else { RED },
                 if (keys >> 3) & 1 == 0 { GREEN } else { RED },
