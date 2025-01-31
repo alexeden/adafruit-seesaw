@@ -91,6 +91,27 @@ pub trait GpioModule<D: Driver>: SeesawDevice<Driver = D> {
         self.driver().read_u32(addr, GPIO).map_err(SeesawError::I2c)
     }
 
+    fn digital_write(&mut self, pin: u8, output: PinOutput) -> Result<(), SeesawError<D::Error>> {
+        self.digital_write_bulk(1 << pin, output)
+    }
+
+    fn digital_write_bulk(
+        &mut self,
+        pins: u32,
+        output: PinOutput,
+    ) -> Result<(), SeesawError<D::Error>> {
+        let addr = self.addr();
+        let bus = self.driver();
+
+        match output {
+            PinOutput::High => bus.write_u32(addr, SET_HIGH, pins),
+            PinOutput::Low => bus.write_u32(addr, SET_LOW, pins),
+            PinOutput::Set => bus.write_u32(addr, GPIO, pins),
+            PinOutput::Toggle => bus.write_u32(addr, TOGGLE, pins),
+        }
+        .map_err(SeesawError::I2c)
+    }
+
     fn set_pin_mode(&mut self, pin: u8, mode: PinMode) -> Result<(), SeesawError<D::Error>> {
         self.set_pin_mode_bulk(1 << pin, mode)
     }
@@ -100,7 +121,7 @@ pub trait GpioModule<D: Driver>: SeesawDevice<Driver = D> {
         let bus = self.driver();
 
         match mode {
-            PinMode::Output => bus.write_u32(addr, GPIO, pins),
+            PinMode::Output => bus.write_u32(addr, SET_OUTPUT, pins),
             PinMode::Input => bus.write_u32(addr, SET_INPUT, pins),
             PinMode::InputPullup => bus
                 .write_u32(addr, SET_INPUT, pins)
@@ -114,6 +135,15 @@ pub trait GpioModule<D: Driver>: SeesawDevice<Driver = D> {
         }
         .map_err(SeesawError::I2c)
     }
+}
+
+#[derive(Clone, Copy, Debug)]
+#[repr(u8)]
+pub enum PinOutput {
+    High,
+    Low,
+    Set,
+    Toggle,
 }
 
 #[derive(Clone, Copy, Debug)]
