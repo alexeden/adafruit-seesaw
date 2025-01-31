@@ -67,9 +67,14 @@ macro_rules! impl_device_module {
     ($device:ident, AdcModule $({})?) => {
         impl<D: $crate::Driver> $crate::modules::adc::AdcModule<D> for $device<D> {}
     };
-    ($device:ident, EncoderModule { button_pin: $button_pin:expr }) => {
-        impl<D: $crate::Driver> $crate::modules::encoder::EncoderModule<D> for $device<D> {
-            const ENCODER_BTN_PIN: u8 = $button_pin;
+    ($device:ident, EncoderModule {
+        num_encoders: $num_encoders:expr,
+        encoder_btn_pins: $button_pins:expr
+    }) => {
+        impl<D: $crate::Driver> $crate::modules::encoder::EncoderModule<D, $num_encoders>
+            for $device<D>
+        {
+            const ENCODER_BTN_PINS: [u8; $num_encoders] = $button_pins;
         }
     };
     ($device:ident, GpioModule $({})?) => {
