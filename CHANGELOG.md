@@ -11,26 +11,22 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 - [Add definition for the NeoDriver meopixel driver board](https://www.adafruit.com/product/5766)
 
-## [0.9.0] - 2025-02-01
+## [0.9.0] - 2025-01-31
 
 ### Added
 
+- [#8](https://github.com/alexeden/adafruit-seesaw/pull/8) Digital write functions within the Seesaw GPIO module
 - [#13](https://github.com/alexeden/adafruit-seesaw/pull/13) Adds example demo for the [Adafruit's quad rotary encoder device](https://www.adafruit.com/product/5752)
 
 
 ### Modified
 
-- **BREAKING**[#13](https://github.com/alexeden/adafruit-seesaw/pull/13) Updates the `EncoderModule` to support both single and multiple encoder devices (see PR for details)
+- **BREAKING** [#13](https://github.com/alexeden/adafruit-seesaw/pull/13) Updates the `EncoderModule` to support both single and multiple encoder devices (see PR for details)
 
 ### Removed
 
-- **BREAKING**[#13](https://github.com/alexeden/adafruit-seesaw/pull/13) Removes the `QuadEncoderModule` (see PR for details)
+- **BREAKING** [#13](https://github.com/alexeden/adafruit-seesaw/pull/13) Removes the `QuadEncoderModule` (see PR for details)
 
-## [0.8.1] - 2025-01-30
-
-### Added
-
-- [#8](https://github.com/alexeden/adafruit-seesaw/pull/8) Digital write functions within the Seesaw GPIO module
 
 ## [0.8.0] - 2025-01-30
 
