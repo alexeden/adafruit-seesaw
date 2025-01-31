@@ -20,6 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: rustup toolchain install nightly --profile minimal
+      - run: rustup toolchain install nightly --profile minimal --component clippy
       - run: rustup default nightly
       - run: cargo clippy --all-targets --all-features
