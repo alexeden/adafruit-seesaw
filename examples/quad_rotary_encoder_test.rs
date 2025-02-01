@@ -40,7 +40,7 @@ fn main() -> ! {
             let Color(r, g, b) = c.set_brightness(255);
 
             encoder
-                .set_nth_neopixel_color(i, r, g, b)
+                .set_nth_neopixel_color(i, (r, g, b))
                 .expect("Failed to set neopixel");
 
             if let Ok(true) = encoder.button(i) {

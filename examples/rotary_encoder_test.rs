@@ -42,7 +42,7 @@ fn main() -> ! {
         let Color(r, g, b) = c.set_brightness(255);
 
         encoder
-            .set_neopixel_color(r, g, b)
+            .set_neopixel_color((r, g, b))
             .and_then(|_| encoder.sync_neopixel())
             .expect("Failed to set neopixel");
 

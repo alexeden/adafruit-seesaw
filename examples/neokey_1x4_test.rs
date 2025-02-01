@@ -30,12 +30,15 @@ fn main() -> ! {
         let keys = neokeys.keys().expect("Failed to read keys");
 
         neokeys
-            .set_neopixel_colors(&[
-                if keys & 1 == 0 { GREEN } else { RED },
-                if (keys >> 1) & 1 == 0 { GREEN } else { RED },
-                if (keys >> 2) & 1 == 0 { GREEN } else { RED },
-                if (keys >> 3) & 1 == 0 { GREEN } else { RED },
-            ])
+            .set_neopixel_colors(
+                0,
+                &[
+                    if keys & 1 == 0 { GREEN } else { RED },
+                    if (keys >> 1) & 1 == 0 { GREEN } else { RED },
+                    if (keys >> 2) & 1 == 0 { GREEN } else { RED },
+                    if (keys >> 3) & 1 == 0 { GREEN } else { RED },
+                ],
+            )
             .and_then(|_| neokeys.sync_neopixel())
             .expect("Failed to update neopixels");
     }
