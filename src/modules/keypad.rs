@@ -1,5 +1,3 @@
-use core::ops::Range;
-
 use crate::{
     devices::SeesawDevice,
     driver::Driver,
@@ -15,28 +13,10 @@ const INT_CLR: &Reg = &[Modules::Keypad.into_u8(), 0x03];
 const COUNT: &Reg = &[Modules::Keypad.into_u8(), 0x04];
 const FIFO: &Reg = &[Modules::Keypad.into_u8(), 0x10];
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-#[repr(u8)]
-pub enum EventType {
-    /// steady-state key is down
-    #[default]
-    IsDown = 0,
-    /// steady-state key is up
-    IsUp = 1,
-    /// one-shot as key is released
-    Released = 2,
-    /// one-shot as key is pressed
-    Pressed = 3,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct KeyEvent {
-    pub event: EventType,
-    pub x: u8,
-    pub y: u8,
-}
-
 pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
+    const NUM_COLS: u8;
+    const NUM_ROWS: u8;
+
     fn disable_interrupt(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
         self.driver()
@@ -51,88 +31,96 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    fn watch_event(
+    fn read_key_events(&mut self) -> Result<KeyEventIter, SeesawError<D::Error>> {
+        let addr = self.addr();
+        let n = self
+            .driver()
+            .read_u8(addr, COUNT)
+            .map_err(SeesawError::I2c)?;
+        if n == 0 {
+            return Ok(KeyEventIter::default());
+        }
+        let events = self
+            .driver()
+            .register_read::<16>(addr, FIFO)
+            .map_err(SeesawError::I2c)?;
+        let mut buf: [Option<KeyEvent>; 16] = [None; 16];
+        for i in 0..n as usize {
+            buf[i] = Some(events[i].into());
+        }
+        Ok(KeyEventIter { buf, curr: 0 })
+    }
+
+    fn set_key_event_triggers(
         &mut self,
         x: u8,
         y: u8,
-        types: &[EventType],
+        types: &[KeyEventType],
         enable: bool,
     ) -> Result<(), SeesawError<D::Error>> {
-        let mut v = types.iter().map(|e| 2_u8 << (*e as u8)).sum();
-        if enable {
-            v += 1;
-        }
+        assert!(x < Self::NUM_COLS, "x greater than cols");
+        assert!(y < Self::NUM_ROWS, "y greater than rows");
+        let addr = self.addr();
         let key = (y << 3) + x;
-        let addr = self.addr();
+        let edges = types.iter().fold(if enable { 1 } else { 0 }, |acc, e| {
+            acc + (2_u8 << (*e as u8))
+        });
         self.driver()
-            .register_write(addr, EVENT, &[key, v])
+            .register_write(addr, EVENT, &[key, edges])
             .map_err(SeesawError::I2c)
-    }
-
-    fn bulk_event_enable(
-        &mut self,
-        x: Range<u8>,
-        y: Range<u8>,
-        types: &[EventType],
-    ) -> Result<(), (u8, u8, SeesawError<D::Error>)> {
-        for y in y {
-            for x in x.clone() {
-                self.watch_event(x, y, types, true).map_err(|e| (x, y, e))?;
-            }
-        }
-        Ok(())
-    }
-
-    fn poll(&mut self) -> Result<KeyEventIter, crate::SeesawError<D::Error>> {
-        let addr = self.addr();
-        let mut kei = KeyEventIter {
-            count: self
-                .driver()
-                .read_u8(addr, COUNT)
-                .map_err(SeesawError::I2c)?,
-            ..Default::default()
-        };
-        if kei.count == 0 {
-            return Ok(kei);
-        }
-        if kei.count > 16 {
-            kei.count = 16;
-        }
-
-        kei.buf = self
-            .driver()
-            .register_read(addr, FIFO)
-            .map_err(SeesawError::I2c)?;
-        Ok(kei)
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct KeyEventIter {
-    count: u8,
-    cur: u8,
-    buf: [u8; 16],
+    buf: [Option<KeyEvent>; 16],
+    curr: usize,
 }
 
 impl Iterator for KeyEventIter {
     type Item = KeyEvent;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.cur >= self.count {
+        if self.curr >= self.buf.len() {
             return None;
         }
-        let rec: u8 = self.buf[self.cur as usize];
-        self.cur += 1;
-        let event = match rec & 3 {
-            0 => EventType::IsDown,
-            1 => EventType::IsUp,
-            2 => EventType::Released,
-            3 => EventType::Pressed,
+        let rec = self.buf[self.curr];
+        self.curr += 1;
+        rec
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum KeyEventType {
+    /// steady-state key is down
+    IsPressed = 0,
+    /// steady-state key is up
+    IsReleased = 1,
+    /// one-shot as key is released
+    Released = 2,
+    /// one-shot as key is pressed
+    Pressed = 3,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct KeyEvent {
+    pub event: KeyEventType,
+    pub x: u8,
+    pub y: u8,
+}
+
+impl From<u8> for KeyEvent {
+    fn from(value: u8) -> Self {
+        let event = match value & 3 {
+            0 => KeyEventType::IsPressed,
+            1 => KeyEventType::IsReleased,
+            2 => KeyEventType::Released,
+            3 => KeyEventType::Pressed,
             _ => unreachable!(),
         };
-        let key = rec >> 2;
-        let x = key & 0x07;
-        let y = key >> 3;
-        Some(KeyEvent { event, x, y })
+        let x = (value >> 2) & 7;
+        let y = (value >> 2) >> 3;
+        Self { event, x, y }
     }
 }

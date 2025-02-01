@@ -31,7 +31,7 @@ fn main() -> ! {
 
         neokeys
             .set_neopixel_colors(&[
-                if (keys >> 0) & 1 == 0 { GREEN } else { RED },
+                if keys & 1 == 0 { GREEN } else { RED },
                 if (keys >> 1) & 1 == 0 { GREEN } else { RED },
                 if (keys >> 2) & 1 == 0 { GREEN } else { RED },
                 if (keys >> 3) & 1 == 0 { GREEN } else { RED },
@@ -43,10 +43,15 @@ fn main() -> ! {
 
 #[panic_handler]
 fn handle_panic(info: &core::panic::PanicInfo) -> ! {
-    rprintln!("PANIC! {}", info);
-    rprintln!("Location {:?}", info.location());
-    if let Some(pl) = info.payload().downcast_ref::<&str>() {
-        rprintln!("Payload {:?}", pl);
+    rprintln!("PANIC! {}", info.message());
+    if let Some(location) = info.location() {
+        rprintln!(
+            "Panic occurred in file '{}' at line {}",
+            location.file(),
+            location.line(),
+        );
+    } else {
+        rprintln!("Panic occurred but can't get location information...");
     }
     loop {}
 }

@@ -135,9 +135,10 @@ pub trait NeopixelModule<D: Driver, C: ColorLayout>: SeesawDevice<Driver = D> {
 
     fn set_nth_neopixel_color(
         &mut self,
-        n: u16,
+        n: usize,
         color: C::Vector,
     ) -> Result<(), SeesawError<D::Error>> {
+        assert!(n < Self::N_LEDS as usize);
         self.set_neopixel_colors(n as usize, &[color; 1])
     }
 

@@ -2,7 +2,7 @@
 #![no_main]
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
-use adafruit_seesaw::{devices::RotaryEncoder, prelude::*, SeesawRefCell};
+use adafruit_seesaw::{devices::NeoRotary4, prelude::*, SeesawRefCell};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
@@ -21,35 +21,35 @@ fn main() -> ! {
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
     let seesaw = SeesawRefCell::new(delay, i2c);
     rprintln!("Seesaw created");
-    let mut encoder = RotaryEncoder::new_with_default_addr(seesaw.acquire_driver())
+    let mut encoder = NeoRotary4::new_with_default_addr(seesaw.acquire_driver())
         .init()
-        .expect("Failed to start RotaryEncoder");
-
-    rprintln!(
-        "Capabilities {:#?}",
-        encoder.capabilities().expect("Failed to get options")
-    );
+        .expect("Failed to start NeoRotary4");
+    rprintln!("Started");
 
     rprintln!("Looping...");
-    let mut prev_position = 0;
+    let mut positions = [0i32; 4];
+
     loop {
-        let position = encoder.position(0).expect("Failed to get position");
-        if position != prev_position {
-            prev_position = position;
-            rprintln!("Position changed to {}", position);
-        }
-        let c = color_wheel(((position & 0xFF) as u8).wrapping_mul(3));
-        let Color(r, g, b) = c.set_brightness(255);
+        for (i, current_position) in positions.iter_mut().enumerate() {
+            let position = encoder.position(i).expect("Failed to get position");
+            if position != *current_position {
+                *current_position = position;
+                rprintln!("Position {} changed to {}", i, position);
+            }
+            let c = color_wheel(((position & 0xFF) as u8).wrapping_mul(3));
+            let Color(r, g, b) = c.set_brightness(255);
 
-        encoder
-            .set_neopixel_color(r, g, b)
-            .and_then(|_| encoder.sync_neopixel())
-            .expect("Failed to set neopixel");
+            encoder
+                .set_nth_neopixel_color(i, r, g, b)
+                .expect("Failed to set neopixel");
 
-        if let Ok(true) = encoder.button(0) {
-            rprintln!("Button pressed");
-            encoder.set_position(0, 0).expect("Failed to set position");
+            if let Ok(true) = encoder.button(i) {
+                rprintln!("Button {} pressed", i);
+                encoder.set_position(i, 0).expect("Failed to set position");
+            }
         }
+
+        encoder.sync_neopixel().expect("Failed to sync neopixel");
     }
 }
 

@@ -1,23 +1,22 @@
 use super::SeesawDeviceInit;
 use crate::{
-    modules::{
-        neopixel::{NeopixelModule, RGB},
-        quad_encoder::QuadEncoderModule,
-        status::StatusModule,
-        HardwareId,
-    },
+    modules::{encoder::EncoderModule, neopixel::NeopixelModule, status::StatusModule, HardwareId},
     seesaw_device, Driver,
 };
 
 seesaw_device! {
+    /// Anecdotally, I've had a lot of issues with the quad rotary encoder.
+    ///
+    /// Specifically, calls to set/reset the encoders' position seem to have no
+    /// effect on the firmware's internal position counters.
     name: NeoRotary4,
     hardware_id: HardwareId::ATTINY817,
     product_id: 5752,
     default_addr: 0x49,
     modules: [
-    QuadEncoderModule,
-    GpioModule,
-    NeopixelModule<RGB> { num_leds: 4, pin: 18 }
+        EncoderModule { num_encoders: 4, encoder_btn_pins: [12, 14, 17, 9] },
+        GpioModule,
+        NeopixelModule { num_leds: 4, pin: 18 }
     ]
 }
 

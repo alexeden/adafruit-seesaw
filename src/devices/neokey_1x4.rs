@@ -39,6 +39,6 @@ impl<D: Driver> NeoKey1x4<D> {
     }
 
     pub fn keys(&mut self) -> Result<u8, SeesawError<D::Error>> {
-        self.digital_read_bulk().map(|r| (r >> 4 & 0xF) as u8)
+        self.digital_read_bulk().map(|r| ((r >> 4) & 0xF) as u8)
     }
 }

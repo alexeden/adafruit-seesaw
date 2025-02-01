@@ -14,7 +14,8 @@ macro_rules! seesaw_device {
         ]
          $(,)?
     ) => {
-        #[doc=core::concat!("[Product Page](https://www.adafruit.com/product/", core::stringify!($product_id),")")]
+        #[doc=core::concat!("[Adafruit Product Page](https://www.adafruit.com/product/", core::stringify!($product_id),")")]
+        #[doc=core::concat!("")]
         $(#[$attr])*
         #[derive(Debug)]
         pub struct $name<D>(u8, D);
@@ -67,16 +68,24 @@ macro_rules! impl_device_module {
     ($device:ident, AdcModule $({})?) => {
         impl<D: $crate::Driver> $crate::modules::adc::AdcModule<D> for $device<D> {}
     };
-    ($device:ident, EncoderModule { button_pin: $button_pin:expr }) => {
-        impl<D: $crate::Driver> $crate::modules::encoder::EncoderModule<D> for $device<D> {
-            const ENCODER_BTN_PIN: u8 = $button_pin;
+    ($device:ident, EncoderModule {
+        num_encoders: $num_encoders:expr,
+        encoder_btn_pins: $button_pins:expr
+    }) => {
+        impl<D: $crate::Driver> $crate::modules::encoder::EncoderModule<D, $num_encoders>
+            for $device<D>
+        {
+            const ENCODER_BTN_PINS: [u8; $num_encoders] = $button_pins;
         }
     };
     ($device:ident, GpioModule $({})?) => {
         impl<D: $crate::Driver> $crate::modules::gpio::GpioModule<D> for $device<D> {}
     };
-    ($device:ident, KeypadModule $({})?) => {
-        impl<D: $crate::Driver> $crate::modules::keypad::KeypadModule<D> for $device<D> {}
+    ($device:ident, KeypadModule { num_cols: $num_cols:expr, num_rows: $num_rows:expr }) => {
+        impl<D: $crate::Driver> $crate::modules::keypad::KeypadModule<D> for $device<D> {
+            const NUM_COLS: u8 = $num_cols;
+            const NUM_ROWS: u8 = $num_rows;
+        }
     };
     ($device:ident, NeopixelModule<$colors:ty> { num_leds: $num_leds:expr, pin: $pin:expr }) => {
         impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelModule<D, $colors>

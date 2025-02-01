@@ -25,7 +25,7 @@ fn main() -> ! {
 
     loop {
         let value = neoslider.slider_value().expect("Failed to read slider");
-        let color = color_wheel((value / 3 & 0xFF) as u8);
+        let color = color_wheel(((value / 3) & 0xFF) as u8);
         neoslider
             .set_neopixel_colors(&[color.into(), color.into(), color.into(), color.into()])
             .and_then(|_| neoslider.sync_neopixel())
@@ -35,10 +35,15 @@ fn main() -> ! {
 
 #[panic_handler]
 fn handle_panic(info: &core::panic::PanicInfo) -> ! {
-    rprintln!("PANIC! {}", info);
-    rprintln!("Location {:?}", info.location());
-    if let Some(pl) = info.payload().downcast_ref::<&str>() {
-        rprintln!("Payload {:?}", pl);
+    rprintln!("PANIC! {}", info.message());
+    if let Some(location) = info.location() {
+        rprintln!(
+            "Panic occurred in file '{}' at line {}",
+            location.file(),
+            location.line(),
+        );
+    } else {
+        rprintln!("Panic occurred but can't get location information...");
     }
     loop {}
 }
