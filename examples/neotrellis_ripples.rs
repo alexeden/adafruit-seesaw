@@ -99,7 +99,7 @@ fn main() -> ! {
 
         // Update neopixels
         trellis
-            .set_neopixel_colors(&matrix.map(|c| c.into()))
+            .set_neopixel_colors(0, &matrix.map(|c| c.into()))
             .and_then(|_| trellis.sync_neopixel())
             .expect("Failed to update neopixels");
     }
