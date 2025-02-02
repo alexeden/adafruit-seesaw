@@ -25,6 +25,7 @@ test = false
 
 [dependencies]
 embedded-hal = "1.0.0"
+rgb = "0.8"
 
 [dev-dependencies]
 cortex-m = "0.7"

@@ -13,7 +13,7 @@ seesaw_device!(
   modules: [
       AdcModule,
       GpioModule,
-      NeopixelModule { num_leds: 4, pin: 14},
+      NeopixelModule<color_type = rgb::Rgb<u8>> {  num_leds: 4, pin: 14 },
   ]
 );
 

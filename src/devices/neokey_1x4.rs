@@ -17,7 +17,7 @@ seesaw_device! {
   default_addr: 0x30,
   modules: [
       GpioModule,
-      NeopixelModule { num_leds: 4, pin: 3 },
+      NeopixelModule<color_type = rgb::Rgb<u8>> { num_leds: 4, pin: 3 },
   ]
 }
 

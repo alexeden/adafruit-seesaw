@@ -16,7 +16,7 @@ seesaw_device! {
     modules: [
         EncoderModule { num_encoders: 4, encoder_btn_pins: [12, 14, 17, 9] },
         GpioModule,
-        NeopixelModule { num_leds: 4, pin: 18 }
+        NeopixelModule<color_type = rgb::Rgb<u8>> { num_leds: 4, pin: 18 }
     ]
 }
 

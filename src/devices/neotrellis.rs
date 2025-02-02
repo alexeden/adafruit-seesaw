@@ -10,7 +10,7 @@ seesaw_device! {
     product_id: 3954,
     default_addr: 0x2E,
     modules: [
-        NeopixelModule { num_leds: 16, pin: 3 },
+        NeopixelModule<color_type = rgb::Rgb<u8>> { num_leds: 16, pin: 3 },
         KeypadModule { num_cols: 4, num_rows: 4 },
     ]
 }

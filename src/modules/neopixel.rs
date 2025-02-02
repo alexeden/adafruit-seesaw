@@ -1,3 +1,5 @@
+use rgb::ComponentSlice;
+
 use super::{Modules, Reg};
 use crate::{devices::SeesawDevice, driver::Driver, DriverExt, SeesawError};
 
@@ -27,6 +29,8 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
 
     /// The number of neopixels on the device
     const N_LEDS: u16 = 1;
+
+    type C: ComponentSlice<u8>;
 
     fn enable_neopixel(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();

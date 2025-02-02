@@ -3,6 +3,9 @@
 #![allow(const_evaluatable_unchecked, incomplete_features, rustdoc::bare_urls)]
 #![feature(array_try_map, generic_const_exprs)]
 // TODO improve the organization of the exports/visibility
+// Re-export rgb
+pub use rgb;
+
 pub mod bus;
 pub mod devices;
 pub mod modules;
