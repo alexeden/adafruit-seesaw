@@ -10,10 +10,12 @@ seesaw_device! {
     product_id: 3954,
     default_addr: 0x2E,
     modules: [
-        NeopixelModule<color_type = rgb::Rgb<u8>> { num_leds: 16, pin: 3 },
+        NeopixelModule<color_type = NeoTrellisColor> { num_leds: 16, pin: 3 },
         KeypadModule { num_cols: 4, num_rows: 4 },
     ]
 }
+
+pub type NeoTrellisColor = rgb::Grb<u8>;
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoTrellis<D> {
     fn init(mut self) -> Result<Self, Self::Error> {

@@ -1,27 +1,47 @@
 #![no_std]
 #![no_main]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
 /// Arduino example: https://github.com/adafruit/Adafruit_Seesaw/blob/master/examples/NeoTrellis/ripples/ripples.ino
 /// Demo video: https://storage.googleapis.com/apemedia/neotrellis576.mp4
-use adafruit_seesaw::{devices::NeoTrellis, prelude::*, SeesawRefCell};
-use core::ops::{Add, AddAssign, Mul};
+use adafruit_seesaw::{
+    devices::{NeoTrellis, NeoTrellisColor},
+    prelude::*,
+    SeesawRefCell,
+};
 use cortex_m_rt::entry;
 use heapless::Deque;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
 
+type Color = NeoTrellisColor;
+
 const MAX_RADIUS: f32 = 4.;
 const RIPPLE_RATE: f32 = 0.15;
 const RIPPLE_SPREAD: f32 = 1.;
 const COLORS: [Color; 6] = [
-    Color(255, 255, 0),
-    Color(0, 255, 255),
-    Color(255, 0, 255),
-    Color(255, 0, 0),
-    Color(0, 255, 0),
-    Color(0, 0, 255),
+    Color { r: 255, g: 0, b: 0 },
+    Color { r: 0, g: 255, b: 0 },
+    Color { r: 0, g: 0, b: 255 },
+    Color {
+        r: 255,
+        g: 255,
+        b: 0,
+    },
+    Color {
+        r: 0,
+        g: 255,
+        b: 255,
+    },
+    Color {
+        r: 255,
+        g: 0,
+        b: 255,
+    },
 ];
+
+// type Color =
+//     <adafruit_seesaw::devices::NeoTrellis<Driver> as
+// adafruit_seesaw::prelude::NeopixelModule<_>>::Color;
 
 #[entry]
 fn main() -> ! {
@@ -42,8 +62,6 @@ fn main() -> ! {
         .expect("Failed to start NeoTrellis");
 
     rprintln!("Trellis started");
-
-    // Listen for key presses
     for x in 0..trellis.num_cols() {
         for y in 0..trellis.num_rows() {
             trellis
@@ -93,13 +111,17 @@ fn main() -> ! {
                 for (i, color) in matrix.iter_mut().enumerate() {
                     let dist = ripple.center.cheby_dist(&Point::new_from_index(i));
                     let z = RIPPLE_SPREAD - (ripple.radius - dist).abs();
-                    *color += ripple.color * z;
+                    *color = Color {
+                        r: color.r.saturating_add((ripple.color.r as f32 * z) as u8),
+                        g: color.g.saturating_add((ripple.color.g as f32 * z) as u8),
+                        b: color.b.saturating_add((ripple.color.b as f32 * z) as u8),
+                    };
                 }
             });
 
         // Update neopixels
         trellis
-            .set_neopixel_colors(&matrix.map(|c| c.into()))
+            .set_neopixel_colors_new(&matrix)
             .and_then(|_| trellis.sync_neopixel())
             .expect("Failed to update neopixels");
     }
@@ -173,45 +195,7 @@ impl ColorWheel {
         } else {
             self.0 + 1
         };
+        rprintln!("Next color: {:?}", COLORS[self.0]);
         COLORS[self.0]
-    }
-}
-
-#[derive(Copy, Clone, Debug, Default)]
-struct Color(pub u8, pub u8, pub u8);
-
-impl From<Color> for (u8, u8, u8) {
-    fn from(value: Color) -> Self {
-        (value.0, value.1, value.2)
-    }
-}
-
-impl Add for Color {
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        Self(
-            self.0.saturating_add(rhs.0),
-            self.1.saturating_add(rhs.1),
-            self.2.saturating_add(rhs.2),
-        )
-    }
-}
-
-impl Mul<f32> for Color {
-    type Output = Self;
-
-    fn mul(self, rhs: f32) -> Self::Output {
-        Self(
-            (self.0 as f32 * rhs) as u8,
-            (self.1 as f32 * rhs) as u8,
-            (self.2 as f32 * rhs) as u8,
-        )
-    }
-}
-
-impl AddAssign for Color {
-    fn add_assign(&mut self, rhs: Self) {
-        *self = *self + rhs;
     }
 }

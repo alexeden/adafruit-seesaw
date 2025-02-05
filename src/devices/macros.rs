@@ -93,9 +93,9 @@ macro_rules! impl_device_module {
     };
     ($device:ident, NeopixelModule<color_type = $color_type:ty> { num_leds: $num_leds:expr, pin: $pin:expr }) => {
         impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelModule<D> for $device<D> {
-            type C = $color_type;
+            type Color = $color_type;
 
-            const N_LEDS: u16 = $num_leds;
+            const N_LEDS: usize = $num_leds;
             const PIN: u8 = $pin;
         }
     };
