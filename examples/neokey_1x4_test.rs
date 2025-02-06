@@ -2,13 +2,17 @@
 #![no_main]
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
-use adafruit_seesaw::{devices::NeoKey1x4, prelude::*, SeesawRefCell};
+use adafruit_seesaw::{
+    devices::{NeoKey1x4, NeoKey1x4Color},
+    prelude::*,
+    SeesawRefCell,
+};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
 
-const RED: (u8, u8, u8) = (255, 0, 0);
-const GREEN: (u8, u8, u8) = (0, 255, 0);
+const RED: NeoKey1x4Color = NeoKey1x4Color { r: 255, g: 0, b: 0 };
+const GREEN: NeoKey1x4Color = NeoKey1x4Color { r: 0, g: 255, b: 0 };
 
 #[entry]
 fn main() -> ! {
