@@ -95,7 +95,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
     }
 
     /// Set the color of all neopixels
-    /// TODO: there is a lot of room for optimization here (https://github.com/alexeden/adafruit-seesaw/pull/12)
+    /// TODO: there is room for optimization here (https://github.com/alexeden/adafruit-seesaw/pull/12)
     fn set_neopixel_colors(
         &mut self,
         colors: &[Self::Color; Self::N_LEDS],
@@ -104,15 +104,15 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
         [(); 2 + Self::C_SIZE]: Sized,
     {
         let addr = self.addr();
-
-        (0..Self::N_LEDS)
-            .try_for_each(|n| {
-                let mut buf = [0; 2 + Self::C_SIZE];
-                buf[..2].copy_from_slice(&u16::to_be_bytes((Self::C_SIZE * n) as u16));
-                buf[2..].copy_from_slice(colors[n].as_slice());
-                self.driver().register_write(addr, SET_BUF, &buf)
-            })
-            .map_err(SeesawError::I2c)
+        let mut buf = [0; 2 + Self::C_SIZE];
+        for (n, color) in colors.iter().enumerate() {
+            buf[..2].copy_from_slice(&u16::to_be_bytes((Self::C_SIZE * n) as u16));
+            buf[2..].copy_from_slice(color.as_slice());
+            self.driver()
+                .register_write(addr, SET_BUF, &buf)
+                .map_err(SeesawError::I2c)?;
+        }
+        Ok(())
     }
 
     fn sync_neopixel(&mut self) -> Result<(), SeesawError<D::Error>> {
