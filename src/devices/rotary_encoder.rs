@@ -1,7 +1,7 @@
 use super::SeesawDeviceInit;
 use crate::{
     modules::{encoder::EncoderModule, neopixel::NeopixelModule, status::StatusModule, HardwareId},
-    seesaw_device, Driver,
+    seesaw_device, Driver, SeesawError,
 };
 
 seesaw_device! {
@@ -19,7 +19,7 @@ seesaw_device! {
 pub type RotaryEncoderColor = rgb::Grb<u8>;
 
 impl<D: Driver> SeesawDeviceInit<D> for RotaryEncoder<D> {
-    fn init(mut self) -> Result<Self, Self::Error> {
+    fn init(mut self) -> Result<Self, SeesawError<D::Error>> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_button(0))
             .and_then(|_| self.enable_neopixel())

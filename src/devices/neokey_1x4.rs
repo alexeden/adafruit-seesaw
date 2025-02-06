@@ -24,7 +24,7 @@ seesaw_device! {
 pub type NeoKey1x4Color = rgb::Grb<u8>;
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoKey1x4<D> {
-    fn init(mut self) -> Result<Self, Self::Error> {
+    fn init(mut self) -> Result<Self, SeesawError<D::Error>> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_neopixel())
             .and_then(|_| self.enable_button_pins())

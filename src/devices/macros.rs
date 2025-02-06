@@ -34,7 +34,6 @@ macro_rules! seesaw_device {
 
         impl<D: $crate::Driver> $crate::devices::SeesawDevice for $name<D> {
             type Driver = D;
-            type Error = $crate::SeesawError<D::Error>;
             const DEFAULT_ADDR: u8 = $default_addr;
             const HARDWARE_ID: $crate::modules::HardwareId = $hardware_id;
             const PRODUCT_ID: u16 = $product_id;
@@ -92,12 +91,19 @@ macro_rules! impl_device_module {
         }
     };
     ($device:ident, NeopixelModule<color_type = $color_type:ty> { num_leds: $num_leds:expr, pin: $pin:expr }) => {
-        impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelModule<D> for $device<D> {
+        impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelConfig for $device<D> {
             type Color = $color_type;
 
             const N_LEDS: usize = $num_leds;
             const PIN: u8 = $pin;
         }
+
+        // impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelModule<D> for
+        // $device<D> { type Color = $color_type;
+
+        // const N_LEDS: usize = $num_leds;
+        // const PIN: u8 = $pin;
+        // }
     };
     ($device:ident, StatusModule $({})?) => {
         impl<D: $crate::Driver> $crate::modules::StatusModule<D> for $device<D> {}
