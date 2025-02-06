@@ -2,7 +2,11 @@
 #![no_main]
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
-use adafruit_seesaw::{devices::NeoRotary4, prelude::*, SeesawRefCell};
+use adafruit_seesaw::{
+    devices::{NeoRotary4, NeoRotary4Color},
+    prelude::*,
+    SeesawRefCell,
+};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
@@ -37,14 +41,13 @@ fn main() -> ! {
                 rprintln!("Position {} changed to {}", i, position);
             }
             let c = color_wheel(((position & 0xFF) as u8).wrapping_mul(3));
-            let Color(r, g, b) = c.set_brightness(255);
 
             encoder
-                .set_nth_neopixel_color(i, r, g, b)
+                .set_nth_neopixel_color(i, c)
                 .expect("Failed to set neopixel");
 
             if let Ok(true) = encoder.button(i) {
-                rprintln!("Button {} pressed", i);
+                rprintln!("Button {} pressed; color is {:?}", i, c);
                 encoder.set_position(i, 0).expect("Failed to set position");
             }
         }
@@ -68,22 +71,22 @@ fn handle_panic(info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
 
-fn color_wheel(byte: u8) -> Color {
+fn color_wheel(byte: u8) -> NeoRotary4Color {
     match byte {
-        0..=84 => Color(255 - byte * 3, 0, byte * 3),
-        85..=169 => Color(0, (byte - 85) * 3, 255 - (byte - 85) * 3),
-        _ => Color((byte - 170) * 3, 255 - (byte - 170) * 3, 0),
-    }
-}
-
-struct Color(pub u8, pub u8, pub u8);
-
-impl Color {
-    pub fn set_brightness(self, brightness: u8) -> Self {
-        Self(
-            ((self.0 as u16 * brightness as u16) >> 8) as u8,
-            ((self.1 as u16 * brightness as u16) >> 8) as u8,
-            ((self.2 as u16 * brightness as u16) >> 8) as u8,
-        )
+        0..=84 => NeoRotary4Color {
+            r: 255 - byte * 3,
+            g: 0,
+            b: byte * 3,
+        },
+        85..=169 => NeoRotary4Color {
+            r: 0,
+            g: (byte - 85) * 3,
+            b: 255 - (byte - 85) * 3,
+        },
+        _ => NeoRotary4Color {
+            r: (byte - 170) * 3,
+            g: 255 - (byte - 170) * 3,
+            b: 0,
+        },
     }
 }
