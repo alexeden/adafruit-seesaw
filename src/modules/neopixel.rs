@@ -24,7 +24,7 @@ const SET_BUF: &Reg = &[Modules::Neopixel.into_u8(), 0x04];
 /// arguments/data after the command.
 const SHOW: &Reg = &[Modules::Neopixel.into_u8(), 0x05];
 
-pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
+pub trait NeopixelConfig {
     /// The size of the color type in bytes
     const C_SIZE: usize = core::mem::size_of::<Self::Color>();
     /// The number of neopixels on or connected to the device
@@ -33,6 +33,25 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
     const PIN: u8;
 
     type Color: ComponentSlice<u8>;
+
+    fn num_leds() -> usize {
+        Self::N_LEDS
+    }
+}
+
+/// Blanket implementation of NeopixelModule for any SeesawDevice that
+/// implements NeopixelConfig
+impl<D: Driver, T: NeopixelConfig + SeesawDevice<Driver = D>> NeopixelModule<D> for T {}
+
+pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> + NeopixelConfig {
+    // /// The size of the color type in bytes
+    // const C_SIZE: usize = core::mem::size_of::<Self::Color>();
+    // /// The number of neopixels on or connected to the device
+    // const N_LEDS: usize = 1;
+    // /// The output pin of the neopixel signal
+    // const PIN: u8;
+
+    // type Color: ComponentSlice<u8>;
 
     /// Set which pin the device sends the neopixel signal through and
     /// set the length of its internal pixel buffer

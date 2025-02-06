@@ -30,11 +30,11 @@ seesaw_device! {
   hardware_id: HardwareId::ATTINY817,
   product_id: 5296,
   default_addr: 0x3A,
-  modules: [
-      GpioModule,
-      TimerModule
-  ]
+  modules: [ ]
 }
+
+impl<D: Driver> GpioModule<D> for ArcadeButton1x4<D> {}
+impl<D: Driver> TimerModule<D> for ArcadeButton1x4<D> {}
 
 impl<D: Driver> SeesawDeviceInit<D> for ArcadeButton1x4<D> {
     fn init(mut self) -> Result<Self, SeesawError<D::Error>> {

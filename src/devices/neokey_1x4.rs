@@ -2,7 +2,7 @@ use super::SeesawDeviceInit;
 use crate::{
     modules::{
         gpio::{GpioModule, PinMode},
-        neopixel::NeopixelModule,
+        neopixel::{NeopixelConfig, NeopixelModule},
         status::StatusModule,
         HardwareId,
     },
@@ -15,13 +15,18 @@ seesaw_device! {
   hardware_id: HardwareId::SAMD09,
   product_id: 4980,
   default_addr: 0x30,
-  modules: [
-      GpioModule,
-      NeopixelModule<color_type = NeoKey1x4Color> { num_leds: 4, pin: 3 },
-  ]
+  modules: []
 }
 
 pub type NeoKey1x4Color = rgb::Grb<u8>;
+
+impl<D: Driver> GpioModule<D> for NeoKey1x4<D> {}
+impl<D> NeopixelConfig for NeoKey1x4<D> {
+    type Color = NeoKey1x4Color;
+
+    const N_LEDS: usize = 4;
+    const PIN: u8 = 3;
+}
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoKey1x4<D> {
     fn init(mut self) -> Result<Self, SeesawError<D::Error>> {

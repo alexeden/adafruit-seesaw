@@ -13,10 +13,24 @@ const INT_CLR: &Reg = &[Modules::Keypad.into_u8(), 0x03];
 const COUNT: &Reg = &[Modules::Keypad.into_u8(), 0x04];
 const FIFO: &Reg = &[Modules::Keypad.into_u8(), 0x10];
 
-pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
+pub trait KeypadConfig {
     const NUM_COLS: u8;
     const NUM_ROWS: u8;
 
+    fn cols(&self) -> u8 {
+        Self::NUM_COLS
+    }
+
+    fn rows(&self) -> u8 {
+        Self::NUM_ROWS
+    }
+}
+
+/// Blanket implementation of KeypadModule for any SeesawDevice that
+/// implements KeypadConfig
+impl<D: Driver, T: KeypadConfig + SeesawDevice<Driver = D>> KeypadModule<D> for T {}
+
+pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> + KeypadConfig {
     fn disable_interrupt(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
         self.driver()

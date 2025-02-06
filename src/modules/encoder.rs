@@ -2,7 +2,7 @@ use super::{
     gpio::{GpioModule, PinMode},
     Modules, Reg,
 };
-use crate::{Driver, DriverExt, SeesawError};
+use crate::{devices::SeesawDevice, Driver, DriverExt, SeesawError};
 
 #[allow(dead_code)]
 const STATUS: &Reg = &[Modules::Encoder.into_u8(), 0x00];
@@ -11,9 +11,31 @@ const INT_CLR: &Reg = &[Modules::Encoder.into_u8(), 0x20];
 const POSITION: &Reg = &[Modules::Encoder.into_u8(), 0x30];
 const DELTA: &Reg = &[Modules::Encoder.into_u8(), 0x40];
 
-pub trait EncoderModule<D: Driver, const N_ENCODERS: usize>: GpioModule<D> {
+pub trait EncoderConfig<const N_ENCODERS: usize> {
     const ENCODER_BTN_PINS: [u8; N_ENCODERS];
 
+    fn encoder_btn_pins(&self) -> &[u8; N_ENCODERS] {
+        &Self::ENCODER_BTN_PINS
+    }
+
+    fn num_encoders(&self) -> usize {
+        N_ENCODERS
+    }
+}
+
+/// Blanket implementation of EncoderModule for any SeesawDevice that
+/// implements EncoderConfig
+impl<
+        D: Driver,
+        T: EncoderConfig<N_ENCODERS> + GpioModule<D> + SeesawDevice<Driver = D>,
+        const N_ENCODERS: usize,
+    > EncoderModule<D, N_ENCODERS> for T
+{
+}
+
+pub trait EncoderModule<D: Driver, const N_ENCODERS: usize>:
+    GpioModule<D> + EncoderConfig<N_ENCODERS>
+{
     fn enable_button(&mut self, encoder: usize) -> Result<(), SeesawError<D::Error>> {
         self.set_pin_mode(Self::ENCODER_BTN_PINS[encoder], PinMode::InputPullup)
             .map(|_| self.driver().delay_us(125))

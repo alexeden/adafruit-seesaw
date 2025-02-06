@@ -7,10 +7,10 @@ macro_rules! seesaw_device {
         product_id: $product_id:expr,
         default_addr: $default_addr:expr,
         modules: [
-            $($module_name:ident$(<$($module_param_name:ident =$module_param:ty),*>)? $({
-                $($const_name:ident: $const_value:expr),*
-            })?),*
-            $(,)?
+            // $($module_name:ident$(<$($module_param_name:ident =$module_param:ty),*>)? $({
+            //     $($const_name:ident: $const_value:expr),*
+            // })?),*
+            // $(,)?
         ]
          $(,)?
     ) => {
@@ -55,56 +55,49 @@ macro_rules! seesaw_device {
             }
         }
 
-        $(
-            impl_device_module! {
-                $name, $module_name$(<$($module_param_name = $module_param),*>)? $({
-                    $($const_name: $const_value),*
-                })*
-            }
-        )*
+        // $(
+        //     impl_device_module! {
+        //         $name, $module_name$(<$($module_param_name = $module_param),*>)? $({
+        //             $($const_name: $const_value),*
+        //         })*
+        //     }
+        // )*
     };
 }
 
 #[doc(hidden)]
 #[macro_export(local_inner_macros)]
 macro_rules! impl_device_module {
-    ($device:ident, AdcModule $({})?) => {
-        impl<D: $crate::Driver> $crate::modules::adc::AdcModule<D> for $device<D> {}
-    };
-    ($device:ident, EncoderModule {
-        num_encoders: $num_encoders:expr,
-        encoder_btn_pins: $button_pins:expr
-    }) => {
-        impl<D: $crate::Driver> $crate::modules::encoder::EncoderModule<D, $num_encoders>
-            for $device<D>
-        {
-            const ENCODER_BTN_PINS: [u8; $num_encoders] = $button_pins;
-        }
-    };
+    // ($device:ident, AdcModule $({})?) => {
+    //     impl<D: $crate::Driver> $crate::modules::adc::AdcModule<D> for $device<D> {}
+    // };
+    // ($device:ident, EncoderModule {
+    //     num_encoders: $num_encoders:expr,
+    //     encoder_btn_pins: $button_pins:expr
+    // }) => {
+    //     impl<D: $crate::Driver> $crate::modules::encoder::EncoderModule<D, $num_encoders>
+    //         for $device<D>
+    //     {
+    //         const ENCODER_BTN_PINS: [u8; $num_encoders] = $button_pins;
+    //     }
+    // };
     ($device:ident, GpioModule $({})?) => {
         impl<D: $crate::Driver> $crate::modules::gpio::GpioModule<D> for $device<D> {}
     };
-    ($device:ident, KeypadModule { num_cols: $num_cols:expr, num_rows: $num_rows:expr }) => {
-        impl<D: $crate::Driver> $crate::modules::keypad::KeypadModule<D> for $device<D> {
-            const NUM_COLS: u8 = $num_cols;
-            const NUM_ROWS: u8 = $num_rows;
-        }
-    };
-    ($device:ident, NeopixelModule<color_type = $color_type:ty> { num_leds: $num_leds:expr, pin: $pin:expr }) => {
-        impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelConfig for $device<D> {
-            type Color = $color_type;
+    // ($device:ident, KeypadModule { num_cols: $num_cols:expr, num_rows: $num_rows:expr }) => {
+    //     impl<D: $crate::Driver> $crate::modules::keypad::KeypadConfig for $device<D> {
+    //         const NUM_COLS: u8 = $num_cols;
+    //         const NUM_ROWS: u8 = $num_rows;
+    //     }
+    // };
+    // ($device:ident, NeopixelModule<color_type = $color_type:ty> { num_leds: $num_leds:expr, pin:
+    // $pin:expr }) => {     impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelConfig
+    // for $device<D> {         type Color = $color_type;
 
-            const N_LEDS: usize = $num_leds;
-            const PIN: u8 = $pin;
-        }
-
-        // impl<D: $crate::Driver> $crate::modules::neopixel::NeopixelModule<D> for
-        // $device<D> { type Color = $color_type;
-
-        // const N_LEDS: usize = $num_leds;
-        // const PIN: u8 = $pin;
-        // }
-    };
+    //         const N_LEDS: usize = $num_leds;
+    //         const PIN: u8 = $pin;
+    //     }
+    // };
     ($device:ident, StatusModule $({})?) => {
         impl<D: $crate::Driver> $crate::modules::StatusModule<D> for $device<D> {}
     };

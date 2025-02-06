@@ -19,7 +19,7 @@ pub use neotrellis::*;
 pub use rotary_encoder::*;
 
 pub trait SeesawDevice {
-    type Driver: Driver;
+    type Driver: crate::Driver;
 
     const DEFAULT_ADDR: u8;
     const HARDWARE_ID: HardwareId;
