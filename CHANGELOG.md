@@ -7,6 +7,8 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ## [Unreleased]
 
+## [0.10.0] - 2025-02-05
+
 ### Added
 
 - [#14](https://github.com/alexeden/adafruit-seesaw/pull/14) Add and re-export the [`rgb`](https://docs.rs/rgb/0.8.50/rgb/index.html) crate for all things related to color
