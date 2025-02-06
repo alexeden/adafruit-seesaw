@@ -1,3 +1,5 @@
+use rgb::ComponentSlice;
+
 use super::{Modules, Reg};
 use crate::{devices::SeesawDevice, driver::Driver, DriverExt, SeesawError};
 
@@ -23,19 +25,26 @@ const SET_BUF: &Reg = &[Modules::Neopixel.into_u8(), 0x04];
 const SHOW: &Reg = &[Modules::Neopixel.into_u8(), 0x05];
 
 pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
+    /// The size of the color type in bytes
+    const C_SIZE: usize = core::mem::size_of::<Self::Color>();
+    /// The number of neopixels on or connected to the device
+    const N_LEDS: usize = 1;
+    /// The output pin of the neopixel signal
     const PIN: u8;
 
-    /// The number of neopixels on the device
-    const N_LEDS: u16 = 1;
+    type Color: ComponentSlice<u8>;
 
+    /// Set which pin the device sends the neopixel signal through and
+    /// set the length of its internal pixel buffer
     fn enable_neopixel(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()
             .write_u8(addr, SET_PIN, Self::PIN)
+            .map(|_| self.driver().delay_us(10_000))
             .and_then(|_| {
-                self.driver().delay_us(10_000);
-                self.driver().write_u16(addr, SET_LEN, 3 * Self::N_LEDS)
+                self.driver()
+                    .write_u16(addr, SET_LEN, (Self::C_SIZE * Self::N_LEDS) as u16)
             })
             .map(|_| self.driver().delay_us(10_000))
             .map_err(SeesawError::I2c)
@@ -57,43 +66,53 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    fn set_neopixel_color(&mut self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<D::Error>> {
-        self.set_nth_neopixel_color(0, r, g, b)
+    /// Set the color of the first (and, in the case of some devices, only)
+    /// neopixel
+    fn set_neopixel_color(&mut self, color: Self::Color) -> Result<(), SeesawError<D::Error>>
+    where
+        [(); 2 + Self::C_SIZE]: Sized,
+    {
+        self.set_nth_neopixel_color(0, color)
     }
 
+    /// Set the color of the nth neopixel
     fn set_nth_neopixel_color(
         &mut self,
         n: usize,
-        r: u8,
-        g: u8,
-        b: u8,
-    ) -> Result<(), SeesawError<D::Error>> {
-        assert!(n < Self::N_LEDS as usize);
-        let [zero, one] = u16::to_be_bytes(3 * n as u16);
+        color: Self::Color,
+    ) -> Result<(), SeesawError<D::Error>>
+    where
+        [(); 2 + Self::C_SIZE]: Sized,
+    {
+        assert!(n < Self::N_LEDS);
         let addr = self.addr();
-
+        let mut buf = [0; 2 + Self::C_SIZE];
+        buf[..2].copy_from_slice(&u16::to_be_bytes((Self::C_SIZE * n) as u16));
+        buf[2..].copy_from_slice(color.as_slice());
         self.driver()
-            .register_write(addr, SET_BUF, &[zero, one, r, g, b])
+            .register_write(addr, SET_BUF, &buf)
             .map_err(SeesawError::I2c)
     }
 
+    /// Set the color of all neopixels
+    /// TODO: there is room for optimization here (https://github.com/alexeden/adafruit-seesaw/pull/12)
     fn set_neopixel_colors(
         &mut self,
-        colors: &[(u8, u8, u8); Self::N_LEDS as usize],
+        colors: &[Self::Color; Self::N_LEDS],
     ) -> Result<(), SeesawError<D::Error>>
     where
-        [(); Self::N_LEDS as usize]: Sized,
+        [(); 2 + Self::C_SIZE]: Sized,
     {
         let addr = self.addr();
-
-        (0..Self::N_LEDS)
-            .try_for_each(|n| {
-                let [zero, one] = u16::to_be_bytes(3 * n);
-                let color = colors[n as usize];
-                self.driver()
-                    .register_write(addr, SET_BUF, &[zero, one, color.0, color.1, color.2])
-            })
-            .map_err(SeesawError::I2c)
+        let mut buf = [0; 2 + Self::C_SIZE];
+        for (n, color) in colors.iter().enumerate() {
+            buf[..2].copy_from_slice(&u16::to_be_bytes((Self::C_SIZE * n) as u16));
+            buf[2..].copy_from_slice(color.as_slice());
+            self.driver()
+                .register_write(addr, SET_BUF, &buf)
+                .map_err(SeesawError::I2c)?;
+        }
+        Ok(())
     }
 
     fn sync_neopixel(&mut self) -> Result<(), SeesawError<D::Error>> {

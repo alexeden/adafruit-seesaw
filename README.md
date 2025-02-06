@@ -12,7 +12,7 @@ The library follows the patterns of the [`shared-bus`](https://github.com/Rahix/
 
 Communicating with Seesaw devices requires a bus that implements both `I2C` traits and `Delay` from `embedded-hal`.
 
-# Using in a `#![no_std]` context
+# Default Usage (`#![no_std]`)
 
 If you're communicating with devices within a single thread, use the `SeesawRefCell` typed struct, which uses the `RefCellBus` wrapper to enable sharing of the bus across multiple Seesaw devices.
 
@@ -28,7 +28,7 @@ let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver())
     .expect("Failed to start NeoKey1x4");
 ```
 
-# Using across multiple threads
+# Using across multiple threads (`std`)
 
 > This requires turning on the `std` feature flag.
 
@@ -88,7 +88,7 @@ fn main() -> Result<(), anyhow::Error> {
 }
 ```
 
-# Creating a Device
+# Using a Device
 
 All devices implement the `SeesawDevice` trait and have the same constructor function, along with lots of other device-specific information.
 
@@ -112,7 +112,7 @@ let neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver());
 let neokeys = NeoKey1x4::new(0x00, seesaw.acquire_driver());
 ```
 
-# Initializing Devices
+### Initializing
 
 Devices that implement `SeesawDevice` also implmement `SeesawDeviceInit`, which defines a device-specific `init` function for setting up a device's hardware functionality. The intention is to run a set of sensible defaults so you don't have to remember to do it yourself.
 
@@ -145,7 +145,7 @@ seesaw_device! {
     default_addr: _,
     modules: [
         GpioModule,
-        NeopixelModule { num_leds: 6, pin: _ },
+        NeopixelModule<color_type = rgb::Rgb<u8>> { num_leds: 6, pin: _ },
     ]
 }
 ```
@@ -168,7 +168,7 @@ Now you can use the new device as you would any other:
 ```rs
 let neokeys = NeoKey2x3::new_with_default_addr(seesaw.acquire_driver())
     .init()
-    .expect("Failed to initialize NeoKey1x4");
+    .expect("Failed to initialize NeoKey2x3");
 ```
 
 # Implementation Progress

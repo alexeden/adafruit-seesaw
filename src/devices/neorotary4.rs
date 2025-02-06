@@ -16,9 +16,11 @@ seesaw_device! {
     modules: [
         EncoderModule { num_encoders: 4, encoder_btn_pins: [12, 14, 17, 9] },
         GpioModule,
-        NeopixelModule { num_leds: 4, pin: 18 }
+        NeopixelModule<color_type = NeoRotary4Color> { num_leds: 4, pin: 18 }
     ]
 }
+
+pub type NeoRotary4Color = rgb::Grb<u8>;
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoRotary4<D> {
     fn init(mut self) -> Result<Self, Self::Error> {

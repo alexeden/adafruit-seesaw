@@ -17,9 +17,11 @@ seesaw_device! {
   default_addr: 0x30,
   modules: [
       GpioModule,
-      NeopixelModule { num_leds: 4, pin: 3 },
+      NeopixelModule<color_type = NeoKey1x4Color> { num_leds: 4, pin: 3 },
   ]
 }
+
+pub type NeoKey1x4Color = rgb::Grb<u8>;
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoKey1x4<D> {
     fn init(mut self) -> Result<Self, Self::Error> {
