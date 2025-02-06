@@ -13,9 +13,11 @@ seesaw_device!(
   modules: [
       AdcModule,
       GpioModule,
-      NeopixelModule<color_type = rgb::Rgb<u8>> {  num_leds: 4, pin: 14 },
+      NeopixelModule<color_type = NeoSliderColor> {  num_leds: 4, pin: 14 },
   ]
 );
+
+pub type NeoSliderColor = rgb::Grb<u8>;
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoSlider<D> {
     fn init(mut self) -> Result<Self, Self::Error> {

@@ -2,7 +2,11 @@
 #![no_main]
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
-use adafruit_seesaw::{devices::NeoSlider, prelude::*, SeesawRefCell};
+use adafruit_seesaw::{
+    devices::{NeoSlider, NeoSliderColor},
+    prelude::*,
+    SeesawRefCell,
+};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
@@ -23,13 +27,19 @@ fn main() -> ! {
         .init()
         .expect("Failed to start NeoSlider");
 
+    let mut prev_color = color_wheel(0);
     loop {
         let value = neoslider.slider_value().expect("Failed to read slider");
         let color = color_wheel(((value / 3) & 0xFF) as u8);
         neoslider
-            .set_neopixel_colors(&[color.into(), color.into(), color.into(), color.into()])
+            .set_neopixel_colors(&[color, color, color, color])
             .and_then(|_| neoslider.sync_neopixel())
             .expect("Failed to set neopixel colors");
+
+        if color != prev_color {
+            prev_color = color;
+            rprintln!("Color changed to {:?}", color);
+        }
     }
 }
 
@@ -48,19 +58,22 @@ fn handle_panic(info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
 
-fn color_wheel(byte: u8) -> Color {
+fn color_wheel(byte: u8) -> NeoSliderColor {
     match byte {
-        0..=84 => Color(255 - byte * 3, 0, byte * 3),
-        85..=169 => Color(0, (byte - 85) * 3, 255 - (byte - 85) * 3),
-        _ => Color((byte - 170) * 3, 255 - (byte - 170) * 3, 0),
-    }
-}
-
-#[derive(Copy, Clone, Debug)]
-struct Color(pub u8, pub u8, pub u8);
-
-impl From<Color> for (u8, u8, u8) {
-    fn from(value: Color) -> Self {
-        (value.0, value.1, value.2)
+        0..=84 => NeoSliderColor {
+            r: 255 - byte * 3,
+            g: 0,
+            b: byte * 3,
+        },
+        85..=169 => NeoSliderColor {
+            r: 0,
+            g: (byte - 85) * 3,
+            b: 255 - (byte - 85) * 3,
+        },
+        _ => NeoSliderColor {
+            r: (byte - 170) * 3,
+            g: 255 - (byte - 170) * 3,
+            b: 0,
+        },
     }
 }
