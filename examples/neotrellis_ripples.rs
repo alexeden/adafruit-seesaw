@@ -39,10 +39,6 @@ const COLORS: [Color; 6] = [
     },
 ];
 
-// type Color =
-//     <adafruit_seesaw::devices::NeoTrellis<Driver> as
-// adafruit_seesaw::prelude::NeopixelModule<_>>::Color;
-
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
@@ -62,6 +58,8 @@ fn main() -> ! {
         .expect("Failed to start NeoTrellis");
 
     rprintln!("Trellis started");
+
+    // Listen for key presses
     for x in 0..trellis.num_cols() {
         for y in 0..trellis.num_rows() {
             trellis
