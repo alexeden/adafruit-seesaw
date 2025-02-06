@@ -38,10 +38,11 @@ impl<D: Driver> NeoTrellis<D> {
         &mut self,
         x: u8,
         y: u8,
-        r: u8,
-        g: u8,
-        b: u8,
-    ) -> Result<(), SeesawError<D::Error>> {
-        self.set_nth_neopixel_color((y * Self::NUM_COLS + x).into(), r, g, b)
+        color: NeoTrellisColor,
+    ) -> Result<(), SeesawError<D::Error>>
+    where
+        [(); 2 + Self::C_SIZE]: Sized,
+    {
+        self.set_nth_neopixel_color((y * Self::NUM_COLS + x).into(), color)
     }
 }

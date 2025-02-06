@@ -119,7 +119,7 @@ fn main() -> ! {
 
         // Update neopixels
         trellis
-            .set_neopixel_colors_new(&matrix)
+            .set_neopixel_colors(&matrix)
             .and_then(|_| trellis.sync_neopixel())
             .expect("Failed to update neopixels");
     }
