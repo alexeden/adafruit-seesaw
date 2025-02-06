@@ -64,43 +64,34 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    fn set_neopixel_color(&mut self, r: u8, g: u8, b: u8) -> Result<(), SeesawError<D::Error>> {
-        self.set_nth_neopixel_color(0, r, g, b)
+    /// Set the color of the first neopixel
+    fn set_neopixel_color(&mut self, color: Self::Color) -> Result<(), SeesawError<D::Error>>
+    where
+        [(); 2 + Self::C_SIZE]: Sized,
+    {
+        self.set_nth_neopixel_color(0, color)
     }
 
+    /// Set the color of the nth neopixel
     fn set_nth_neopixel_color(
         &mut self,
         n: usize,
-        r: u8,
-        g: u8,
-        b: u8,
-    ) -> Result<(), SeesawError<D::Error>> {
+        color: Self::Color,
+    ) -> Result<(), SeesawError<D::Error>>
+    where
+        [(); 2 + Self::C_SIZE]: Sized,
+    {
         assert!(n < Self::N_LEDS);
-        let [zero, one] = u16::to_be_bytes(3 * n as u16);
         let addr = self.addr();
-
+        let mut buf = [0; 2 + Self::C_SIZE];
+        buf[..2].copy_from_slice(&u16::to_be_bytes((Self::C_SIZE * n) as u16));
+        buf[2..].copy_from_slice(color.as_slice());
         self.driver()
-            .register_write(addr, SET_BUF, &[zero, one, r, g, b])
+            .register_write(addr, SET_BUF, &buf)
             .map_err(SeesawError::I2c)
     }
 
     fn set_neopixel_colors(
-        &mut self,
-        colors: &[(u8, u8, u8); Self::N_LEDS],
-    ) -> Result<(), SeesawError<D::Error>> {
-        let addr = self.addr();
-
-        (0..Self::N_LEDS)
-            .try_for_each(|n| {
-                let [zero, one] = u16::to_be_bytes(3 * n as u16);
-                let color = colors[n];
-                self.driver()
-                    .register_write(addr, SET_BUF, &[zero, one, color.0, color.1, color.2])
-            })
-            .map_err(SeesawError::I2c)
-    }
-
-    fn set_neopixel_colors_new(
         &mut self,
         colors: &[Self::Color; Self::N_LEDS],
     ) -> Result<(), SeesawError<D::Error>>
