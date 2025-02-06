@@ -34,13 +34,15 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
 
     type Color: ComponentSlice<u8>;
 
+    /// Set which pin the device sends the neopixel signal through and
+    /// set the length of its internal pixel buffer
     fn enable_neopixel(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()
             .write_u8(addr, SET_PIN, Self::PIN)
+            .map(|_| self.driver().delay_us(10_000))
             .and_then(|_| {
-                self.driver().delay_us(10_000);
                 self.driver()
                     .write_u16(addr, SET_LEN, (Self::C_SIZE * Self::N_LEDS) as u16)
             })
@@ -64,7 +66,8 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    /// Set the color of the first neopixel
+    /// Set the color of the first (and, in the case of some devices, only)
+    /// neopixel
     fn set_neopixel_color(&mut self, color: Self::Color) -> Result<(), SeesawError<D::Error>>
     where
         [(); 2 + Self::C_SIZE]: Sized,
@@ -91,6 +94,8 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
+    /// Set the color of all neopixels
+    /// TODO: there is a lot of room for optimization here (https://github.com/alexeden/adafruit-seesaw/pull/12)
     fn set_neopixel_colors(
         &mut self,
         colors: &[Self::Color; Self::N_LEDS],

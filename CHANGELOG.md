@@ -7,9 +7,26 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ## [Unreleased]
 
-### To Be Added
+### Added
 
-- [Add definition for the NeoDriver meopixel driver board](https://www.adafruit.com/product/5766)
+- [#14](https://github.com/alexeden/adafruit-seesaw/pull/14) Add and re-export the [`rgb`](https://docs.rs/rgb/0.8.50/rgb/index.html) crate for all things related to color
+
+### Modified
+
+- **BREAKING** [#14](https://github.com/alexeden/adafruit-seesaw/pull/14) The `NeopixelModule` now has a `Color` associated type that must implement the `ComponentSlice<u8>` trait from the `rgb` crate
+  - For convenience, any device that implements the `NeopixelModule` trait exports a type alias for its `Color` type, e.g. `NeoKey1x4Color`
+  - The `impl_device_module!` macro has been updated accordingly when implementing the `NeopixelModule` for a device:
+    - Before: `NeopixelModule { num_leds: 4, pin: 3 }`
+    - After: `NeopixelModule<color_type = NeoKey1x4Color> { num_leds: 4, pin: 3 }`
+- **BREAKING** [#14](https://github.com/alexeden/adafruit-seesaw/pull/14) Functions that set handle colors in the `NeopixelModule` now take their `Color` associated type as parameters
+  - Before: `fn set_neopixel_color(&mut self, r: u8, g: u8, b: u8)`
+  - After: `fn set_neopixel_color(&mut self, color: Self::Color)`
+  - Before: `fn set_nth_neopixel_color(&mut self, n: usize, r: u8, g: u8, b: u8)`
+  - After: `fn set_nth_neopixel_color(&mut self, n: usize, color: Self::Color)`
+  - Before: `fn set_neopixel_colors(&mut self, colors: &[(u8, u8, u8); Self::N_LEDS as usize])`
+  - After: `fn set_neopixel_colors(&mut self, colors: &[Self::Color; Self::N_LEDS])`
+- [#14](https://github.com/alexeden/adafruit-seesaw/pull/14) All device examples have been updated to use the new `NeopixelModule` API
+- [#12](https://github.com/alexeden/adafruit-seesaw/pull/12) The `register_write` function on the `Driver` trait has been modified such that it no longer uses/needs const generics for buffer sizing (thanks @dsheets)
 
 ## [0.9.0] - 2025-01-31
 
@@ -18,7 +35,6 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 - [#8](https://github.com/alexeden/adafruit-seesaw/pull/8) Digital write functions within the Seesaw GPIO module
 - [#13](https://github.com/alexeden/adafruit-seesaw/pull/13) Adds example demo for the [Adafruit's quad rotary encoder device](https://www.adafruit.com/product/5752)
 
-
 ### Modified
 
 - **BREAKING** [#13](https://github.com/alexeden/adafruit-seesaw/pull/13) Updates the `EncoderModule` to support both single and multiple encoder devices (see PR for details)
@@ -26,7 +42,6 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 ### Removed
 
 - **BREAKING** [#13](https://github.com/alexeden/adafruit-seesaw/pull/13) Removes the `QuadEncoderModule` (see PR for details)
-
 
 ## [0.8.0] - 2025-01-30
 
