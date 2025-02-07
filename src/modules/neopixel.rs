@@ -1,7 +1,6 @@
-use rgb::ComponentSlice;
-
 use super::{Modules, Reg};
 use crate::{devices::SeesawDevice, driver::Driver, DriverExt, SeesawError};
+use rgb::ComponentSlice;
 
 /// WO - 8 bits
 /// This register sets the pin number (PORTA) that is used for the NeoPixel
@@ -114,24 +113,31 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> + NeopixelConfig {
     }
 
     /// Set the color of all neopixels
-    /// TODO: there is room for optimization here (https://github.com/alexeden/adafruit-seesaw/pull/12)
     fn set_neopixel_colors(
         &mut self,
         colors: &[Self::Color; Self::N_LEDS],
     ) -> Result<(), SeesawError<D::Error>>
     where
-        [(); 2 + Self::C_SIZE]: Sized,
+        [(); 2 + (9 * Self::C_SIZE)]: Sized,
     {
+        let mut buf = [0; 2 + (9 * Self::C_SIZE)];
         let addr = self.addr();
-        let mut buf = [0; 2 + Self::C_SIZE];
-        for (n, color) in colors.iter().enumerate() {
-            buf[..2].copy_from_slice(&u16::to_be_bytes((Self::C_SIZE * n) as u16));
-            buf[2..].copy_from_slice(color.as_slice());
-            self.driver()
-                .register_write(addr, SET_BUF, &buf)
-                .map_err(SeesawError::I2c)?;
-        }
-        Ok(())
+
+        colors
+            .chunks(9)
+            .enumerate()
+            .try_for_each(|(i, chunk)| {
+                let offset = u16::to_be_bytes((Self::C_SIZE * i * 9) as u16);
+                buf[..2].copy_from_slice(&offset);
+                chunk.iter().enumerate().for_each(|(j, c)| {
+                    let start = 2 + (j * Self::C_SIZE);
+                    buf[start..start + Self::C_SIZE].copy_from_slice(c.as_slice());
+                });
+
+                self.driver()
+                    .register_write(addr, SET_BUF, &buf[0..2 + (3 * chunk.len())])
+            })
+            .map_err(SeesawError::I2c)
     }
 
     fn sync_neopixel(&mut self) -> Result<(), SeesawError<D::Error>> {

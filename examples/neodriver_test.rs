@@ -57,13 +57,13 @@ fn main() -> ! {
             .expect("failed to get product info")
     );
 
-    neo_driver
-        .set_neopixel_colors(&[rgb::Grb::default(); N_LEDS])
-        .and_then(|_| neo_driver.sync_neopixel())
-        .expect("Failed to set neopixel colors");
-
     let mut colors: [rgb::Grb<u8>; N_LEDS] =
         core::array::from_fn(|i| color_wheel((i as u8).wrapping_mul(255 / N_LEDS as u8)));
+
+    neo_driver
+        .set_neopixel_colors(&colors)
+        .and_then(|_| neo_driver.sync_neopixel())
+        .expect("Failed to set neopixel colors");
 
     loop {
         colors.rotate_left(1);
