@@ -61,8 +61,8 @@ fn main() -> ! {
     rprintln!("Trellis started");
 
     // Listen for key presses
-    for x in 0..trellis.cols() {
-        for y in 0..trellis.rows() {
+    for x in 0..trellis.num_cols() {
+        for y in 0..trellis.num_rows() {
             trellis
                 .set_key_event_triggers(x, y, &[KeyEventType::Pressed], true)
                 .expect("Failed to set key event triggers");

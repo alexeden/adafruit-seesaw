@@ -17,11 +17,11 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
     const NUM_COLS: u8;
     const NUM_ROWS: u8;
 
-    fn cols(&self) -> u8 {
+    fn num_cols(&self) -> u8 {
         Self::NUM_COLS
     }
 
-    fn rows(&self) -> u8 {
+    fn num_rows(&self) -> u8 {
         Self::NUM_ROWS
     }
 
