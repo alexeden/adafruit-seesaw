@@ -100,29 +100,40 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
     }
 
     /// Set the color of all neopixels
+    ///
+    /// Minimizes the number of transactions performed by chunking the `colors`
+    /// array into the largest (max 30 byte) buffers possible
+    ///
+    /// Note that if `C_SIZE` is _not_ 3 or 4 bytes, the chunking optimization
+    /// is effectively skipped
     fn set_neopixel_colors(
         &mut self,
         colors: &[Self::Color; Self::N_LEDS],
     ) -> Result<(), SeesawError<D::Error>>
     where
-        [(); 2 + (9 * Self::C_SIZE)]: Sized,
+        [(); 2 + color_bytes_per_write(Self::C_SIZE)]: Sized,
     {
-        let mut buf = [0; 2 + (9 * Self::C_SIZE)];
+        let mut buf = [0; 2 + color_bytes_per_write(Self::C_SIZE)];
         let addr = self.addr();
 
         colors
-            .chunks(9)
+            .chunks(max_colors_per_write(Self::C_SIZE))
             .enumerate()
             .try_for_each(|(i, chunk)| {
-                let offset = u16::to_be_bytes((Self::C_SIZE * i * 9) as u16);
+                let offset = u16::to_be_bytes(
+                    (Self::C_SIZE * i * max_colors_per_write(Self::C_SIZE)) as u16,
+                );
                 buf[..2].copy_from_slice(&offset);
                 chunk.iter().enumerate().for_each(|(j, c)| {
                     let start = 2 + (j * Self::C_SIZE);
                     buf[start..start + Self::C_SIZE].copy_from_slice(c.as_slice());
                 });
 
-                self.driver()
-                    .register_write(addr, SET_BUF, &buf[0..2 + (3 * chunk.len())])
+                self.driver().register_write(
+                    addr,
+                    SET_BUF,
+                    &buf[0..2 + (Self::C_SIZE * chunk.len())],
+                )
             })
             .map_err(SeesawError::I2c)
     }
@@ -135,6 +146,22 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             .map(|_| self.driver().delay_us(125))
             .map_err(SeesawError::I2c)
     }
+}
+
+/// Get the maximum number of colors that can be written in a single write
+/// operation as a function of the number of bytes per color
+pub const fn max_colors_per_write(c_size: usize) -> usize {
+    match c_size {
+        3 => 9, // 27
+        4 => 7, // 28
+        _ => 1, // effectively skips the optimization
+    }
+}
+
+/// Get the number of bytes dedicated to writing colors in a single write
+/// operation as a function of the number of bytes per color
+pub const fn color_bytes_per_write(c_size: usize) -> usize {
+    c_size * max_colors_per_write(c_size)
 }
 
 /// NeopixelModule: The Neopixel protocol speed
