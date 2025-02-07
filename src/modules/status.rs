@@ -8,6 +8,7 @@ const STATUS_TEMP: &Reg = &[Modules::Status.into_u8(), 0x04];
 const STATUS_SWRST: &Reg = &[Modules::Status.into_u8(), 0x7F];
 
 pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
+    /// Returns the available capabilities compiled into the seesaw firmware
     fn capabilities(&mut self) -> Result<DeviceCapabilities, SeesawError<D::Error>> {
         let addr = self.addr();
 
