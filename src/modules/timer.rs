@@ -6,12 +6,6 @@ use crate::{devices::SeesawDevice, Driver, DriverExt, HardwareId, SeesawError};
 /// set The second byte is the actual PWM value
 const PWM_VAL: &Reg = &[Modules::Timer.into_u8(), 0x01];
 
-pub trait TimerConfig {}
-
-/// Blanket implementation of TimerModule for any SeesawDevice that
-/// implements TimerConfig
-impl<D: Driver, T: TimerConfig + SeesawDevice<Driver = D>> TimerModule<D> for T {}
-
 /// The PWM module provides up to 4 8-bit PWM outputs.
 /// The module base register address for the PWM module is 0x08.
 /// PWM outputs are available on pins PA04, PA05, PA06, and PA07.

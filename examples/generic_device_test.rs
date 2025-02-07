@@ -38,7 +38,7 @@ fn main() -> ! {
     );
     rprintln!(
         "Product info {:#?}",
-        device.product_info().expect("failed to get product info")
+        device.version().expect("failed to get product info")
     );
 
     #[allow(clippy::empty_loop)]

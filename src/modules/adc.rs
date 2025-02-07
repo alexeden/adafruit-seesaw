@@ -39,12 +39,6 @@ const WINTHRESH: &Reg = &[Modules::Adc.into_u8(), 0x05];
 /// ADC value for channel 0
 const CHANNEL_0: &Reg = &[Modules::Adc.into_u8(), 0x07];
 
-pub trait AdcConfig {}
-
-/// Blanket implementation of AdcModule for any SeesawDevice that
-/// implements AdcConfig
-impl<D: Driver, T: AdcConfig + SeesawDevice<Driver = D>> AdcModule<D> for T {}
-
 /// The ADC provides the ability to measure analog voltages at 10-bit
 /// resolution. The SAMD09 seesaw has 4 ADC inputs, the Attiny8x7 has 11 ADC
 /// inputs.

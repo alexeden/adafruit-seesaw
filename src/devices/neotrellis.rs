@@ -1,11 +1,6 @@
 use super::SeesawDeviceInit;
 use crate::{
-    modules::{
-        neopixel::{NeopixelConfig, NeopixelModule},
-        status::StatusModule,
-        HardwareId,
-    },
-    prelude::KeypadConfig,
+    modules::{keypad::KeypadModule, neopixel::NeopixelModule, status::StatusModule, HardwareId},
     seesaw_device, Driver, SeesawError,
 };
 
@@ -18,12 +13,12 @@ seesaw_device! {
 
 pub type NeoTrellisColor = rgb::Grb<u8>;
 
-impl<D> KeypadConfig for NeoTrellis<D> {
+impl<D: Driver> KeypadModule<D> for NeoTrellis<D> {
     const NUM_COLS: u8 = 4;
     const NUM_ROWS: u8 = 4;
 }
 
-impl<D> NeopixelConfig for NeoTrellis<D> {
+impl<D: Driver> NeopixelModule<D> for NeoTrellis<D> {
     type Color = NeoTrellisColor;
 
     const N_LEDS: usize = 16;

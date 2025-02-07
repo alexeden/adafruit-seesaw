@@ -1,12 +1,7 @@
 use super::SeesawDeviceInit;
 use crate::{
-    modules::{
-        encoder::{EncoderConfig, EncoderModule},
-        gpio::GpioConfig,
-        neopixel::{NeopixelConfig, NeopixelModule},
-        status::StatusModule,
-        HardwareId,
-    },
+    modules::{encoder::EncoderModule, neopixel::NeopixelModule, status::StatusModule, HardwareId},
+    prelude::GpioModule,
     seesaw_device, Driver, SeesawError,
 };
 
@@ -23,12 +18,12 @@ seesaw_device! {
 
 pub type NeoRotary4Color = rgb::Grb<u8>;
 
-impl<D> GpioConfig for NeoRotary4<D> {}
-impl<D> EncoderConfig<4> for NeoRotary4<D> {
+impl<D: Driver> GpioModule<D> for NeoRotary4<D> {}
+impl<D: Driver> EncoderModule<D, 4> for NeoRotary4<D> {
     const ENCODER_BTN_PINS: [u8; 4] = [12, 14, 17, 9];
 }
 
-impl<D> NeopixelConfig for NeoRotary4<D> {
+impl<D: Driver> NeopixelModule<D> for NeoRotary4<D> {
     type Color = NeoRotary4Color;
 
     const N_LEDS: usize = 4;

@@ -1,10 +1,7 @@
 use super::SeesawDeviceInit;
 use crate::{
     modules::{
-        adc::AdcModule,
-        gpio::GpioModule,
-        neopixel::{NeopixelConfig, NeopixelModule},
-        status::StatusModule,
+        adc::AdcModule, gpio::GpioModule, neopixel::NeopixelModule, status::StatusModule,
         HardwareId,
     },
     seesaw_device, Driver, SeesawError,
@@ -22,7 +19,7 @@ pub type NeoSliderColor = rgb::Grb<u8>;
 
 impl<D: Driver> AdcModule<D> for NeoSlider<D> {}
 impl<D: Driver> GpioModule<D> for NeoSlider<D> {}
-impl<D> NeopixelConfig for NeoSlider<D> {
+impl<D: Driver> NeopixelModule<D> for NeoSlider<D> {
     type Color = NeoSliderColor;
 
     const N_LEDS: usize = 4;

@@ -35,14 +35,6 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    fn product_info_u32(&mut self) -> Result<u32, SeesawError<D::Error>> {
-        let addr = self.addr();
-
-        self.driver()
-            .read_u32(addr, STATUS_VERSION)
-            .map_err(SeesawError::I2c)
-    }
-
     /// Perform a software reset. This resets all seesaw registers to
     /// their default values.
     fn reset(&mut self) -> Result<(), SeesawError<D::Error>> {
