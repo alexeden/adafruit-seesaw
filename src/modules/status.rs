@@ -25,8 +25,8 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
-    ///  Returns the version of the seesaw
-    fn product_info(&mut self) -> Result<ProductDateCode, SeesawError<D::Error>> {
+    /// Returns the version of the seesaw
+    fn version(&mut self) -> Result<SeesawVersion, SeesawError<D::Error>> {
         let addr = self.addr();
 
         self.driver()
@@ -115,14 +115,14 @@ impl From<u32> for DeviceCapabilities {
 
 /// StatusModule
 #[derive(Debug)]
-pub struct ProductDateCode {
+pub struct SeesawVersion {
     pub id: u16,
     pub year: u16,
     pub month: u8,
     pub day: u8,
 }
 
-impl From<u32> for ProductDateCode {
+impl From<u32> for SeesawVersion {
     fn from(vers: u32) -> Self {
         Self {
             id: (vers >> 16) as u16,
