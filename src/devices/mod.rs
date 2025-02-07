@@ -8,7 +8,7 @@ mod neotrellis;
 mod rotary_encoder;
 use crate::{
     modules::{status::StatusModule, HardwareId},
-    Driver,
+    Driver, SeesawError,
 };
 pub use arcade_button_1x4::*;
 pub use generic_device::*;
@@ -19,8 +19,7 @@ pub use neotrellis::*;
 pub use rotary_encoder::*;
 
 pub trait SeesawDevice {
-    type Error;
-    type Driver: Driver;
+    type Driver: crate::Driver;
 
     const DEFAULT_ADDR: u8;
     const HARDWARE_ID: HardwareId;
@@ -46,5 +45,5 @@ pub trait SeesawDeviceInit<D: Driver>: SeesawDevice<Driver = D>
 where
     Self: Sized,
 {
-    fn init(self) -> Result<Self, Self::Error>;
+    fn init(self) -> Result<Self, SeesawError<D::Error>>;
 }

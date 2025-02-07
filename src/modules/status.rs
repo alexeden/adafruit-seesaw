@@ -8,6 +8,7 @@ const STATUS_TEMP: &Reg = &[Modules::Status.into_u8(), 0x04];
 const STATUS_SWRST: &Reg = &[Modules::Status.into_u8(), 0x7F];
 
 pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
+    /// Returns the available capabilities compiled into the seesaw firmware
     fn capabilities(&mut self) -> Result<DeviceCapabilities, SeesawError<D::Error>> {
         let addr = self.addr();
 
@@ -24,6 +25,7 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
+    /// Returns the version of the seesaw
     fn product_info(&mut self) -> Result<ProductDateCode, SeesawError<D::Error>> {
         let addr = self.addr();
 
@@ -33,6 +35,8 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
             .map_err(SeesawError::I2c)
     }
 
+    /// Perform a software reset. This resets all seesaw registers to
+    /// their default values.
     fn reset(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
 

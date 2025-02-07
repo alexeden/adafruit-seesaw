@@ -29,15 +29,14 @@ seesaw_device! {
   name: ArcadeButton1x4,
   hardware_id: HardwareId::ATTINY817,
   product_id: 5296,
-  default_addr: 0x3A,
-  modules: [
-      GpioModule,
-      TimerModule
-  ]
+  default_addr: 0x3A
 }
 
+impl<D: Driver> GpioModule<D> for ArcadeButton1x4<D> {}
+impl<D: Driver> TimerModule<D> for ArcadeButton1x4<D> {}
+
 impl<D: Driver> SeesawDeviceInit<D> for ArcadeButton1x4<D> {
-    fn init(mut self) -> Result<Self, Self::Error> {
+    fn init(mut self) -> Result<Self, SeesawError<D::Error>> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_buttons())
             .map(|_| self)

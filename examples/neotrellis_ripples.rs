@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 #![allow(incomplete_features)]
+#![feature(generic_const_exprs)]
 /// Arduino example: https://github.com/adafruit/Adafruit_Seesaw/blob/master/examples/NeoTrellis/ripples/ripples.ino
 /// Demo video: https://storage.googleapis.com/apemedia/neotrellis576.mp4
 use adafruit_seesaw::{
@@ -71,7 +72,6 @@ fn main() -> ! {
     let mut color_wheel = ColorWheel::default();
     let mut ripples: Deque<Ripple, 16> = Deque::new();
     let mut matrix: [Color; 16] = [Color::default(); 16];
-
     // Start a ripple on init
     ripples
         .push_back(Ripple::new(0., 0., color_wheel.next_color()))

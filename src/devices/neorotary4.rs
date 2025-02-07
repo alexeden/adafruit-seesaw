@@ -1,7 +1,8 @@
 use super::SeesawDeviceInit;
 use crate::{
     modules::{encoder::EncoderModule, neopixel::NeopixelModule, status::StatusModule, HardwareId},
-    seesaw_device, Driver,
+    prelude::GpioModule,
+    seesaw_device, Driver, SeesawError,
 };
 
 seesaw_device! {
@@ -12,18 +13,24 @@ seesaw_device! {
     name: NeoRotary4,
     hardware_id: HardwareId::ATTINY817,
     product_id: 5752,
-    default_addr: 0x49,
-    modules: [
-        EncoderModule { num_encoders: 4, encoder_btn_pins: [12, 14, 17, 9] },
-        GpioModule,
-        NeopixelModule<color_type = NeoRotary4Color> { num_leds: 4, pin: 18 }
-    ]
+    default_addr: 0x49
 }
 
 pub type NeoRotary4Color = rgb::Grb<u8>;
 
+impl<D: Driver> GpioModule<D> for NeoRotary4<D> {}
+impl<D: Driver> EncoderModule<D, 4> for NeoRotary4<D> {
+    const ENCODER_BTN_PINS: [u8; 4] = [12, 14, 17, 9];
+}
+impl<D: Driver> NeopixelModule<D> for NeoRotary4<D> {
+    type Color = NeoRotary4Color;
+
+    const N_LEDS: usize = 4;
+    const PIN: u8 = 18;
+}
+
 impl<D: Driver> SeesawDeviceInit<D> for NeoRotary4<D> {
-    fn init(mut self) -> Result<Self, Self::Error> {
+    fn init(mut self) -> Result<Self, SeesawError<D::Error>> {
         self.reset_and_verify_seesaw()
             .and_then(|_| self.enable_neopixel())
             .and_then(|_| self.enable_button(0))

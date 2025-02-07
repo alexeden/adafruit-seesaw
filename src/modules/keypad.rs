@@ -17,6 +17,14 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
     const NUM_COLS: u8;
     const NUM_ROWS: u8;
 
+    fn num_cols(&self) -> u8 {
+        Self::NUM_COLS
+    }
+
+    fn num_rows(&self) -> u8 {
+        Self::NUM_ROWS
+    }
+
     fn disable_interrupt(&mut self) -> Result<(), SeesawError<D::Error>> {
         let addr = self.addr();
         self.driver()
