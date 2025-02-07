@@ -9,14 +9,14 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ### Added
 
-- **BREAKING** [#15](https://github.com/alexeden/adafruit-seesaw/pull/15) The `seesaw_device!` no longer handles module trait implementations; this should be done using normal syntax
-- **BREAKING** [#15](https://github.com/alexeden/adafruit-seesaw/pull/15) Remove the `Error` associated type from the `SeesawDevice` trait as it was redundant; this only affects users who directly implement the `SeesawDevice` trait, instead of using the `seesaw_device!` macro
-
 - [#15](https://github.com/alexeden/adafruit-seesaw/pull/15) Add [`NeoDriver` neopixel driver](https://www.adafruit.com/product/5766) example
 
 ### Changed
 
-- [#15]
+- **BREAKING** [#15](https://github.com/alexeden/adafruit-seesaw/pull/15) The `seesaw_device!` no longer handles module trait implementations; this should be done using normal syntax
+- **BREAKING** [#15](https://github.com/alexeden/adafruit-seesaw/pull/15) Remove the `Error` associated type from the `SeesawDevice` trait as it was redundant and obfuscated the actual error type returned by most functions; this only affects users who directly implemented the `SeesawDevice` or `SeesawDeviceInit` traits, instead of using the `seesaw_device!` macro
+- If the `C_SIZE` const is not specified in the implementation of the `NeopixelModule` trait, it enforces a value of `3` or `4` bytes
+
 
 ## [0.10.0] - 2025-02-05
 
