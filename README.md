@@ -159,16 +159,25 @@ So far, this library only implements a few Seesaw devices (i.e., the ones that I
 
 Let's assume you have some future Adafruit Neokey-esque device that has 6 buttons and 6 neopixels.
 
+You call the `seesaw_device!` macro with information about the device:
 ```rs
 seesaw_device! {
     name: Neokey2x3,
     hardware_id: HardwareId::_,
     product_id: _,
-    default_addr: _,
-    modules: [
-        GpioModule,
-        NeopixelModule<color_type = rgb::Rgb<u8>> { num_leds: 6, pin: _ },
-    ]
+    default_addr: _
+}
+```
+
+Then implement the module traits for its various capabilities:
+
+```rs
+impl<D: Driver> GpioModule<D> for Neokey2x3<D> {}
+impl<D: Driver> NeopixelModule<D> for Neokey2x3<D> {
+    type Color = Neokey2x3Color;
+
+    const N_LEDS: usize = 6;
+    const PIN: u8 = _;
 }
 ```
 

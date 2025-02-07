@@ -7,6 +7,10 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ## [Unreleased]
 
+### Added
+
+- [#15](https://github.com/alexeden/adafruit-seesaw/pull/15) Add [`NeoDriver` neopixel driver](https://www.adafruit.com/product/5766) example
+
 ## [0.10.0] - 2025-02-05
 
 ### Added

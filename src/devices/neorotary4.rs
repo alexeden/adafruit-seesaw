@@ -22,7 +22,6 @@ impl<D: Driver> GpioModule<D> for NeoRotary4<D> {}
 impl<D: Driver> EncoderModule<D, 4> for NeoRotary4<D> {
     const ENCODER_BTN_PINS: [u8; 4] = [12, 14, 17, 9];
 }
-
 impl<D: Driver> NeopixelModule<D> for NeoRotary4<D> {
     type Color = NeoRotary4Color;
 

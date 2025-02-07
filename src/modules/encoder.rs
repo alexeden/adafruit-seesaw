@@ -14,14 +14,6 @@ const DELTA: &Reg = &[Modules::Encoder.into_u8(), 0x40];
 pub trait EncoderModule<D: Driver, const N_ENCODERS: usize>: GpioModule<D> {
     const ENCODER_BTN_PINS: [u8; N_ENCODERS];
 
-    fn encoder_btn_pins(&self) -> &[u8; N_ENCODERS] {
-        &Self::ENCODER_BTN_PINS
-    }
-
-    fn num_encoders(&self) -> usize {
-        N_ENCODERS
-    }
-
     fn enable_button(&mut self, encoder: usize) -> Result<(), SeesawError<D::Error>> {
         self.set_pin_mode(Self::ENCODER_BTN_PINS[encoder], PinMode::InputPullup)
             .map(|_| self.driver().delay_us(125))

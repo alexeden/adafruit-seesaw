@@ -32,17 +32,12 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
             _ => panic!("Invalid color size"),
         }
     };
-
     /// The number of neopixels on or connected to the device
     const N_LEDS: usize = 1;
     /// The output pin of the neopixel signal
     const PIN: u8;
 
     type Color: ComponentSlice<u8>;
-
-    fn num_leds() -> usize {
-        Self::N_LEDS
-    }
 
     /// Set which pin the device sends the neopixel signal through and
     /// set the length of its internal pixel buffer

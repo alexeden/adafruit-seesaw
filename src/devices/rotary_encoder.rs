@@ -17,11 +17,9 @@ seesaw_device! {
 pub type RotaryEncoderColor = rgb::Grb<u8>;
 
 impl<D: Driver> GpioModule<D> for RotaryEncoder<D> {}
-
 impl<D: Driver> EncoderModule<D, 1> for RotaryEncoder<D> {
     const ENCODER_BTN_PINS: [u8; 1] = [24];
 }
-
 impl<D: Driver> NeopixelModule<D> for RotaryEncoder<D> {
     type Color = RotaryEncoderColor;
 

@@ -52,7 +52,9 @@ fn main() -> ! {
     rprintln!("Hardware ID {:?}", id);
     rprintln!(
         "Product info {:#?}",
-        neo_driver.version().expect("failed to get product info")
+        neo_driver
+            .product_info()
+            .expect("failed to get product info")
     );
 
     let mut colors: [rgb::Grb<u8>; N_LEDS] =
