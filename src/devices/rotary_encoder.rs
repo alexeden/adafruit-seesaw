@@ -14,8 +14,7 @@ seesaw_device! {
   name: RotaryEncoder,
   hardware_id: HardwareId::SAMD09,
   product_id: 4991,
-  default_addr: 0x36,
-  modules:  [ ]
+  default_addr: 0x36
 }
 
 pub type RotaryEncoderColor = rgb::Grb<u8>;

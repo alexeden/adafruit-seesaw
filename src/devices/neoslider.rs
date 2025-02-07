@@ -15,8 +15,7 @@ seesaw_device!(
   name: NeoSlider,
   hardware_id: HardwareId::ATTINY817,
   product_id: 5295,
-  default_addr: 0x30,
-  modules: []
+  default_addr: 0x30
 );
 
 pub type NeoSliderColor = rgb::Grb<u8>;

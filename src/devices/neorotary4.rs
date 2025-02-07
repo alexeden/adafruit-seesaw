@@ -18,8 +18,7 @@ seesaw_device! {
     name: NeoRotary4,
     hardware_id: HardwareId::ATTINY817,
     product_id: 5752,
-    default_addr: 0x49,
-    modules: []
+    default_addr: 0x49
 }
 
 pub type NeoRotary4Color = rgb::Grb<u8>;

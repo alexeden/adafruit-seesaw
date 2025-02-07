@@ -39,6 +39,12 @@ const WINTHRESH: &Reg = &[Modules::Adc.into_u8(), 0x05];
 /// ADC value for channel 0
 const CHANNEL_0: &Reg = &[Modules::Adc.into_u8(), 0x07];
 
+pub trait AdcConfig {}
+
+/// Blanket implementation of AdcModule for any SeesawDevice that
+/// implements AdcConfig
+impl<D: Driver, T: AdcConfig + SeesawDevice<Driver = D>> AdcModule<D> for T {}
+
 /// The ADC provides the ability to measure analog voltages at 10-bit
 /// resolution. The SAMD09 seesaw has 4 ADC inputs, the Attiny8x7 has 11 ADC
 /// inputs.
@@ -54,9 +60,13 @@ const CHANNEL_0: &Reg = &[Modules::Adc.into_u8(), 0x07];
 /// Allow a delay of at least 1ms in between sequential ADC reads on different
 /// channels.
 pub trait AdcModule<D: Driver>: SeesawDevice<Driver = D> {
+    /// Read the analog value on an ADC-enabled pin.
+    ///
+    /// On the SAMD09 breakout, the pin corresponds to the number on the
+    /// silkscreen. On the default seesaw firmware on the SAMD09 breakout, pins
+    /// 2, 3, and 4 are ADC-enabled.
     fn analog_read(&mut self, pin: u8) -> Result<u16, SeesawError<D::Error>> {
         let pin_offset = match Self::HARDWARE_ID {
-            HardwareId::ATTINY817 => pin,
             HardwareId::SAMD09 => match pin {
                 2 => 0,
                 3 => 1,
@@ -64,6 +74,7 @@ pub trait AdcModule<D: Driver>: SeesawDevice<Driver = D> {
                 5 => 3,
                 _ => 0,
             },
+            _ => pin,
         };
 
         let addr = self.addr();

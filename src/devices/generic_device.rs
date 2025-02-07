@@ -9,8 +9,7 @@ seesaw_device! {
   name: GenericDevice,
   hardware_id: HardwareId::SAMD09,
   product_id: 0,
-  default_addr: 0x49,
-  modules: []
+  default_addr: 0x49
 }
 
 impl<D: Driver> SeesawDeviceInit<D> for GenericDevice<D> {

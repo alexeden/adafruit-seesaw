@@ -10,8 +10,20 @@ pub type Reg = [u8; 2];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HardwareId {
-    ATTINY817 = 0x87,
+    /// seesaw HW ID code for SAMD09
     SAMD09 = 0x55,
+    /// seesaw HW ID code for ATtiny806
+    ATTINY806 = 0x84,
+    /// seesaw HW ID code for ATtiny807
+    ATTINY807 = 0x85,
+    /// seesaw HW ID code for ATtiny816
+    ATTINY816 = 0x86,
+    /// seesaw HW ID code for ATtiny817
+    ATTINY817 = 0x87,
+    /// seesaw HW ID code for ATtiny1616
+    ATTINY1616 = 0x88,
+    /// seesaw HW ID code for ATtiny1617
+    ATTINY1617 = 0x89,
 }
 
 impl From<HardwareId> for u8 {

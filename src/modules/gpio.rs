@@ -69,6 +69,12 @@ const PULL_ENABLE: &Reg = &[Modules::Gpio.into_u8(), 0x0B];
 #[allow(dead_code)]
 const PULL_DISABLE: &Reg = &[Modules::Gpio.into_u8(), 0x0C];
 
+pub trait GpioConfig {}
+
+/// Blanket implementation of GpioModule for any SeesawDevice that
+/// implements GpioConfig
+impl<D: Driver, T: GpioConfig + SeesawDevice<Driver = D>> GpioModule<D> for T {}
+
 /// The GPIO module provides every day input and outputs. You'll get logic GPIO
 /// pins that can act as outputs or inputs. With pullups or pulldowns. When
 /// inputs, you can also create pin-change interrupts that are routed the the

@@ -13,8 +13,7 @@ seesaw_device! {
     name: NeoTrellis,
     hardware_id: HardwareId::SAMD09,
     product_id: 3954,
-    default_addr: 0x2E,
-    modules: []
+    default_addr: 0x2E
 }
 
 pub type NeoTrellisColor = rgb::Grb<u8>;

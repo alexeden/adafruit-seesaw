@@ -29,8 +29,7 @@ seesaw_device! {
   name: ArcadeButton1x4,
   hardware_id: HardwareId::ATTINY817,
   product_id: 5296,
-  default_addr: 0x3A,
-  modules: [ ]
+  default_addr: 0x3A
 }
 
 impl<D: Driver> GpioModule<D> for ArcadeButton1x4<D> {}

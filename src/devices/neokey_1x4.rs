@@ -14,8 +14,7 @@ seesaw_device! {
   name: NeoKey1x4,
   hardware_id: HardwareId::SAMD09,
   product_id: 4980,
-  default_addr: 0x30,
-  modules: []
+  default_addr: 0x30
 }
 
 pub type NeoKey1x4Color = rgb::Grb<u8>;
