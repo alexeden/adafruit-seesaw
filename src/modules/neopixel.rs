@@ -25,7 +25,14 @@ const SHOW: &Reg = &[Modules::Neopixel.into_u8(), 0x05];
 
 pub trait NeopixelConfig {
     /// The size of the color type in bytes
-    const C_SIZE: usize = core::mem::size_of::<Self::Color>();
+    const C_SIZE: usize = {
+        match core::mem::size_of::<Self::Color>() {
+            3 => 3,
+            4 => 4,
+            _ => panic!("Invalid color size"),
+        }
+    };
+
     /// The number of neopixels on or connected to the device
     const N_LEDS: usize = 1;
     /// The output pin of the neopixel signal
