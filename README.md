@@ -10,7 +10,7 @@ What is Seesaw? [From Adafruit's guide:](https://learn.adafruit.com/adafruit-see
 
 This crate aims to be a functionally-equivalent Rust driver for [Adafruit's own C++ driver](https://github.com/adafruit/Adafruit_Seesaw).
 
-**A note on terminology:** Adafruit's Seesaw firmware refers to blocks of device functionality/capabilities as "modules". e.g. [a Seesaw device that has controllable neopixels](https://www.adafruit.com/product/4980) will have the [`GPIO` module](https://learn.adafruit.com/adafruit-seesaw-atsamd09-breakout/gpio) loaded and available in its firmware. Don't confuse them with Rust modules! This crate exports a module called `modules` that contains all the modules for the Seesaw devices.
+**A note on terminology:** Adafruit's Seesaw firmware refers to blocks of device functionality/capabilities as "modules". e.g. [a Seesaw device that has controllable neopixels](https://www.adafruit.com/product/4980) will have the [`NeoPixel` module](https://learn.adafruit.com/adafruit-seesaw-atsamd09-breakout/gpio) loaded and available in its firmware. Don't confuse them with Rust modules! This crate exports a module called `modules` that contains all the modules for the Seesaw devices.
 
 If you want to learn more about modules, [this page in the Seesaw guide](https://learn.adafruit.com/adafruit-seesaw-atsamd09-breakout/reading-and-writing-data) explains it pretty well.
 
