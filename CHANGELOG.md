@@ -7,7 +7,9 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ## [Unreleased]
 
--
+### Added
+
+- [#18](https://github.com/alexeden/adafruit-seesaw/pull/18) Add `DirectI2cSeesaw` which avoids using a custom bus implementation. Use this together with [embedded-hal-bus](https://crates.io/crates/embedded-hal-bus).
 
 ## [0.11.0] - 2025-02-07
 
