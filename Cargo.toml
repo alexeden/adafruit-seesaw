@@ -33,6 +33,7 @@ cortex-m-rt = "0.7"
 heapless = "0.8"
 rtt-target = { version = "0.6" }
 stm32f4xx-hal = { features = ["stm32f405", "sdio"], version = "0.20" }
+embedded-hal-bus = "0.3"
 
 [profile.release]
 codegen-units = 1
