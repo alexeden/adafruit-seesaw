@@ -1,11 +1,13 @@
 use super::SeesawDeviceInit;
 use crate::{
     modules::{
-        adc::AdcModule, gpio::GpioModule, neopixel::NeopixelModule, status::StatusModule,
+        adc::AdcModule, gpio::GpioModule, status::StatusModule,
         HardwareId,
     },
     seesaw_device, Driver, SeesawError,
 };
+#[cfg(feature = "module_neopixel")]
+use crate::modules::neopixel::NeopixelModule;
 
 seesaw_device!(
   /// NeoSlider
@@ -19,6 +21,7 @@ pub type NeoSliderColor = rgb::Grb<u8>;
 
 impl<D: Driver> AdcModule<D> for NeoSlider<D> {}
 impl<D: Driver> GpioModule<D> for NeoSlider<D> {}
+#[cfg(feature = "module_neopixel")]
 impl<D: Driver> NeopixelModule<D> for NeoSlider<D> {
     type Color = NeoSliderColor;
 
@@ -28,9 +31,10 @@ impl<D: Driver> NeopixelModule<D> for NeoSlider<D> {
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoSlider<D> {
     fn init(mut self) -> Result<Self, SeesawError<D::Error>> {
-        self.reset_and_verify_seesaw()
-            .and_then(|_| self.enable_neopixel())
-            .map(|_| self)
+        self.reset_and_verify_seesaw()?;
+        #[cfg(feature = "module_neopixel")]
+        self.enable_neopixel()?;
+        Ok(self)
     }
 }
 
