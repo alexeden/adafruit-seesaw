@@ -17,6 +17,7 @@ pub use neorotary4::*;
 pub use neoslider::*;
 pub use neotrellis::*;
 pub use rotary_encoder::*;
+pub use soil_sensor::*;
 
 pub trait SeesawDevice {
     type Driver: crate::Driver;
