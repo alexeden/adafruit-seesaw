@@ -5,6 +5,7 @@ pub mod keypad;
 pub mod neopixel;
 pub mod status;
 pub mod timer;
+pub mod touch;
 
 pub type Reg = [u8; 2];
 

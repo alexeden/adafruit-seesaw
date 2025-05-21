@@ -6,6 +6,7 @@ mod neorotary4;
 mod neoslider;
 mod neotrellis;
 mod rotary_encoder;
+mod soil_sensor;
 use crate::{
     modules::{status::StatusModule, HardwareId},
     Driver, SeesawError,
