@@ -1,9 +1,13 @@
 use super::SeesawDeviceInit;
 use crate::{
     modules::{
-        gpio::{GpioModule, PinMode}, neopixel::NeopixelModule, status::StatusModule, touch::TouchModule, HardwareId
+        status::StatusModule, 
+        touch::TouchModule, 
+        HardwareId,
     },
-    seesaw_device, Driver, SeesawError,
+    seesaw_device, 
+    Driver, 
+    SeesawError,
 };
 
 seesaw_device!(
