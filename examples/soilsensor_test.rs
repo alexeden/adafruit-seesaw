@@ -3,7 +3,7 @@
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
 use adafruit_seesaw::{
-    devices::{NeoKey1x4, NeoKey1x4Color, SoilSensor}, modules::touch::{self, TouchModule}, prelude::*, SeesawRefCell
+    devices::SoilSensor, modules::touch::TouchModule, prelude::*, SeesawRefCell
 };
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
