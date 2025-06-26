@@ -30,6 +30,7 @@ rgb = "0.8.50"
 [dev-dependencies]
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
+embedded-hal-bus = "0.3"
 heapless = "0.8"
 rtt-target = { version = "0.6" }
 stm32f4xx-hal = { features = ["stm32f405", "sdio"], version = "0.20" }

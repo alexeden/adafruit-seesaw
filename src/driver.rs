@@ -1,10 +1,54 @@
 use crate::modules::Reg;
 use embedded_hal::{
     delay::DelayNs,
-    i2c::{I2c, Operation, SevenBitAddress},
+    i2c::{ErrorType, I2c, Operation, SevenBitAddress},
 };
 
 const DELAY_TIME: u32 = 125;
+
+pub struct SeesawDriver<I2C, DELAY>(I2C, DELAY);
+
+impl<I2C, DELAY> SeesawDriver<I2C, DELAY>
+where
+    DELAY: DelayNs,
+    I2C: I2c,
+{
+    pub fn new(i2c: I2C, delay: DELAY) -> Self {
+        SeesawDriver(i2c, delay)
+    }
+}
+
+impl<DELAY, I2C> ErrorType for SeesawDriver<I2C, DELAY>
+where
+    DELAY: DelayNs,
+    I2C: I2c,
+{
+    type Error = I2C::Error;
+}
+
+impl<I2C, DELAY> I2c for SeesawDriver<I2C, DELAY>
+where
+    DELAY: DelayNs,
+    I2C: I2c,
+{
+    fn transaction(
+        &mut self,
+        address: u8,
+        operations: &mut [Operation<'_>],
+    ) -> Result<(), Self::Error> {
+        self.0.transaction(address, operations)
+    }
+}
+
+impl<DELAY, I2C> DelayNs for SeesawDriver<I2C, DELAY>
+where
+    DELAY: DelayNs,
+    I2C: I2c,
+{
+    fn delay_ns(&mut self, ns: u32) {
+        self.1.delay_ns(ns)
+    }
+}
 
 /// Blanket trait for anything that implements I2C and a delay
 pub trait Driver: I2c + DelayNs {}

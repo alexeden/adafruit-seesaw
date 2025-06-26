@@ -29,7 +29,6 @@ fn main() -> ! {
     let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver())
         .init()
         .expect("Failed to start NeoKey1x4");
-
     loop {
         let keys = neokeys.keys().expect("Failed to read keys");
 
