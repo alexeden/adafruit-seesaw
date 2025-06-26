@@ -30,7 +30,7 @@ fn main() -> ! {
         .expect("Failed to start RotaryEncoder 1");
 
     let encoder_driver_2 = SeesawDriver::new(RefCellDevice::new(&i2c), Delay);
-    let mut encoder2 = RotaryEncoder::new_with_default_addr(encoder_driver_2)
+    let mut _encoder2 = RotaryEncoder::new_with_default_addr(encoder_driver_2)
         .init()
         .expect("Failed to start RotaryEncoder 2");
 
