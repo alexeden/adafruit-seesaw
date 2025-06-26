@@ -30,6 +30,7 @@ rgb = "0.8.50"
 [dev-dependencies]
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
+embassy-time = "0.4"
 embedded-hal-bus = "0.3"
 heapless = "0.8"
 rtt-target = { version = "0.6" }

@@ -7,7 +7,22 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ## [Unreleased]
 
--
+### Added
+
+- Add a `SeesawDriver` struct which implements the `Driver` trait without the `BusMutex` overhead
+
+### Deprecated
+
+The custom bus trait `BusMutex` and its implementing structs are to be removed in the next release. Users of the crate can more flexibly implement bus sharing themselves using other crates like `embedded-hal-bus` and `embassy-time`.
+
+Deprecated items:
+- `BusMutex`
+- `RefCellBus`
+- `SeesawStdMutex`
+- `SeesawRefCell`
+- `Seesaw`
+
+
 
 ## [0.11.0] - 2025-02-07
 
