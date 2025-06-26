@@ -24,12 +24,12 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = RefCell::new(I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks));
-    let encoder_driver_1 = SeesawDriver::new(RefCellDevice::new(&i2c), Delay);
+    let encoder_driver_1 = SeesawDriver::new(Delay, RefCellDevice::new(&i2c));
     let mut encoder = RotaryEncoder::new_with_default_addr(encoder_driver_1)
         .init()
         .expect("Failed to start RotaryEncoder 1");
 
-    let encoder_driver_2 = SeesawDriver::new(RefCellDevice::new(&i2c), Delay);
+    let encoder_driver_2 = SeesawDriver::new(Delay, RefCellDevice::new(&i2c));
     let mut _encoder2 = RotaryEncoder::new_with_default_addr(encoder_driver_2)
         .init()
         .expect("Failed to start RotaryEncoder 2");

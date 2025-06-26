@@ -5,7 +5,7 @@
 use adafruit_seesaw::{
     devices::{NeoKey1x4, NeoKey1x4Color},
     prelude::*,
-    SeesawRefCell,
+    SeesawDriver,
 };
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
@@ -25,8 +25,8 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
-    let seesaw = SeesawRefCell::new(delay, i2c);
-    let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver())
+    let seesaw = SeesawDriver::new(delay, i2c);
+    let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw)
         .init()
         .expect("Failed to start NeoKey1x4");
     loop {

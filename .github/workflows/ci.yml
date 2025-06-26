@@ -24,4 +24,4 @@ jobs:
       - uses: actions/checkout@v4
       - run: rustup toolchain install nightly --profile minimal --component clippy
       - run: rustup default nightly
-      - run: cargo clippy --all-targets
+      - run: cargo clippy

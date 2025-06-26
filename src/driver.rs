@@ -6,15 +6,15 @@ use embedded_hal::{
 
 const DELAY_TIME: u32 = 125;
 
-pub struct SeesawDriver<I2C, DELAY>(I2C, DELAY);
+pub struct SeesawDriver<I2C, DELAY>(DELAY, I2C);
 
 impl<I2C, DELAY> SeesawDriver<I2C, DELAY>
 where
     DELAY: DelayNs,
     I2C: I2c,
 {
-    pub fn new(i2c: I2C, delay: DELAY) -> Self {
-        SeesawDriver(i2c, delay)
+    pub fn new(delay: DELAY, i2c: I2C) -> Self {
+        SeesawDriver(delay, i2c)
     }
 }
 
@@ -36,7 +36,7 @@ where
         address: u8,
         operations: &mut [Operation<'_>],
     ) -> Result<(), Self::Error> {
-        self.0.transaction(address, operations)
+        self.1.transaction(address, operations)
     }
 }
 
@@ -46,7 +46,7 @@ where
     I2C: I2c,
 {
     fn delay_ns(&mut self, ns: u32) {
-        self.1.delay_ns(ns)
+        self.0.delay_ns(ns)
     }
 }
 

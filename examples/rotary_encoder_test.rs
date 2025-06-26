@@ -5,7 +5,7 @@
 use adafruit_seesaw::{
     devices::{RotaryEncoder, RotaryEncoderColor},
     prelude::*,
-    SeesawRefCell,
+    SeesawDriver,
 };
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
@@ -23,9 +23,9 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-    let seesaw = SeesawRefCell::new(delay, i2c);
+    let seesaw = SeesawDriver::new(delay, i2c);
     rprintln!("Seesaw created");
-    let mut encoder = RotaryEncoder::new_with_default_addr(seesaw.acquire_driver())
+    let mut encoder = RotaryEncoder::new_with_default_addr(seesaw)
         .init()
         .expect("Failed to start RotaryEncoder");
 
