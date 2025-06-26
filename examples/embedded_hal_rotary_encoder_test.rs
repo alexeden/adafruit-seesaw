@@ -7,7 +7,10 @@ use adafruit_seesaw::{
     prelude::*,
     SeesawDriver,
 };
+use core::cell::RefCell;
 use cortex_m_rt::entry;
+use embassy_time::Delay;
+use embedded_hal_bus::i2c::RefCellDevice;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
 
@@ -15,19 +18,21 @@ use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
 fn main() -> ! {
     rtt_init_print!();
     rprintln!("Begin");
-    let cp = cortex_m::Peripherals::take().unwrap();
     let dp = pac::Peripherals::take().unwrap();
     let gpiob = dp.GPIOB.split();
     let clocks = dp.RCC.constrain().cfgr.freeze();
-    let delay = cp.SYST.delay(&clocks);
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
-    let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-    let seesaw = SeesawDriver::new(delay, i2c);
-    rprintln!("Seesaw created");
-    let mut encoder = RotaryEncoder::new_with_default_addr(seesaw)
+    let i2c = RefCell::new(I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks));
+    let encoder_driver_1 = SeesawDriver::new(Delay, RefCellDevice::new(&i2c));
+    let mut encoder = RotaryEncoder::new_with_default_addr(encoder_driver_1)
         .init()
-        .expect("Failed to start RotaryEncoder");
+        .expect("Failed to start RotaryEncoder 1");
+
+    let encoder_driver_2 = SeesawDriver::new(Delay, RefCellDevice::new(&i2c));
+    let mut _encoder2 = RotaryEncoder::new_with_default_addr(encoder_driver_2)
+        .init()
+        .expect("Failed to start RotaryEncoder 2");
 
     rprintln!(
         "Capabilities {:#?}",
