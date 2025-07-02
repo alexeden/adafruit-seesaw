@@ -1,7 +1,7 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(const_evaluatable_unchecked, incomplete_features, rustdoc::bare_urls)]
-#![feature(array_try_map, generic_const_exprs)]
+#![cfg_attr(feature = "module_neopixel", feature(array_try_map, generic_const_exprs))]
 // TODO improve the organization of the exports/visibility
 // Re-export rgb
 pub use rgb;
@@ -14,15 +14,29 @@ pub mod prelude {
         devices::{SeesawDevice, SeesawDeviceInit},
         driver::DriverExt,
         modules::{
-            adc::*, encoder::*, gpio::*, keypad::*, neopixel::*, status::*, timer::*, HardwareId,
+            status::*, HardwareId,
         },
     };
+    #[cfg(feature = "module_adc")]
+    pub use super::modules::adc::*;
+    #[cfg(feature = "module_encoder")]
+    pub use super::modules::encoder::*;
+    #[cfg(feature = "module_gpio")]
+    pub use super::modules::gpio::*;
+    #[cfg(feature = "module_keypad")]
+    pub use super::modules::keypad::*;
+    #[cfg(feature = "module_neopixel")]
+    pub use super::modules::neopixel::*;
+    #[cfg(feature = "module_timer")]
+    pub use super::modules::timer::*;
 }
 mod driver;
 use bus::{Bus, BusMutex, RefCellBus};
 pub use driver::*;
-use embedded_hal::{delay::DelayNs, i2c::I2c};
-use modules::HardwareId;
+use embedded_hal::{
+    delay::DelayNs,
+    i2c::I2c,
+};
 
 pub type SeesawRefCell<BUS> = Seesaw<RefCellBus<BUS>>;
 

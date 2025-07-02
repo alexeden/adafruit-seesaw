@@ -2,12 +2,13 @@ use super::SeesawDeviceInit;
 use crate::{
     modules::{
         gpio::{GpioModule, PinMode},
-        neopixel::NeopixelModule,
         status::StatusModule,
         HardwareId,
     },
     seesaw_device, Driver, SeesawError,
 };
+#[cfg(feature = "module_neopixel")]
+use crate::modules::neopixel::NeopixelModule;
 
 seesaw_device! {
   /// NeoKey1x4
@@ -20,6 +21,7 @@ seesaw_device! {
 pub type NeoKey1x4Color = rgb::Grb<u8>;
 
 impl<D: Driver> GpioModule<D> for NeoKey1x4<D> {}
+#[cfg(feature = "module_neopixel")]
 impl<D: Driver> NeopixelModule<D> for NeoKey1x4<D> {
     type Color = NeoKey1x4Color;
 
@@ -29,10 +31,11 @@ impl<D: Driver> NeopixelModule<D> for NeoKey1x4<D> {
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoKey1x4<D> {
     fn init(mut self) -> Result<Self, SeesawError<D::Error>> {
-        self.reset_and_verify_seesaw()
-            .and_then(|_| self.enable_neopixel())
-            .and_then(|_| self.enable_button_pins())
-            .map(|_| self)
+        self.reset_and_verify_seesaw()?;
+        self.enable_button_pins()?;
+        #[cfg(feature = "module_neopixel")]
+        self.enable_neopixel()?;
+        Ok(self)
     }
 }
 

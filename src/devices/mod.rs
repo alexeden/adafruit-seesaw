@@ -1,21 +1,33 @@
+#[cfg(feature = "device_arcade_button_1x4")]
 mod arcade_button_1x4;
 mod generic_device;
 pub mod macros;
+#[cfg(feature = "device_neokey_1x4")]
 mod neokey_1x4;
+#[cfg(feature = "device_neorotary4")]
 mod neorotary4;
+#[cfg(feature = "device_neoslider")]
 mod neoslider;
+#[cfg(feature = "device_neotrellis")]
 mod neotrellis;
+#[cfg(feature = "device_rotary_encoder")]
 mod rotary_encoder;
 use crate::{
     modules::{status::StatusModule, HardwareId},
     Driver, SeesawError,
 };
+#[cfg(feature = "device_arcade_button_1x4")]
 pub use arcade_button_1x4::*;
 pub use generic_device::*;
+#[cfg(feature = "device_neokey_1x4")]
 pub use neokey_1x4::*;
+#[cfg(feature = "device_neorotary4")]
 pub use neorotary4::*;
+#[cfg(feature = "device_neoslider")]
 pub use neoslider::*;
+#[cfg(feature = "device_neotrellis")]
 pub use neotrellis::*;
+#[cfg(feature = "device_rotary_encoder")]
 pub use rotary_encoder::*;
 
 pub trait SeesawDevice {

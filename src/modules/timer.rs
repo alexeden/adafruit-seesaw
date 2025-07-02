@@ -1,5 +1,5 @@
 use super::{Modules, Reg};
-use crate::{devices::SeesawDevice, Driver, DriverExt, HardwareId, SeesawError};
+use crate::{devices::SeesawDevice, Driver, DriverExt, modules::HardwareId, SeesawError};
 
 /// WO - 16 bits
 /// The first byte of the register indicates which PWM pin will have its value
