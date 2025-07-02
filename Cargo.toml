@@ -40,7 +40,7 @@ device_neotrellis = ["module_keypad"]
 device_rotary_encoder = ["module_encoder", "module_gpio"]
 
 module_adc = []
-module_encoder = []
+module_encoder = ["module_gpio"]
 module_gpio = []
 module_keypad = []
 module_neopixel = []
