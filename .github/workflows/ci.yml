@@ -17,11 +17,42 @@ env:
 
 
 jobs:
-  lint:
-    name: Lint
+  build-stable:
+    strategy:
+      fail-fast: false
+      matrix:
+        features: [
+          '-F device_neokey_1x4',
+          '-F device_neorotary4',
+          '-F device_neoslider',
+          '-F device_rotary_encoder',
+        ]
+    name: Build & Lint (Default Features, Stable)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: rustup toolchain install nightly --profile minimal --component clippy
+      - run: rustup toolchain install stable --component clippy
+      - run: cargo build --no-default-features ${features}
+      - run: cargo clippy --no-default-features ${features}
+
+  build-nightly:
+    strategy:
+      fail-fast: false
+      matrix:
+        features: [
+          '-F device_arcade_button_1x4',
+          '-F device_neokey_1x4,module_neopixel',
+          '-F device_neorotary4,module_neopixel',
+          '-F device_neoslider,module_neopixel',
+          '-F device_neotrellis',
+          '-F device_neotrellis,module_neopixel',
+          '-F device_rotary_encoder,module_neopixel',
+        ]
+    name: Build & Lint With Features
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install nightly --component clippy
       - run: rustup default nightly
-      - run: cargo clippy
+      - run: cargo build --no-default-features ${features}
+      - run: cargo clippy --no-default-features ${features}

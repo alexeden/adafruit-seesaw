@@ -9,6 +9,8 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ### Added
 
+- [#19](https://github.com/alexeden/adafruit-seesaw/pull/19) Add one feature per device and module, allowing disabling all and only enabling those needed. This allows building some of them on stable rust.
+
 - Add a `SeesawDriver` struct which implements the `Driver` trait without the `BusMutex` overhead
 
 ### Deprecated

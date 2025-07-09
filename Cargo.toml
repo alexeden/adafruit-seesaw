@@ -17,7 +17,34 @@ all-features = true
 rustdoc-args = ["--generate-link-to-definition"]
 
 [features]
+default = [
+    "device_arcade_button_1x4",
+    "device_neokey_1x4",
+    "device_neorotary4",
+    "device_neoslider",
+    "device_neotrellis",
+    "device_rotary_encoder",
+
+    "module_keypad",
+    "module_neopixel",
+]
+
 std = []
+
+# devices only depend on the modules which they absolutely need for the basics to work
+device_arcade_button_1x4 = ["module_gpio", "module_timer"]
+device_neokey_1x4 = ["module_gpio"]
+device_neorotary4 = ["module_gpio", "module_encoder"]
+device_neoslider = ["module_adc", "module_gpio"]
+device_neotrellis = ["module_keypad"]
+device_rotary_encoder = ["module_encoder", "module_gpio"]
+
+module_adc = []
+module_encoder = ["module_gpio"]
+module_gpio = []
+module_keypad = []
+module_neopixel = []
+module_timer = []
 
 [lib]
 bench = false

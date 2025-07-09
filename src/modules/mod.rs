@@ -1,9 +1,15 @@
+#[cfg(feature = "module_adc")]
 pub mod adc;
+#[cfg(feature = "module_encoder")]
 pub mod encoder;
+#[cfg(feature = "module_gpio")]
 pub mod gpio;
+#[cfg(feature = "module_keypad")]
 pub mod keypad;
+#[cfg(feature = "module_neopixel")]
 pub mod neopixel;
 pub mod status;
+#[cfg(feature = "module_timer")]
 pub mod timer;
 
 pub type Reg = [u8; 2];
