@@ -22,7 +22,7 @@ Communicating with Seesaw devices requires a driver that implements both `I2C` t
 
 ## Single Device
 
-If you're interfacing with a single device--i.e. you don't need to share access to a device's requisite I2C bus nor the Delay--create a `SeesawDriver` and provide it to the device constructor:
+If you're interfacing with a single device - i.e. you don't need to share access to a device's requisite I2C bus nor the Delay - create a `SeesawDriver` and provide it to the device constructor:
 
 ```rs
 // Setup on an STM32F405
