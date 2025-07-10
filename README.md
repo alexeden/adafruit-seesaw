@@ -18,8 +18,6 @@ If you want to learn more about modules, [this page in the Seesaw guide](https:/
 
 Communicating with Seesaw devices requires a driver that implements both `I2C` traits and `Delay` from `embedded-hal`.
 
-## `#![no_std]` (single-threaded)
-
 ## Single Device
 
 If you're interfacing with a single device - i.e. you don't need to share access to a device's requisite I2C bus nor the Delay - create a `SeesawDriver` and provide it to the device constructor:
