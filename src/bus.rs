@@ -9,7 +9,7 @@ use embedded_hal::{
 #[deprecated(
     since = "0.12.0",
     note = "The BusMutex trait and its implementing structs are to be removed in favor of using \
-            third-party crates (e.g. embassy-time, embedded-hal-bus) for bus sharing."
+            third-party crates (e.g. embedded-hal-bus) for bus sharing."
 )]
 pub trait BusMutex {
     /// The actual bus that is wrapped inside this mutex.

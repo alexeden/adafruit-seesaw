@@ -60,8 +60,8 @@ pub type SeesawStdMutex<BUS> = Seesaw<std::sync::Mutex<BUS>>;
 #[deprecated(
     since = "0.12.0",
     note = "Use SeesawDriver instead. The BusMutex trait and its implementing structs are to be \
-            removed in favor of using third-party crates (e.g. embassy-time, embedded-hal-bus) \
-            for bus sharing. For more information, see the documentation for the BusMutex trait."
+            removed in favor of using third-party crates (e.g. embedded-hal-bus) for bus sharing. \
+            For more information, see the documentation for the BusMutex trait."
 )]
 pub struct Seesaw<M>(M);
 

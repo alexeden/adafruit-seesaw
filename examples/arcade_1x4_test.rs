@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
+#![cfg(feature = "device_arcade_button_1x4")]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
 use adafruit_seesaw::{devices::ArcadeButton1x4, prelude::*, SeesawDriver};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};

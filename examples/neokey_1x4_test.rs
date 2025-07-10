@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
+#![cfg(feature = "device_neokey_1x4")]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
 use adafruit_seesaw::{
     devices::{NeoKey1x4, NeoKey1x4Color},
     prelude::*,

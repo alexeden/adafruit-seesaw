@@ -11,10 +11,11 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 - [#19](https://github.com/alexeden/adafruit-seesaw/pull/19) Add one feature per device and module, allowing disabling all and only enabling those needed. This allows building some of them on stable rust.
 - [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) Add a `SeesawDriver` struct which implements the `Driver` trait without the `BusMutex` overhead
+- [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) Add a `nightly` trait to eventually replace `default`, which enables all devices and modules but deos not build on stable
 
 ### Deprecated
 
-The custom bus trait `BusMutex` and its implementing structs are to be removed in the next release. Users of the crate can more flexibly implement bus sharing themselves using other crates like `embedded-hal-bus` and `embassy-time`.
+The custom bus trait `BusMutex` and its implementing structs are to be removed in the next release. Users of the crate can more flexibly implement bus sharing themselves using other crates like `embedded-hal-bus`.
 
 Deprecated items:
 - `BusMutex`
@@ -23,6 +24,10 @@ Deprecated items:
 - `SeesawRefCell`
 - `Seesaw`
 
+Deprecated feature flags:
+
+- `std`: will no longer be relevant after `SeesawStdMutex` is dropped
+- `default`: to support building on stable rust, no default features will be included
 
 
 ## [0.11.0] - 2025-02-07

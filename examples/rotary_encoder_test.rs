@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
+#![cfg(feature = "device_rotary_encoder")]
 use adafruit_seesaw::{
     devices::{RotaryEncoder, RotaryEncoderColor},
     prelude::*,

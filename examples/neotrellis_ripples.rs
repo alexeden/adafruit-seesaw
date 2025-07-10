@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
+#![cfg(feature = "device_neotrellis")]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
 /// Arduino example: https://github.com/adafruit/Adafruit_Seesaw/blob/master/examples/NeoTrellis/ripples/ripples.ino
 /// Demo video: https://storage.googleapis.com/apemedia/neotrellis576.mp4
 use adafruit_seesaw::{

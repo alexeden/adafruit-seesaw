@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
+#![cfg(feature = "device_neorotary4")]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
 use adafruit_seesaw::{
     devices::{NeoRotary4, NeoRotary4Color},
     prelude::*,

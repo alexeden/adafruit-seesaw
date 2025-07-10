@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
+#![cfg(feature = "module_neopixel")]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
 use adafruit_seesaw::{prelude::*, seesaw_device, Driver, SeesawDriver};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};

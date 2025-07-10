@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
-#![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
+#![cfg(feature = "device_neoslider")]
 use adafruit_seesaw::{
     devices::{NeoSlider, NeoSliderColor},
     prelude::*,
