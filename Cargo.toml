@@ -17,7 +17,14 @@ all-features = true
 rustdoc-args = ["--generate-link-to-definition"]
 
 [features]
-default = []
+default = [
+    "device_arcade_button_1x4",
+
+    "module_adc",
+    "module_encoder",
+    "module_gpio",
+    "module_timer",
+]
 
 nightly = [
     "device_arcade_button_1x4",

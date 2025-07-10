@@ -9,8 +9,8 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ### Changed
 
-- [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) the crate can be built using stable rust by default, albeit with limited functionality
- - Use the `nightly` feature flag or any of the more granular feature flags to build all devices
+- [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) the crate can be built using stable rust by default, albeit with a limited set of seesaw modules and devices
+ - Use the `nightly` feature flag or any of the more granular feature flags to build all devices and modules
 
 ### Removed
 
@@ -22,7 +22,7 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
   - `Seesaw`
 - **BREAKING** [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) Removes the following deprecated feature flags:
   - `std` - No longer applicable following the removal of `SeesawStdMutex`
-  - `default` - Added in 0.11.1 to maintain backwards compatibilty; use the `nightly` feature flag to maintain previous behavior where all modules and devices are built
+  - `default` - Added in 0.11.1 to maintain backwards compatibilty; flags have been removed to support building the crate using stable rust by default. Use the `nightly` feature flag to maintain previous behavior where all modules and devices are built.
 
 
 ## [0.11.1] - 2025-07-09

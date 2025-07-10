@@ -1,11 +1,8 @@
 #![doc = include_str!("../README.md")]
 #![no_std]
 #![allow(const_evaluatable_unchecked, incomplete_features, rustdoc::bare_urls)]
-#![cfg_attr(
-    feature = "module_neopixel",
-    feature(array_try_map, generic_const_exprs)
-)]
-// TODO improve the organization of the exports/visibility
+#![cfg_attr(feature = "module_neopixel", feature(generic_const_exprs))]
+
 // Re-export rgb
 pub use rgb;
 
