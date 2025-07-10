@@ -1,13 +1,13 @@
 #![no_std]
 #![no_main]
+#![cfg(feature = "device_neotrellis")]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
 /// Arduino example: https://github.com/adafruit/Adafruit_Seesaw/blob/master/examples/NeoTrellis/ripples/ripples.ino
 /// Demo video: https://storage.googleapis.com/apemedia/neotrellis576.mp4
 use adafruit_seesaw::{
     devices::{NeoTrellis, NeoTrellisColor},
     prelude::*,
-    SeesawRefCell,
+    SeesawDriver,
 };
 use cortex_m_rt::entry;
 use heapless::Deque;
@@ -52,9 +52,9 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-    let seesaw = SeesawRefCell::new(delay, i2c);
+    let seesaw = SeesawDriver::new(delay, i2c);
     rprintln!("Seesaw created");
-    let mut trellis = NeoTrellis::new_with_default_addr(seesaw.acquire_driver())
+    let mut trellis = NeoTrellis::new_with_default_addr(seesaw)
         .init()
         .expect("Failed to start NeoTrellis");
 

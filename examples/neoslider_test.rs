@@ -1,11 +1,10 @@
 #![no_std]
 #![no_main]
-#![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
+#![cfg(feature = "device_neoslider")]
 use adafruit_seesaw::{
     devices::{NeoSlider, NeoSliderColor},
     prelude::*,
-    SeesawRefCell,
+    SeesawDriver,
 };
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
@@ -22,8 +21,8 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
-    let seesaw = SeesawRefCell::new(delay, i2c);
-    let mut neoslider = NeoSlider::new_with_default_addr(seesaw.acquire_driver())
+    let seesaw = SeesawDriver::new(delay, i2c);
+    let mut neoslider = NeoSlider::new_with_default_addr(seesaw)
         .init()
         .expect("Failed to start NeoSlider");
 

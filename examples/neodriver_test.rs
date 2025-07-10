@@ -1,8 +1,8 @@
 #![no_std]
 #![no_main]
+#![cfg(feature = "module_neopixel")]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
-use adafruit_seesaw::{prelude::*, seesaw_device, Driver, SeesawRefCell};
+use adafruit_seesaw::{prelude::*, seesaw_device, Driver, SeesawDriver};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{
@@ -41,8 +41,8 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-    let seesaw = SeesawRefCell::new(delay, i2c);
-    let mut neo_driver = NeoDriver::new_with_default_addr(seesaw.acquire_driver());
+    let seesaw = SeesawDriver::new(delay, i2c);
+    let mut neo_driver = NeoDriver::new_with_default_addr(seesaw);
     neo_driver
         .reset_and_verify_seesaw()
         .and_then(|_| neo_driver.enable_neopixel())

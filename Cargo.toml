@@ -29,7 +29,19 @@ default = [
     "module_neopixel",
 ]
 
-std = []
+nightly = [
+    "device_arcade_button_1x4",
+    "device_neokey_1x4",
+    "device_neorotary4",
+    "device_neoslider",
+    "device_neotrellis",
+    "device_rotary_encoder",
+
+    "module_keypad",
+    "module_neopixel",
+]
+
+std = [] # to be deprecated
 
 # devices only depend on the modules which they absolutely need for the basics to work
 device_arcade_button_1x4 = ["module_gpio", "module_timer"]
@@ -57,9 +69,10 @@ rgb = "0.8.50"
 [dev-dependencies]
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
+embedded-hal-bus = "0.3"
 heapless = "0.8"
 rtt-target = { version = "0.6" }
-stm32f4xx-hal = { features = ["stm32f405", "sdio"], version = "0.20" }
+stm32f4xx-hal = { features = ["stm32f405", "sdio"], version = "0.22" }
 
 [profile.release]
 codegen-units = 1

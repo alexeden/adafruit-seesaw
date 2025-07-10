@@ -16,13 +16,13 @@ If you want to learn more about modules, [this page in the Seesaw guide](https:/
 
 # Usage
 
-The library follows the patterns of the [`shared-bus`](https://github.com/Rahix/shared-bus) library so that multiple devices can be connected and communicated with without owning the I2C bus.
-
-Communicating with Seesaw devices requires a bus that implements both `I2C` traits and `Delay` from `embedded-hal`.
+Communicating with Seesaw devices requires a driver that implements both `I2C` traits and `Delay` from `embedded-hal`.
 
 ## `#![no_std]` (single-threaded)
 
-If you're communicating with devices within a single thread, use the `SeesawRefCell` typed struct, which uses the `RefCellBus` wrapper to enable sharing of the bus across multiple Seesaw devices.
+## Single Device
+
+If you're interfacing with a single device - i.e. you don't need to share access to a device's requisite I2C bus nor the Delay - create a `SeesawDriver` and provide it to the device constructor:
 
 ```rs
 // Setup on an STM32F405
@@ -30,70 +30,27 @@ let cp = cortex_m::Peripherals::take().unwrap();
 let clocks = dp.RCC.constrain().cfgr.freeze();
 let delay = cp.SYST.delay(&clocks);
 let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-let seesaw = SeesawRefCell::new(delay, i2c);
-let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver())
-    .init()
-    .expect("Failed to start NeoKey1x4");
+let seesaw = SeesawDriver::new(delay, i2c);
+let neokeys = NeoKey1x4::new_with_default_addr(seesaw).init().unwrap();
 ```
 
-## `std` (multi-threaded)
+## Multiple Devices
 
-> This requires turning on the `std` feature flag.
-
-For multi-threaded purposes, use the `SeesawStdMutex` typed struct, which wraps the bus in a std `Mutex`.
-
-Example usage of using multi-threaded `Seesaw` in a `std` context, running on an ESP32-S3:
+For multiple devices, use [mechanisms implemented by third-party libraries](https://docs.rs/embedded-hal-bus/0.3.0/embedded_hal_bus/i2c/index.html) like [`embedded-hal-bus`](https://crates.io/crates/embedded-hal-bus) to facilitate I2C bus sharing.
 
 ```rs
-use adafruit_seesaw::{devices::RotaryEncoder, prelude::*, SeesawStdMutex};
-use esp_idf_hal::{
-    self,
-    delay::Delay,
-    gpio::PinDriver,
-    i2c::{I2cConfig, I2cDriver},
-    peripherals::Peripherals,
-    prelude::*,
-};
-use std::time::Duration;
+#![no_std]
+use embedded_hal_bus::i2c::RefCellDevice;
 
-fn main() -> Result<(), anyhow::Error> {
-    esp_idf_hal::sys::link_patches();
-    esp_idf_svc::log::EspLogger::initialize_default();
+let clocks = dp.RCC.constrain().cfgr.freeze();
+let delay = cp.SYST.delay(&clocks);
+let i2c = RefCell::new(I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks));
 
-    // System
-    let peripherals = Peripherals::take().unwrap();
-    let mut i2c_power = PinDriver::output(peripherals.pins.gpio7).unwrap();
-    i2c_power.set_low()?;
-    std::thread::sleep(Duration::from_millis(333));
+let encoder_driver_1 = SeesawDriver::new(delay.clone(), RefCellDevice::new(&i2c));
+let encoder_1 = RotaryEncoder::new(0x00, encoder_driver_1).init().unwrap();
 
-    // I2C
-    let (sda, scl) = (peripherals.pins.gpio3, peripherals.pins.gpio4);
-    let config = I2cConfig::new().baudrate(400.kHz().into());
-    let i2c = I2cDriver::new(peripherals.i2c0, sda, scl, &config)?;
-    i2c_power.set_high()?;
-    std::thread::sleep(Duration::from_millis(333));
-
-    let seesaw: &'static _ = {
-        use once_cell::sync::OnceCell;
-        static MANAGER: OnceCell<SeesawStdMutex<(Delay, I2cDriver<'_>)>> =
-            OnceCell::new();
-
-        match MANAGER.set(SeesawStdMutex::new(Delay::new_default(), i2c)) {
-            Ok(_) => MANAGER.get(),
-            Err(_) => None,
-        }
-    }
-    .unwrap();
-
-    let _encoder =
-        RotaryEncoder::new_with_default_addr(seesaw.acquire_driver())
-            .init()
-            .expect("Failed to start rotary encoder.");
-
-    loop {
-        // Do stuff with rotary encoder
-    }
-}
+let encoder_driver_2 = SeesawDriver::new(delay.clone(), RefCellDevice::new(&i2c));
+let encoder_2 = RotaryEncoder::new(0x01, encoder_driver_2).init().unwrap();
 ```
 
 # Communicating with a Device
@@ -111,13 +68,13 @@ Let's talk to a [NeoKey1x4](https://www.adafruit.com/product/4980) using the `se
 ### Using the default address
 
 ```rs
-let neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver());
+let neokeys = NeoKey1x4::new_with_default_addr(seesaw_driver);
 ```
 
 ### Using a custom address
 
 ```rs
-let neokeys = NeoKey1x4::new(0x00, seesaw.acquire_driver());
+let neokeys = NeoKey1x4::new(0x00, seesaw_driver);
 ```
 
 ### Initializing
@@ -125,7 +82,7 @@ let neokeys = NeoKey1x4::new(0x00, seesaw.acquire_driver());
 Devices that implement `SeesawDevice` also implmement `SeesawDeviceInit`, which defines a device-specific `init` function for setting up a device's hardware functionality. The intention is to run a set of sensible defaults so you don't have to remember to do it yourself.
 
 ```rs
-let neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver())
+let neokeys = NeoKey1x4::new_with_default_addr(seesaw_driver)
     .init()
     .expect("Failed to initialize NeoKey1x4");
 ```
@@ -143,23 +100,23 @@ Calling `init` is of course optional, but without it you'll have to handle initi
 
 The crate comes with a few predefined devices that you can use. [Their documentation is available here.](https://docs.rs/adafruit-seesaw/latest/adafruit_seesaw/devices/index.html)
 
-| Device                                                 | Product ID | MCU       | Notes                                                                                                   |
-| ------------------------------------------------------ | ---------- | --------- | ------------------------------------------------------------------------------------------------------- |
-| [ArcadeButton1x4](https://adafruit.com/product/5296)   | 5296       | ATTiny8x7 |                                                                                                         |
-| [NeoKey1x4](https://adafruit.com/product/4980)         | 4980       | SAMD09    |                                                                                                         |
-| [NeoSlider](https://adafruit.com/product/5295)         | 5295       | ATTiny8x7 |                                                                                                         |
-| [NeoTrellis](https://adafruit.com/product/3954)        | 3954       | SAMD09    | [Example demo video `neotrellis_ripples.rs`](https://storage.googleapis.com/apemedia/neotrellis576.mp4) |
-| [NeoRotary4](https://adafruit.com/product/5752)        | 5752       | ATTiny8x7 |                                                                                                         |
-| [RotaryEncoder](https://adafruit.com/product/4991)     | 4991       | SAMD09    |                                                                                                         |
-
+| Device                                               | Product ID | MCU       | Notes                                                                                                   |
+| ---------------------------------------------------- | ---------- | --------- | ------------------------------------------------------------------------------------------------------- |
+| [ArcadeButton1x4](https://adafruit.com/product/5296) | 5296       | ATTiny8x7 |                                                                                                         |
+| [NeoKey1x4](https://adafruit.com/product/4980)       | 4980       | SAMD09    |                                                                                                         |
+| [NeoSlider](https://adafruit.com/product/5295)       | 5295       | ATTiny8x7 |                                                                                                         |
+| [NeoTrellis](https://adafruit.com/product/3954)      | 3954       | SAMD09    | [Example demo video `neotrellis_ripples.rs`](https://storage.googleapis.com/apemedia/neotrellis576.mp4) |
+| [NeoRotary4](https://adafruit.com/product/5752)      | 5752       | ATTiny8x7 |                                                                                                         |
+| [RotaryEncoder](https://adafruit.com/product/4991)   | 4991       | SAMD09    |                                                                                                         |
 
 # Creating Your Own Devices
 
-So far, this library only implements a few Seesaw devices (i.e., the ones that I currently own). You can define your own device using the `seesaw_device!` macro and then configuring its modules using their respective traits.
+So far, this crate only implements a few Seesaw devices (i.e., the ones that I currently own). You can define your own device using the `seesaw_device!` macro and then configuring its modules using their respective traits.
 
 Let's assume you have some future Adafruit Neokey-esque device that has 6 buttons and 6 neopixels.
 
 You call the `seesaw_device!` macro with information about the device:
+
 ```rs
 seesaw_device! {
     name: Neokey2x3,
@@ -197,7 +154,7 @@ impl<D: Driver> SeesawDeviceInit<D> for Neokey2x3<D> {
 Now you can use the new device as you would any other:
 
 ```rs
-let neokeys = NeoKey2x3::new_with_default_addr(seesaw.acquire_driver())
+let neokeys = NeoKey2x3::new_with_default_addr(seesaw_driver)
     .init()
     .expect("Failed to initialize NeoKey2x3");
 ```

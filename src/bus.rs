@@ -1,3 +1,4 @@
+#![allow(deprecated, useless_deprecated)]
 use core::cell::RefCell;
 use embedded_hal::{
     delay::DelayNs,
@@ -5,6 +6,11 @@ use embedded_hal::{
 };
 
 /// Nearly-verbatim copy of the trait specified by the shared_bus crate
+#[deprecated(
+    since = "0.11.1",
+    note = "The BusMutex trait and its implementing structs are to be removed in favor of using \
+            third-party crates (e.g. embedded-hal-bus) for bus sharing."
+)]
 pub trait BusMutex {
     /// The actual bus that is wrapped inside this mutex.
     type Bus;
@@ -17,6 +23,11 @@ pub trait BusMutex {
 }
 
 #[derive(Debug)]
+#[deprecated(
+    since = "0.11.1",
+    note = "Use SeesawDriver instead. For bus sharing, use third-party crates, e.g. the \
+            RefCellDevice struct from the embedded-hal-bus crate."
+)]
 pub struct RefCellBus<T>(RefCell<T>);
 
 impl<T> BusMutex for RefCellBus<T> {
@@ -33,6 +44,11 @@ impl<T> BusMutex for RefCellBus<T> {
 }
 
 #[cfg(feature = "std")]
+#[deprecated(
+    since = "0.11.1",
+    note = "Use SeesawDriver instead. For bus sharing, use third-party crates, e.g. the \
+            MutexDevice struct from the embedded-hal-bus crate."
+)]
 impl<T> BusMutex for std::sync::Mutex<T> {
     type Bus = T;
 

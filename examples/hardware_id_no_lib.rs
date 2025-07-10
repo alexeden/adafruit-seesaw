@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
