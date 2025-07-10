@@ -28,6 +28,7 @@ pub trait BusMutex {
     note = "Use SeesawDriver instead. For bus sharing, use third-party crates, e.g. the \
             RefCellDevice struct from the embedded-hal-bus crate."
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct RefCellBus<T>(RefCell<T>);
 
 impl<T> BusMutex for RefCellBus<T> {
@@ -63,6 +64,7 @@ impl<T> BusMutex for std::sync::Mutex<T> {
 }
 
 #[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Bus<'a, M>(pub(crate) &'a M);
 
 // Delay implementation

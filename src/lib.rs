@@ -63,6 +63,7 @@ pub type SeesawStdMutex<BUS> = Seesaw<std::sync::Mutex<BUS>>;
             removed in favor of using third-party crates (e.g. embedded-hal-bus) for bus sharing. \
             For more information, see the documentation for the BusMutex trait."
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Seesaw<M>(M);
 
 impl<DELAY, I2C, M> Seesaw<M>
@@ -81,6 +82,7 @@ where
 }
 
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum SeesawError<E> {
     /// I2C bus error
     I2c(E),

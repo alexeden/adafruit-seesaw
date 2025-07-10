@@ -166,6 +166,7 @@ pub const fn color_bytes_per_write(c_size: usize) -> usize {
 
 /// NeopixelModule: The Neopixel protocol speed
 #[derive(Debug, Default)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum NeopixelSpeed {
     Khz400 = 0,
     #[default]
