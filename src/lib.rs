@@ -42,7 +42,7 @@ pub use driver::*;
 use embedded_hal::{delay::DelayNs, i2c::I2c};
 
 #[deprecated(
-    since = "0.12.0",
+    since = "0.11.1",
     note = "Use SeesawDriver instead. For bus sharing, use third-party crates, e.g. the \
             RefCellDevice struct from the embedded-hal-bus crate."
 )]
@@ -50,7 +50,7 @@ pub type SeesawRefCell<BUS> = Seesaw<RefCellBus<BUS>>;
 
 #[cfg(feature = "std")]
 #[deprecated(
-    since = "0.12.0",
+    since = "0.11.1",
     note = "Use SeesawDriver instead. For bus sharing, use third-party crates, e.g. the \
             MutexDevice struct from the embedded-hal-bus crate."
 )]
@@ -58,7 +58,7 @@ pub type SeesawStdMutex<BUS> = Seesaw<std::sync::Mutex<BUS>>;
 
 /// The owner of the driver from which new seesaw devices can be created
 #[deprecated(
-    since = "0.12.0",
+    since = "0.11.1",
     note = "Use SeesawDriver instead. The BusMutex trait and its implementing structs are to be \
             removed in favor of using third-party crates (e.g. embedded-hal-bus) for bus sharing. \
             For more information, see the documentation for the BusMutex trait."

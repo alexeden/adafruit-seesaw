@@ -7,7 +7,7 @@ use embedded_hal::{
 
 /// Nearly-verbatim copy of the trait specified by the shared_bus crate
 #[deprecated(
-    since = "0.12.0",
+    since = "0.11.1",
     note = "The BusMutex trait and its implementing structs are to be removed in favor of using \
             third-party crates (e.g. embedded-hal-bus) for bus sharing."
 )]
@@ -24,7 +24,7 @@ pub trait BusMutex {
 
 #[derive(Debug)]
 #[deprecated(
-    since = "0.12.0",
+    since = "0.11.1",
     note = "Use SeesawDriver instead. For bus sharing, use third-party crates, e.g. the \
             RefCellDevice struct from the embedded-hal-bus crate."
 )]
@@ -45,7 +45,7 @@ impl<T> BusMutex for RefCellBus<T> {
 
 #[cfg(feature = "std")]
 #[deprecated(
-    since = "0.12.0",
+    since = "0.11.1",
     note = "Use SeesawDriver instead. For bus sharing, use third-party crates, e.g. the \
             MutexDevice struct from the embedded-hal-bus crate."
 )]
