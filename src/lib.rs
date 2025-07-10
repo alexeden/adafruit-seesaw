@@ -1,7 +1,15 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(const_evaluatable_unchecked, incomplete_features, rustdoc::bare_urls)]
-#![cfg_attr(feature = "module_neopixel", feature(array_try_map, generic_const_exprs))]
+#![allow(
+    const_evaluatable_unchecked,
+    incomplete_features,
+    rustdoc::bare_urls,
+    deprecated
+)]
+#![cfg_attr(
+    feature = "module_neopixel",
+    feature(array_try_map, generic_const_exprs)
+)]
 // TODO improve the organization of the exports/visibility
 // Re-export rgb
 pub use rgb;
@@ -10,13 +18,6 @@ pub mod bus;
 pub mod devices;
 pub mod modules;
 pub mod prelude {
-    pub use super::{
-        devices::{SeesawDevice, SeesawDeviceInit},
-        driver::DriverExt,
-        modules::{
-            status::*, HardwareId,
-        },
-    };
     #[cfg(feature = "module_adc")]
     pub use super::modules::adc::*;
     #[cfg(feature = "module_encoder")]
@@ -29,14 +30,16 @@ pub mod prelude {
     pub use super::modules::neopixel::*;
     #[cfg(feature = "module_timer")]
     pub use super::modules::timer::*;
+    pub use super::{
+        devices::{SeesawDevice, SeesawDeviceInit},
+        driver::{DriverExt, SeesawDriver},
+        modules::{status::*, HardwareId},
+    };
 }
 mod driver;
 use bus::{Bus, BusMutex, RefCellBus};
 pub use driver::*;
-use embedded_hal::{
-    delay::DelayNs,
-    i2c::I2c,
-};
+use embedded_hal::{delay::DelayNs, i2c::I2c};
 
 #[deprecated(
     since = "0.12.0",
