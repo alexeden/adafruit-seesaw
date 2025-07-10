@@ -36,30 +36,22 @@ let neokeys = NeoKey1x4::new_with_default_addr(seesaw).init().unwrap();
 
 ## Multiple Devices
 
-### `no_std`
-
-For multiple devices, use third-party libraries like [`embedded-hal-bus`](https://crates.io/crates/embedded-hal-bus) and [`embassy-time`](https://crates.io/crates/embassy-time) to facilitate bus and delay sharing.
-
-[Complete example here.](https://github.com/alexeden/adafruit-seesaw/blob/main/examples/embedded_hal_rotary_encoder_test.rs)
+For multiple devices, use [mechanisms implemented by third-party libraries](https://docs.rs/embedded-hal-bus/0.3.0/embedded_hal_bus/i2c/index.html) like [`embedded-hal-bus`](https://crates.io/crates/embedded-hal-bus) to facilitate I2C bus sharing.
 
 ```rs
-// Setup on an STM32F405
-use embassy_time::Delay;
+#![no_std]
 use embedded_hal_bus::i2c::RefCellDevice;
 
 let clocks = dp.RCC.constrain().cfgr.freeze();
+let delay = cp.SYST.delay(&clocks);
 let i2c = RefCell::new(I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks));
 
-let encoder_driver_1 = SeesawDriver::new(Delay, RefCellDevice::new(&i2c));
+let encoder_driver_1 = SeesawDriver::new(delay.clone(), RefCellDevice::new(&i2c));
 let encoder_1 = RotaryEncoder::new(0x00, encoder_driver_1).init().unwrap();
 
-let encoder_driver_2 = SeesawDriver::new(Delay, RefCellDevice::new(&i2c));
+let encoder_driver_2 = SeesawDriver::new(delay.clone(), RefCellDevice::new(&i2c));
 let encoder_2 = RotaryEncoder::new(0x01, encoder_driver_2).init().unwrap();
 ```
-
-### `std`
-
-For multi-threaded use, implementation looks the same as above for `no_std`, but you can use components like [`MutexDevice`](https://docs.rs/embedded-hal-bus/0.3.0/embedded_hal_bus/i2c/struct.MutexDevice.html) from the `embedded-hal-bus` crate.
 
 # Communicating with a Device
 
