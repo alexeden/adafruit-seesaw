@@ -1,6 +1,5 @@
 #![no_std]
 #![no_main]
-#![cfg(feature = "device_arcade_button_1x4")]
 use adafruit_seesaw::{devices::ArcadeButton1x4, prelude::*, SeesawDriver};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
@@ -31,7 +30,6 @@ fn main() -> ! {
 }
 
 #[panic_handler]
-#[cfg(feature = "device_arcade_button_1x4")]
 fn handle_panic(info: &core::panic::PanicInfo) -> ! {
     rprintln!("PANIC! {}", info.message());
     if let Some(location) = info.location() {
