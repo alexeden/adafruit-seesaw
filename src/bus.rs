@@ -1,4 +1,4 @@
-#![allow(deprecated)]
+#![allow(deprecated, useless_deprecated)]
 use core::cell::RefCell;
 use embedded_hal::{
     delay::DelayNs,
