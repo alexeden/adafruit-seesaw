@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
-#![cfg(feature = "module_neopixel")]
-#![allow(incomplete_features)]
+#![allow(unused_imports, dead_code)]
 use adafruit_seesaw::{prelude::*, seesaw_device, Driver, SeesawDriver};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
@@ -22,6 +21,7 @@ seesaw_device! {
 
 const N_LEDS: usize = 50;
 
+#[cfg(feature = "module_neopixel")]
 impl<D: Driver> NeopixelModule<D> for NeoDriver<D> {
     type Color = rgb::Grb<u8>;
 
@@ -29,6 +29,15 @@ impl<D: Driver> NeopixelModule<D> for NeoDriver<D> {
     const PIN: u8 = 15;
 }
 
+#[cfg(not(feature = "module_neopixel"))]
+#[entry]
+fn main() -> ! {
+    rprintln!("NeoDriver module not enabled");
+    #[allow(clippy::empty_loop)]
+    loop {}
+}
+
+#[cfg(feature = "module_neopixel")]
 #[entry]
 fn main() -> ! {
     rtt_init_print!();

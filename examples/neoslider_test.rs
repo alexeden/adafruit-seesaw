@@ -1,6 +1,5 @@
 #![no_std]
 #![no_main]
-#![cfg(feature = "device_neoslider")]
 use adafruit_seesaw::{
     devices::{NeoSlider, NeoSliderColor},
     prelude::*,
@@ -30,6 +29,8 @@ fn main() -> ! {
     loop {
         let value = neoslider.slider_value().expect("Failed to read slider");
         let color = color_wheel(((value / 3) & 0xFF) as u8);
+
+        #[cfg(feature = "module_neopixel")]
         neoslider
             .set_neopixel_colors(&[color, color, color, color])
             .and_then(|_| neoslider.sync_neopixel())

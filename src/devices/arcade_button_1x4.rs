@@ -45,7 +45,11 @@ impl<D: Driver> SeesawDeviceInit<D> for ArcadeButton1x4<D> {
 
 impl<D: Driver> ArcadeButton1x4<D> {
     pub fn button_values(&mut self) -> Result<[bool; 4], SeesawError<D::Error>> {
-        [18, 19, 20, 2].try_map(|pin| self.digital_read(pin))
+        let mut values = [false; 4];
+        for (i, pin) in [18, 19, 20, 2].iter().enumerate() {
+            values[i] = self.digital_read(*pin)?;
+        }
+        Ok(values)
     }
 
     /// Set the pin mode of the 4 buttons to input pullup:
