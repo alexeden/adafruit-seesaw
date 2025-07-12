@@ -15,6 +15,7 @@ pub mod timer;
 pub type Reg = [u8; 2];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum HardwareId {
     /// seesaw HW ID code for SAMD09
     SAMD09 = 0x55,
@@ -39,6 +40,7 @@ impl From<HardwareId> for u8 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub(crate) enum Modules {
     Status = 0x00,
     Gpio = 0x01,

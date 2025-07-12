@@ -6,6 +6,7 @@ use embedded_hal::{
 
 const DELAY_TIME: u32 = 125;
 
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct SeesawDriver<I2C, DELAY>(DELAY, I2C);
 
 impl<I2C, DELAY> SeesawDriver<I2C, DELAY>

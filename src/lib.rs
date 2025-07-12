@@ -31,6 +31,7 @@ mod driver;
 pub use driver::*;
 
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum SeesawError<E> {
     /// I2C bus error
     I2c(E),

@@ -140,6 +140,7 @@ fn handle_panic(info: &core::panic::PanicInfo) -> ! {
 }
 
 #[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 struct Point {
     x: f32,
     y: f32,
@@ -163,6 +164,7 @@ impl Point {
 }
 
 #[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 struct Ripple {
     center: Point,
     /// Radius from the ripple's center; incremented each loop by RIPPLE_RATE
@@ -183,6 +185,7 @@ impl Ripple {
 }
 
 #[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 struct ColorWheel(usize);
 
 impl ColorWheel {

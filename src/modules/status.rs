@@ -67,6 +67,7 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
 
 /// StatusModule
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct DeviceCapabilities {
     pub adc: bool,
     pub dac: bool,
@@ -107,6 +108,7 @@ impl From<u32> for DeviceCapabilities {
 
 /// StatusModule
 #[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ProductDateCode {
     pub id: u16,
     pub year: u16,
