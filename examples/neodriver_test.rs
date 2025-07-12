@@ -33,6 +33,7 @@ impl<D: Driver> NeopixelModule<D> for NeoDriver<D> {
 #[entry]
 fn main() -> ! {
     rprintln!("NeoDriver module not enabled");
+    #[allow(clippy::empty_loop)]
     loop {}
 }
 
