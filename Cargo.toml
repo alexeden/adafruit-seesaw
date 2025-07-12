@@ -19,6 +19,11 @@ rustdoc-args = ["--generate-link-to-definition"]
 [features]
 default = [
     "device_arcade_button_1x4",
+    "device_neokey_1x4",
+    "device_neorotary4",
+    "device_neoslider",
+    "device_neotrellis",
+    "device_rotary_encoder",
 
     "module_adc",
     "module_encoder",

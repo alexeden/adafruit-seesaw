@@ -22,9 +22,11 @@ jobs:
       fail-fast: false
       matrix:
         features: [
+          '-F device_arcade_button_1x4',
           '-F device_neokey_1x4',
           '-F device_neorotary4',
           '-F device_neoslider',
+          '-F device_neotrellis',
           '-F device_rotary_encoder',
         ]
     name: Build & Lint (Default Features, Stable)
