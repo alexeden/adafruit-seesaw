@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 #![allow(incomplete_features)]
-#![cfg(feature = "device_rotary_encoder")]
 use adafruit_seesaw::{
     devices::{RotaryEncoder, RotaryEncoderColor},
     prelude::*,
@@ -44,6 +43,7 @@ fn main() -> ! {
             rprintln!("Position changed to {}, new color is {:?}", position, c);
         }
 
+        #[cfg(feature = "module_neopixel")]
         encoder
             .set_neopixel_color(c)
             .and_then(|_| encoder.sync_neopixel())

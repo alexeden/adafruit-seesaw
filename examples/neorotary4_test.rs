@@ -1,7 +1,5 @@
 #![no_std]
 #![no_main]
-#![cfg(feature = "device_neorotary4")]
-#![allow(incomplete_features)]
 use adafruit_seesaw::{
     devices::{NeoRotary4, NeoRotary4Color},
     prelude::*,
@@ -42,6 +40,7 @@ fn main() -> ! {
             }
             let c = color_wheel(((position & 0xFF) as u8).wrapping_mul(3));
 
+            #[cfg(feature = "module_neopixel")]
             encoder
                 .set_nth_neopixel_color(i, c)
                 .expect("Failed to set neopixel");
@@ -52,6 +51,7 @@ fn main() -> ! {
             }
         }
 
+        #[cfg(feature = "module_neopixel")]
         encoder.sync_neopixel().expect("Failed to sync neopixel");
     }
 }

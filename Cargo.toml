@@ -1,6 +1,6 @@
 [package]
 name = "adafruit-seesaw"
-version = "0.11.1"
+version = "0.12.0"
 authors = ["Alex Eden <alexandereden91@gmail.com>"]
 edition = "2021"
 description = "Platform-agnostic implementation for communicating with devices that run the Seesaw firmware."
@@ -25,8 +25,10 @@ default = [
     "device_neotrellis",
     "device_rotary_encoder",
 
-    "module_keypad",
-    "module_neopixel",
+    "module_adc",
+    "module_encoder",
+    "module_gpio",
+    "module_timer",
 ]
 
 nightly = [
@@ -40,8 +42,6 @@ nightly = [
     "module_keypad",
     "module_neopixel",
 ]
-
-std = [] # to be deprecated
 
 # devices only depend on the modules which they absolutely need for the basics to work
 device_arcade_button_1x4 = ["module_gpio", "module_timer"]

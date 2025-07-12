@@ -60,7 +60,7 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
 
         self.driver()
             .read_u32(addr, STATUS_TEMP)
-            .map(|buf| (buf as f32 / (1u32 << 16) as f32))
+            .map(|buf| buf as f32 / (1u32 << 16) as f32)
             .map_err(SeesawError::I2c)
     }
 }

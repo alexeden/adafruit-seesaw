@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
-#![cfg(feature = "device_neokey_1x4")]
-#![allow(incomplete_features)]
+#![allow(unused_variables, dead_code)]
 use adafruit_seesaw::{
     devices::{NeoKey1x4, NeoKey1x4Color},
     prelude::*,
@@ -29,9 +28,11 @@ fn main() -> ! {
     let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw)
         .init()
         .expect("Failed to start NeoKey1x4");
+
     loop {
         let keys = neokeys.keys().expect("Failed to read keys");
 
+        #[cfg(feature = "module_neopixel")]
         neokeys
             .set_neopixel_colors(&[
                 if keys & 1 == 0 { GREEN } else { RED },

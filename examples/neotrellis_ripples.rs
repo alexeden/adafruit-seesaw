@@ -1,7 +1,5 @@
 #![no_std]
 #![no_main]
-#![cfg(feature = "device_neotrellis")]
-#![allow(incomplete_features)]
 /// Arduino example: https://github.com/adafruit/Adafruit_Seesaw/blob/master/examples/NeoTrellis/ripples/ripples.ino
 /// Demo video: https://storage.googleapis.com/apemedia/neotrellis576.mp4
 use adafruit_seesaw::{
@@ -118,6 +116,7 @@ fn main() -> ! {
             });
 
         // Update neopixels
+        #[cfg(feature = "module_neopixel")]
         trellis
             .set_neopixel_colors(&matrix)
             .and_then(|_| trellis.sync_neopixel())
