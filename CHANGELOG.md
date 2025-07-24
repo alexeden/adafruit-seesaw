@@ -7,6 +7,10 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ## [Unreleased]
 
+-
+
+## [0.12.1] - 2025-07-24
+
 ### Added
 
 - [#23](https://github.com/alexeden/adafruit-seesaw/pull/23) Debugging and logging with [`defmt`](https://defmt.ferrous-systems.com/)
