@@ -58,3 +58,11 @@ jobs:
       - run: rustup default nightly
       - run: cargo build --no-default-features ${features}
       - run: cargo clippy --no-default-features ${features}
+
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install nightly --component rustfmt
+      - run: cargo +nightly fmt --all -- --check
