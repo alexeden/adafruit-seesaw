@@ -1,11 +1,11 @@
 use super::SeesawDeviceInit;
+#[cfg(feature = "module_neopixel")]
+use crate::modules::neopixel::NeopixelModule;
 use crate::{
     modules::{encoder::EncoderModule, status::StatusModule, HardwareId},
     prelude::GpioModule,
     seesaw_device, Driver, SeesawError,
 };
-#[cfg(feature = "module_neopixel")]
-use crate::modules::neopixel::NeopixelModule;
 
 seesaw_device! {
     /// Anecdotally, I've had a lot of issues with the quad rotary encoder.

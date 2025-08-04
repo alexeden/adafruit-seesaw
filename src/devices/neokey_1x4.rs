@@ -1,4 +1,6 @@
 use super::SeesawDeviceInit;
+#[cfg(feature = "module_neopixel")]
+use crate::modules::neopixel::NeopixelModule;
 use crate::{
     modules::{
         gpio::{GpioModule, PinMode},
@@ -7,8 +9,6 @@ use crate::{
     },
     seesaw_device, Driver, SeesawError,
 };
-#[cfg(feature = "module_neopixel")]
-use crate::modules::neopixel::NeopixelModule;
 
 seesaw_device! {
   /// NeoKey1x4
