@@ -1,13 +1,10 @@
 use super::SeesawDeviceInit;
-use crate::{
-    modules::{
-        encoder::EncoderModule, gpio::GpioModule, status::StatusModule,
-        HardwareId,
-    },
-    seesaw_device, Driver, SeesawError,
-};
 #[cfg(feature = "module_neopixel")]
 use crate::modules::neopixel::NeopixelModule;
+use crate::{
+    modules::{encoder::EncoderModule, gpio::GpioModule, status::StatusModule, HardwareId},
+    seesaw_device, Driver, SeesawError,
+};
 
 seesaw_device! {
   name: RotaryEncoder,
