@@ -11,6 +11,7 @@ pub mod neopixel;
 pub mod status;
 #[cfg(feature = "module_timer")]
 pub mod timer;
+pub mod touch;
 
 pub type Reg = [u8; 2];
 
