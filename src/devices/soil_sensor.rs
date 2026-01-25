@@ -1,6 +1,8 @@
 use super::SeesawDeviceInit;
+#[cfg(feature = "module_touch")]
+use crate::modules::touch::TouchModule;
 use crate::{
-    modules::{status::StatusModule, touch::TouchModule, HardwareId},
+    modules::{status::StatusModule, HardwareId},
     seesaw_device, Driver, SeesawError,
 };
 
