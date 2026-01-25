@@ -1,6 +1,8 @@
 use super::SeesawDeviceInit;
+#[cfg(feature = "module_neopixel")]
+use crate::modules::neopixel::NeopixelModule;
 use crate::{
-    modules::{keypad::KeypadModule, neopixel::NeopixelModule, status::StatusModule, HardwareId},
+    modules::{keypad::KeypadModule, status::StatusModule, HardwareId},
     seesaw_device, Driver, SeesawError,
 };
 
@@ -18,6 +20,7 @@ impl<D: Driver> KeypadModule<D> for NeoTrellis<D> {
     const NUM_ROWS: u8 = 4;
 }
 
+#[cfg(feature = "module_neopixel")]
 impl<D: Driver> NeopixelModule<D> for NeoTrellis<D> {
     type Color = NeoTrellisColor;
 
@@ -27,13 +30,15 @@ impl<D: Driver> NeopixelModule<D> for NeoTrellis<D> {
 
 impl<D: Driver> SeesawDeviceInit<D> for NeoTrellis<D> {
     fn init(mut self) -> Result<Self, SeesawError<D::Error>> {
-        self.reset_and_verify_seesaw()
-            .and_then(|_| self.enable_neopixel())
-            .map(|_| self)
+        self.reset_and_verify_seesaw()?;
+        #[cfg(feature = "module_neopixel")]
+        self.enable_neopixel()?;
+        Ok(self)
     }
 }
 
 impl<D: Driver> NeoTrellis<D> {
+    #[cfg(feature = "module_neopixel")]
     pub fn set_xy_neopixel_color(
         &mut self,
         x: u8,

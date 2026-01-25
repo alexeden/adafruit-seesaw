@@ -1,11 +1,10 @@
 #![no_std]
 #![no_main]
-#![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
+#![allow(unused_variables, dead_code)]
 use adafruit_seesaw::{
     devices::{NeoKey1x4, NeoKey1x4Color},
     prelude::*,
-    SeesawRefCell,
+    SeesawDriver,
 };
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
@@ -25,14 +24,15 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
-    let seesaw = SeesawRefCell::new(delay, i2c);
-    let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw.acquire_driver())
+    let seesaw = SeesawDriver::new(delay, i2c);
+    let mut neokeys = NeoKey1x4::new_with_default_addr(seesaw)
         .init()
         .expect("Failed to start NeoKey1x4");
 
     loop {
         let keys = neokeys.keys().expect("Failed to read keys");
 
+        #[cfg(feature = "module_neopixel")]
         neokeys
             .set_neopixel_colors(&[
                 if keys & 1 == 0 { GREEN } else { RED },

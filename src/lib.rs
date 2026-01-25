@@ -1,56 +1,59 @@
 #![doc = include_str!("../README.md")]
-#![cfg_attr(not(feature = "std"), no_std)]
+#![no_std]
 #![allow(const_evaluatable_unchecked, incomplete_features, rustdoc::bare_urls)]
-#![feature(array_try_map, generic_const_exprs)]
-// TODO improve the organization of the exports/visibility
+#![cfg_attr(feature = "module_neopixel", feature(generic_const_exprs))]
+
+use core::fmt::{Display, Formatter};
 // Re-export rgb
 pub use rgb;
 
-pub mod bus;
 pub mod devices;
 pub mod modules;
 pub mod prelude {
+    #[cfg(feature = "module_adc")]
+    pub use super::modules::adc::*;
+    #[cfg(feature = "module_encoder")]
+    pub use super::modules::encoder::*;
+    #[cfg(feature = "module_gpio")]
+    pub use super::modules::gpio::*;
+    #[cfg(feature = "module_keypad")]
+    pub use super::modules::keypad::*;
+    #[cfg(feature = "module_neopixel")]
+    pub use super::modules::neopixel::*;
+    #[cfg(feature = "module_timer")]
+    pub use super::modules::timer::*;
     pub use super::{
         devices::{SeesawDevice, SeesawDeviceInit},
-        driver::DriverExt,
-        modules::{
-            adc::*, encoder::*, gpio::*, keypad::*, neopixel::*, status::*, timer::*, HardwareId,
-        },
+        driver::{DriverExt, SeesawDriver},
+        modules::{status::*, HardwareId},
     };
 }
 mod driver;
-use bus::{Bus, BusMutex, RefCellBus};
 pub use driver::*;
-use embedded_hal::{delay::DelayNs, i2c::I2c};
-use modules::HardwareId;
-
-pub type SeesawRefCell<BUS> = Seesaw<RefCellBus<BUS>>;
-
-#[cfg(feature = "std")]
-pub type SeesawStdMutex<BUS> = Seesaw<std::sync::Mutex<BUS>>;
-
-/// The owner of the driver from which new seesaw devices can be created
-pub struct Seesaw<M>(M);
-
-impl<DELAY, I2C, M> Seesaw<M>
-where
-    DELAY: DelayNs,
-    I2C: I2c,
-    M: BusMutex<Bus = (DELAY, I2C)>,
-{
-    pub fn new(delay: DELAY, i2c: I2C) -> Self {
-        Seesaw(M::create((delay, i2c)))
-    }
-
-    pub fn acquire_driver(&self) -> Bus<'_, M> {
-        Bus(&self.0)
-    }
-}
 
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum SeesawError<E> {
     /// I2C bus error
     I2c(E),
     /// Occurs when an invalid hardware ID is read
     InvalidHardwareId(u8),
+}
+
+impl<E> Display for SeesawError<E> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        match self {
+            SeesawError::I2c(_) => f.write_str("I2C error"),
+            SeesawError::InvalidHardwareId(id) => write!(f, "invalid hardware id: {id}"),
+        }
+    }
+}
+
+impl<E: core::fmt::Debug + core::error::Error + 'static> core::error::Error for SeesawError<E> {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
+        match self {
+            SeesawError::I2c(err) => Some(err),
+            _ => None,
+        }
+    }
 }

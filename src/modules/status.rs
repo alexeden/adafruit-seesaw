@@ -60,13 +60,14 @@ pub trait StatusModule<D: Driver>: SeesawDevice<Driver = D> {
 
         self.driver()
             .read_u32(addr, STATUS_TEMP)
-            .map(|buf| (buf as f32 / (1u32 << 16) as f32))
+            .map(|buf| buf as f32 / (1u32 << 16) as f32)
             .map_err(SeesawError::I2c)
     }
 }
 
 /// StatusModule
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct DeviceCapabilities {
     pub adc: bool,
     pub dac: bool,
@@ -107,6 +108,7 @@ impl From<u32> for DeviceCapabilities {
 
 /// StatusModule
 #[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ProductDateCode {
     pub id: u16,
     pub year: u16,

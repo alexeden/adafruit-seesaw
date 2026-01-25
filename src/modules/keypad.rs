@@ -80,6 +80,7 @@ pub trait KeypadModule<D: Driver>: SeesawDevice<Driver = D> {
 }
 
 #[derive(Debug, Default, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct KeyEventIter {
     buf: [Option<KeyEvent>; 16],
     curr: usize,
@@ -99,6 +100,7 @@ impl Iterator for KeyEventIter {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum KeyEventType {
     /// steady-state key is down
@@ -112,6 +114,7 @@ pub enum KeyEventType {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct KeyEvent {
     pub event: KeyEventType,
     pub x: u8,

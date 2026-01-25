@@ -138,6 +138,7 @@ pub trait GpioModule<D: Driver>: SeesawDevice<Driver = D> {
 }
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum PinOutput {
     High,
@@ -147,6 +148,7 @@ pub enum PinOutput {
 }
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum PinMode {
     Input = 0x01,
@@ -174,6 +176,7 @@ impl From<PinMode> for u8 {
 }
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum InterruptMode {
     Disabled = 0x00,

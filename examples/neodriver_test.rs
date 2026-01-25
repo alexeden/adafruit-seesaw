@@ -1,8 +1,7 @@
 #![no_std]
 #![no_main]
-#![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
-use adafruit_seesaw::{prelude::*, seesaw_device, Driver, SeesawRefCell};
+#![allow(unused_imports, dead_code)]
+use adafruit_seesaw::{prelude::*, seesaw_device, Driver, SeesawDriver};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{
@@ -22,6 +21,7 @@ seesaw_device! {
 
 const N_LEDS: usize = 50;
 
+#[cfg(feature = "module_neopixel")]
 impl<D: Driver> NeopixelModule<D> for NeoDriver<D> {
     type Color = rgb::Grb<u8>;
 
@@ -29,6 +29,15 @@ impl<D: Driver> NeopixelModule<D> for NeoDriver<D> {
     const PIN: u8 = 15;
 }
 
+#[cfg(not(feature = "module_neopixel"))]
+#[entry]
+fn main() -> ! {
+    rprintln!("NeoDriver module not enabled");
+    #[allow(clippy::empty_loop)]
+    loop {}
+}
+
+#[cfg(feature = "module_neopixel")]
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
@@ -41,8 +50,8 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-    let seesaw = SeesawRefCell::new(delay, i2c);
-    let mut neo_driver = NeoDriver::new_with_default_addr(seesaw.acquire_driver());
+    let seesaw = SeesawDriver::new(delay, i2c);
+    let mut neo_driver = NeoDriver::new_with_default_addr(seesaw);
     neo_driver
         .reset_and_verify_seesaw()
         .and_then(|_| neo_driver.enable_neopixel())

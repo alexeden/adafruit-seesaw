@@ -1,13 +1,11 @@
 #![no_std]
 #![no_main]
-#![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
 /// Arduino example: https://github.com/adafruit/Adafruit_Seesaw/blob/master/examples/NeoTrellis/ripples/ripples.ino
 /// Demo video: https://storage.googleapis.com/apemedia/neotrellis576.mp4
 use adafruit_seesaw::{
     devices::{NeoTrellis, NeoTrellisColor},
     prelude::*,
-    SeesawRefCell,
+    SeesawDriver,
 };
 use cortex_m_rt::entry;
 use heapless::Deque;
@@ -52,9 +50,9 @@ fn main() -> ! {
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 400.kHz(), &clocks);
-    let seesaw = SeesawRefCell::new(delay, i2c);
+    let seesaw = SeesawDriver::new(delay, i2c);
     rprintln!("Seesaw created");
-    let mut trellis = NeoTrellis::new_with_default_addr(seesaw.acquire_driver())
+    let mut trellis = NeoTrellis::new_with_default_addr(seesaw)
         .init()
         .expect("Failed to start NeoTrellis");
 
@@ -118,6 +116,7 @@ fn main() -> ! {
             });
 
         // Update neopixels
+        #[cfg(feature = "module_neopixel")]
         trellis
             .set_neopixel_colors(&matrix)
             .and_then(|_| trellis.sync_neopixel())
@@ -141,6 +140,7 @@ fn handle_panic(info: &core::panic::PanicInfo) -> ! {
 }
 
 #[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 struct Point {
     x: f32,
     y: f32,
@@ -164,6 +164,7 @@ impl Point {
 }
 
 #[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 struct Ripple {
     center: Point,
     /// Radius from the ripple's center; incremented each loop by RIPPLE_RATE
@@ -184,6 +185,7 @@ impl Ripple {
 }
 
 #[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 struct ColorWheel(usize);
 
 impl ColorWheel {

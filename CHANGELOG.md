@@ -9,6 +9,58 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 -
 
+## [0.12.1] - 2025-07-24
+
+### Added
+
+- [#23](https://github.com/alexeden/adafruit-seesaw/pull/23) Debugging and logging with [`defmt`](https://defmt.ferrous-systems.com/)
+  - Enabled by using the `defmt` feature flag
+
+## [0.12.0]
+
+### Changed
+
+- [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) the crate can be built using stable rust by default, albeit without the full set of seesaw modules
+ - Use the `nightly` feature flag or any of the more granular feature flags to build all devices and modules
+
+### Removed
+
+- **BREAKING** [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) Removes the following deprecated items - see updated README for usage example and notes.
+  - `BusMutex`
+  - `RefCellBus`
+  - `SeesawStdMutex`
+  - `SeesawRefCell`
+  - `Seesaw`
+- **BREAKING** [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) Removes the following deprecated feature flags:
+  - `std` - No longer applicable following the removal of `SeesawStdMutex`
+  - `default` - Added in 0.11.1 to maintain backwards compatibilty; flags have been removed to support building the crate using stable rust by default. Use the `nightly` feature flag to maintain previous behavior where all modules and devices are built.
+
+
+## [0.11.1] - 2025-07-09
+
+### Added
+
+- [#19](https://github.com/alexeden/adafruit-seesaw/pull/19) Add one feature per device and module, allowing disabling all and only enabling those needed. This allows building some of them on stable rust.
+- [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) Add a `SeesawDriver` struct which implements the `Driver` trait without the `BusMutex` overhead
+- [#21](https://github.com/alexeden/adafruit-seesaw/pull/21) Add a `nightly` trait to eventually replace `default`, which enables all devices and modules but deos not build on stable
+
+### Deprecated
+
+The custom bus trait `BusMutex` and its implementing structs are to be removed in the next release. Users of the crate can more flexibly implement bus sharing themselves using other crates like `embedded-hal-bus`.
+
+Deprecated items:
+- `BusMutex`
+- `RefCellBus`
+- `SeesawStdMutex`
+- `SeesawRefCell`
+- `Seesaw`
+
+Deprecated feature flags:
+
+- `std`: will no longer be relevant after `SeesawStdMutex` is dropped
+- `default`: to support building on stable rust, no default features will be included
+
+
 ## [0.11.0] - 2025-02-07
 
 ### Added

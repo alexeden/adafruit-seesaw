@@ -1,6 +1,6 @@
 [package]
 name = "adafruit-seesaw"
-version = "0.11.0"
+version = "0.12.1"
 authors = ["Alex Eden <alexandereden91@gmail.com>"]
 edition = "2021"
 description = "Platform-agnostic implementation for communicating with devices that run the Seesaw firmware."
@@ -17,7 +17,48 @@ all-features = true
 rustdoc-args = ["--generate-link-to-definition"]
 
 [features]
-std = []
+default = [
+    "device_arcade_button_1x4",
+    "device_neokey_1x4",
+    "device_neorotary4",
+    "device_neoslider",
+    "device_neotrellis",
+    "device_rotary_encoder",
+
+    "module_adc",
+    "module_encoder",
+    "module_gpio",
+    "module_timer",
+]
+
+nightly = [
+    "device_arcade_button_1x4",
+    "device_neokey_1x4",
+    "device_neorotary4",
+    "device_neoslider",
+    "device_neotrellis",
+    "device_rotary_encoder",
+
+    "module_keypad",
+    "module_neopixel",
+]
+
+# devices only depend on the modules which they absolutely need for the basics to work
+device_arcade_button_1x4 = ["module_gpio", "module_timer"]
+device_neokey_1x4 = ["module_gpio"]
+device_neorotary4 = ["module_gpio", "module_encoder"]
+device_neoslider = ["module_adc", "module_gpio"]
+device_neotrellis = ["module_keypad"]
+device_rotary_encoder = ["module_encoder", "module_gpio"]
+
+module_adc = []
+module_encoder = ["module_gpio"]
+module_gpio = []
+module_keypad = []
+module_neopixel = []
+module_timer = []
+
+defmt = ["dep:defmt"]
 
 [lib]
 bench = false
@@ -26,13 +67,15 @@ test = false
 [dependencies]
 embedded-hal = "1.0.0"
 rgb = "0.8.50"
+defmt = { version = "1", optional = true }
 
 [dev-dependencies]
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
+embedded-hal-bus = "0.3"
 heapless = "0.8"
 rtt-target = { version = "0.6" }
-stm32f4xx-hal = { features = ["stm32f405", "sdio"], version = "0.20" }
+stm32f4xx-hal = { features = ["stm32f405", "sdio"], version = "0.22" }
 
 [profile.release]
 codegen-units = 1

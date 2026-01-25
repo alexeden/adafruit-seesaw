@@ -11,6 +11,7 @@ macro_rules! seesaw_device {
         #[doc=core::concat!("")]
         $(#[$attr])*
         #[derive(Debug)]
+        #[cfg_attr(feature = "defmt", derive(defmt::Format))]
         pub struct $name<D>(u8, D);
 
         impl $name<()> {
