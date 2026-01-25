@@ -22,6 +22,8 @@ pub mod prelude {
     pub use super::modules::neopixel::*;
     #[cfg(feature = "module_timer")]
     pub use super::modules::timer::*;
+    #[cfg(feature = "module_touch")]
+    pub use super::modules::touch::*;
     pub use super::{
         devices::{SeesawDevice, SeesawDeviceInit},
         driver::{DriverExt, SeesawDriver},

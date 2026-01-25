@@ -11,6 +11,7 @@ seesaw_device!(
     default_addr: 0x36
 );
 
+#[cfg(feature = "module_touch")]
 impl<D: Driver> TouchModule<D> for SoilSensor<D> {}
 
 impl<D: Driver> SeesawDeviceInit<D> for SoilSensor<D> {

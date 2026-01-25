@@ -86,7 +86,12 @@ macro_rules! impl_integer_read {
                 .map($nty::from_be_bytes)
         }
 
-        fn $fn_with_delay(&mut self, addr: SevenBitAddress, reg: &Reg, delay: u32) -> Result<$nty, Self::Error> {
+        fn $fn_with_delay(
+            &mut self,
+            addr: SevenBitAddress,
+            reg: &Reg,
+            delay: u32,
+        ) -> Result<$nty, Self::Error> {
             self.register_read_with_delay::<{ ($nty::BITS / 8) as usize }>(addr, reg, delay)
                 .map($nty::from_be_bytes)
         }
@@ -153,7 +158,7 @@ impl<T: Driver> DriverExt for T {
         &mut self,
         addr: SevenBitAddress,
         reg: &Reg,
-        delay: u32
+        delay: u32,
     ) -> Result<[u8; N], Self::Error> {
         let mut buffer = [0u8; N];
         self.write(addr, reg)?;
@@ -167,7 +172,7 @@ impl<T: Driver> DriverExt for T {
         addr: SevenBitAddress,
         reg: &Reg,
         bytes: &[u8],
-        delay: u32
+        delay: u32,
     ) -> Result<(), Self::Error> {
         self.transaction(addr, &mut [Operation::Write(reg), Operation::Write(bytes)])?;
         self.delay_us(delay);
