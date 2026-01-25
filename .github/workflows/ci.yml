@@ -50,7 +50,6 @@ jobs:
           '-F device_neotrellis',
           '-F device_neotrellis,module_neopixel',
           '-F device_rotary_encoder,module_neopixel',
-          '-F device_soil_sensor,module_touch',
         ]
     name: Build & Lint With Features
     runs-on: ubuntu-latest
