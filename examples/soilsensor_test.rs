@@ -1,10 +1,7 @@
 #![no_std]
 #![no_main]
 #![allow(incomplete_features)]
-#![feature(generic_const_exprs)]
-use adafruit_seesaw::{
-    devices::SoilSensor, modules::touch::TouchModule, prelude::*, SeesawRefCell
-};
+use adafruit_seesaw::{devices::SoilSensor, modules::touch::TouchModule, prelude::*, SeesawDriver};
 use cortex_m_rt::entry;
 use rtt_target::{rprintln, rtt_init_print};
 use stm32f4xx_hal::{gpio::GpioExt, i2c::I2c, pac, prelude::*, rcc::RccExt};
@@ -16,21 +13,18 @@ fn main() -> ! {
     let dp = pac::Peripherals::take().unwrap();
     let gpiob = dp.GPIOB.split();
     let clocks = dp.RCC.constrain().cfgr.freeze();
-    let mut delay = cp.SYST.delay(&clocks);
+    let delay = cp.SYST.delay(&clocks);
     let scl = gpiob.pb6.into_alternate_open_drain::<4>();
     let sda = gpiob.pb7.into_alternate_open_drain::<4>();
     let i2c = I2c::new(dp.I2C1, (scl, sda), 100.kHz(), &clocks);
-    let seesaw = SeesawRefCell::new(delay, i2c);
-    let mut soil_sensor = SoilSensor::new_with_default_addr(seesaw.acquire_driver())
+    let seesaw = SeesawDriver::new(delay, i2c);
+    let mut soil_sensor = SoilSensor::new_with_default_addr(seesaw)
         .init()
         .expect("Failed to start SoilSensor");
 
     loop {
         let touch_capacitance = soil_sensor.read_touch_capacitance();
-
-        rprintln!("Current touch capacitance: {}", touch_capacitance);
-
-        delay.delay_ms(1_000);
+        rprintln!("Current touch capacitance: {:?}", touch_capacitance);
     }
 }
 

@@ -30,6 +30,7 @@ pub use neoslider::*;
 pub use neotrellis::*;
 #[cfg(feature = "device_rotary_encoder")]
 pub use rotary_encoder::*;
+#[cfg(feature = "device_soil_sensor")]
 pub use soil_sensor::*;
 
 pub trait SeesawDevice {

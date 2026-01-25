@@ -24,11 +24,13 @@ default = [
     "device_neoslider",
     "device_neotrellis",
     "device_rotary_encoder",
+    "device_soil_sensor",
 
     "module_adc",
     "module_encoder",
     "module_gpio",
     "module_timer",
+    "module_touch",
 ]
 
 nightly = [
@@ -50,6 +52,7 @@ device_neorotary4 = ["module_gpio", "module_encoder"]
 device_neoslider = ["module_adc", "module_gpio"]
 device_neotrellis = ["module_keypad"]
 device_rotary_encoder = ["module_encoder", "module_gpio"]
+device_soil_sensor = ["module_touch"]
 
 module_adc = []
 module_encoder = ["module_gpio"]
@@ -57,6 +60,7 @@ module_gpio = []
 module_keypad = []
 module_neopixel = []
 module_timer = []
+module_touch = []
 
 defmt = ["dep:defmt"]
 
