@@ -28,6 +28,7 @@ jobs:
           '-F device_neoslider',
           '-F device_neotrellis',
           '-F device_rotary_encoder',
+          '-F device_soil_sensor',
         ]
     name: Build & Lint (Default Features, Stable)
     runs-on: ubuntu-latest

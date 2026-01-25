@@ -106,6 +106,7 @@ The crate comes with a few predefined devices that you can use. [Their documenta
 | [NeoTrellis](https://adafruit.com/product/3954)      | 3954       | SAMD09    | [Example demo video `neotrellis_ripples.rs`](https://storage.googleapis.com/apemedia/neotrellis576.mp4) |
 | [NeoRotary4](https://adafruit.com/product/5752)      | 5752       | ATTiny8x7 |                                                                                                         |
 | [RotaryEncoder](https://adafruit.com/product/4991)   | 4991       | SAMD09    |                                                                                                         |
+| [SoilSensor](https://www.adafruit.com/product/4026)  | 4026       | SAMD10    |
 
 # Creating Your Own Devices
 

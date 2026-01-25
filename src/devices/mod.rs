@@ -12,6 +12,8 @@ mod neoslider;
 mod neotrellis;
 #[cfg(feature = "device_rotary_encoder")]
 mod rotary_encoder;
+#[cfg(feature = "device_soil_sensor")]
+mod soil_sensor;
 use crate::{
     modules::{status::StatusModule, HardwareId},
     Driver, SeesawError,
@@ -29,6 +31,8 @@ pub use neoslider::*;
 pub use neotrellis::*;
 #[cfg(feature = "device_rotary_encoder")]
 pub use rotary_encoder::*;
+#[cfg(feature = "device_soil_sensor")]
+pub use soil_sensor::*;
 
 pub trait SeesawDevice {
     type Driver: crate::Driver;
