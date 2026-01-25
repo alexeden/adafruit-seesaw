@@ -9,6 +9,12 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 -
 
+## [0.13.0] - 2026-01-24
+
+### Added
+
+- [#20](https://github.com/alexeden/adafruit-seesaw/pull/20) [SoilSensor](https://www.adafruit.com/product/4026) Device Support @dnseitz
+
 ## [0.12.1] - 2025-07-24
 
 ### Added
