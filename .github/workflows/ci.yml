@@ -28,6 +28,7 @@ jobs:
           '-F device_neoslider',
           '-F device_neotrellis',
           '-F device_rotary_encoder',
+          '-F device_soil_sensor',
         ]
     name: Build & Lint (Default Features, Stable)
     runs-on: ubuntu-latest
@@ -49,6 +50,7 @@ jobs:
           '-F device_neotrellis',
           '-F device_neotrellis,module_neopixel',
           '-F device_rotary_encoder,module_neopixel',
+          '-F device_soil_sensor,module_touch',
         ]
     name: Build & Lint With Features
     runs-on: ubuntu-latest
