@@ -1,5 +1,6 @@
 use super::{Modules, Reg};
 use crate::{devices::SeesawDevice, driver::Driver, DriverExt, SeesawError};
+#[allow(deprecated)]
 use rgb::ComponentSlice;
 
 /// WO - 8 bits
@@ -37,6 +38,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
     /// The output pin of the neopixel signal
     const PIN: u8;
 
+    #[allow(deprecated)]
     type Color: ComponentSlice<u8>;
 
     /// Set which pin the device sends the neopixel signal through and
@@ -93,6 +95,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
         let addr = self.addr();
         let mut buf = [0; 2 + Self::C_SIZE];
         buf[..2].copy_from_slice(&u16::to_be_bytes((Self::C_SIZE * n) as u16));
+        #[allow(deprecated)]
         buf[2..].copy_from_slice(color.as_slice());
         self.driver()
             .register_write(addr, SET_BUF, &buf)
@@ -126,6 +129,7 @@ pub trait NeopixelModule<D: Driver>: SeesawDevice<Driver = D> {
                 buf[..2].copy_from_slice(&offset);
                 chunk.iter().enumerate().for_each(|(j, c)| {
                     let start = 2 + (j * Self::C_SIZE);
+                    #[allow(deprecated)]
                     buf[start..start + Self::C_SIZE].copy_from_slice(c.as_slice());
                 });
 
