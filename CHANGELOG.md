@@ -7,6 +7,10 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ## [Unreleased]
 
+-
+
+## [0.14.0] - 2026-03-13
+
 ### Added
 
 - `GpioModule` interrupt functions: `interrupt_enable`, `interrupt_enable_bulk`, `interrupt_disable`, `interrupt_disable_bulk`, `clear_interrupts`
