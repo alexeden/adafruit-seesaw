@@ -174,23 +174,3 @@ impl From<PinMode> for u8 {
         value as u8
     }
 }
-
-#[derive(Clone, Copy, Debug)]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[repr(u8)]
-pub enum InterruptMode {
-    Disabled = 0x00,
-    Rising = 0x01,
-    Falling = 0x02,
-    Change = 0x03,
-    Onlow = 0x04,
-    Onhigh = 0x05,
-    OnlowWe = 0x0C,
-    OnhighWe = 0x0D,
-}
-
-impl From<InterruptMode> for u8 {
-    fn from(value: InterruptMode) -> Self {
-        value as u8
-    }
-}
