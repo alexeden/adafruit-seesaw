@@ -7,7 +7,19 @@ and this project (hopefully) adheres to [Semantic Versioning](https://semver.org
 
 ## [Unreleased]
 
--
+### Added
+
+- `GpioModule` interrupt functions: `interrupt_enable`, `interrupt_enable_bulk`, `interrupt_disable`, `interrupt_disable_bulk`, `clear_interrupts`
+- `GpioModule` pull resistor functions: `pull_enable`, `pull_enable_bulk`, `pull_disable`, `pull_disable_bulk`
+- `NeoKey1x4`: `enable_interrupts` and `disable_interrupts` convenience methods
+
+### Changed
+
+- `rgb` dependency bumped to `0.8.53`
+
+### Removed
+
+- `InterruptMode` enum (wasn't being used anywhere)
 
 ## [0.13.0] - 2026-01-24
 

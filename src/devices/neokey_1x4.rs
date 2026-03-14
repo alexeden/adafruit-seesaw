@@ -47,6 +47,14 @@ impl<D: Driver> NeoKey1x4<D> {
         )
     }
 
+    pub fn enable_interrupt(&mut self) -> Result<(), SeesawError<D::Error>> {
+        self.interrupt_enable_bulk((1 << 4) | (1 << 5) | (1 << 6) | (1 << 7))
+    }
+
+    pub fn disable_interrupt(&mut self) -> Result<(), SeesawError<D::Error>> {
+        self.interrupt_disable_bulk((1 << 4) | (1 << 5) | (1 << 6) | (1 << 7))
+    }
+
     pub fn keys(&mut self) -> Result<u8, SeesawError<D::Error>> {
         self.digital_read_bulk().map(|r| ((r >> 4) & 0xF) as u8)
     }
