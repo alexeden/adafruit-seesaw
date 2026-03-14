@@ -4,7 +4,6 @@ use crate::{devices::SeesawDevice, Driver, DriverExt, SeesawError};
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register sets the direction of the
 /// corresponding pin to OUTPUT. Writing 0 has no effect.
-#[allow(dead_code)]
 const SET_OUTPUT: &Reg = &[Modules::Gpio.into_u8(), 0x02];
 
 /// WO - 32 bits
@@ -32,27 +31,23 @@ const SET_LOW: &Reg = &[Modules::Gpio.into_u8(), 0x06];
 /// W0 - 32 bits
 /// Writing a 1 to any bit in this register toggles the corresponding pin.
 /// Writing 0 has no effect.
-#[allow(dead_code)]
 const TOGGLE: &Reg = &[Modules::Gpio.into_u8(), 0x07];
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register enables the interrupt on the
 /// corresponding pin. When the value on this pin changes, the corresponding
 /// bit will be set in the INTFLAG register. Writing 0 has no effect.
-#[allow(dead_code)]
 const INT_ENABLE: &Reg = &[Modules::Gpio.into_u8(), 0x08];
 
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register disables the interrupt on the
 /// corresponding pin. Writing 0 has no effect.
-#[allow(dead_code)]
 const INT_DISABLE: &Reg = &[Modules::Gpio.into_u8(), 0x09];
 
 /// RO - 32 bits
 /// This register hold the status of all GPIO interrupts.
 /// When an interrupt fires, the corresponding bit in this register gets
 /// set. Reading this register clears all interrupts.
-#[allow(dead_code)]
 const INT_FLAG: &Reg = &[Modules::Gpio.into_u8(), 0x0A];
 
 /// WO - 32 bits
@@ -66,7 +61,6 @@ const PULL_ENABLE: &Reg = &[Modules::Gpio.into_u8(), 0x0B];
 /// WO - 32 bits
 /// Writing a 1 to any bit in this register disables the pull up/down on the
 /// corresponding pin. Writing 0 has no effect.
-#[allow(dead_code)]
 const PULL_DISABLE: &Reg = &[Modules::Gpio.into_u8(), 0x0C];
 
 /// The GPIO module provides every day input and outputs. You'll get logic GPIO
@@ -110,6 +104,56 @@ pub trait GpioModule<D: Driver>: SeesawDevice<Driver = D> {
             PinOutput::Toggle => bus.write_u32(addr, TOGGLE, pins),
         }
         .map_err(SeesawError::I2c)
+    }
+
+    fn clear_interrupts(&mut self) -> Result<u32, SeesawError<D::Error>> {
+        let addr = self.addr();
+        let bus = self.driver();
+        bus.read_u32(addr, INT_FLAG).map_err(SeesawError::I2c)
+    }
+
+    fn interrupt_disable(&mut self, pin: u8) -> Result<(), SeesawError<D::Error>> {
+        self.interrupt_disable_bulk(1 << pin)
+    }
+
+    fn interrupt_disable_bulk(&mut self, pins: u32) -> Result<(), SeesawError<D::Error>> {
+        let addr = self.addr();
+        let bus = self.driver();
+        bus.write_u32(addr, INT_DISABLE, pins)
+            .map_err(SeesawError::I2c)
+    }
+
+    fn interrupt_enable(&mut self, pin: u8) -> Result<(), SeesawError<D::Error>> {
+        self.interrupt_enable_bulk(1 << pin)
+    }
+
+    fn interrupt_enable_bulk(&mut self, pins: u32) -> Result<(), SeesawError<D::Error>> {
+        let addr = self.addr();
+        let bus = self.driver();
+        bus.write_u32(addr, INT_ENABLE, pins)
+            .map_err(SeesawError::I2c)
+    }
+
+    fn pull_disable(&mut self, pin: u8) -> Result<(), SeesawError<D::Error>> {
+        self.pull_disable_bulk(1 << pin)
+    }
+
+    fn pull_disable_bulk(&mut self, pins: u32) -> Result<(), SeesawError<D::Error>> {
+        let addr = self.addr();
+        let bus = self.driver();
+        bus.write_u32(addr, PULL_DISABLE, pins)
+            .map_err(SeesawError::I2c)
+    }
+
+    fn pull_enable(&mut self, pin: u8) -> Result<(), SeesawError<D::Error>> {
+        self.pull_enable_bulk(1 << pin)
+    }
+
+    fn pull_enable_bulk(&mut self, pins: u32) -> Result<(), SeesawError<D::Error>> {
+        let addr = self.addr();
+        let bus = self.driver();
+        bus.write_u32(addr, PULL_ENABLE, pins)
+            .map_err(SeesawError::I2c)
     }
 
     fn set_pin_mode(&mut self, pin: u8, mode: PinMode) -> Result<(), SeesawError<D::Error>> {
