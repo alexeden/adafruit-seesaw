@@ -1,7 +1,11 @@
 [package]
-name = "microcontroller_test"
+name = "kb2040"
 version = "0.1.0"
 edition = "2024"
+
+[[bin]]
+name = "mini_i2c_gamepad_qt"
+path = "src/mini_i2c_gamepad_qt.rs"
 
 [dependencies]
 adafruit-seesaw = { path = "../..", default-features = false, features = ["device_mini_i2c_gamepad_qt"] }
