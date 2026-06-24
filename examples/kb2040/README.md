@@ -17,7 +17,7 @@ while you hold down the boot button. Run `cargo run` to flash the board.
 This uses elf2uf2-rs to convert .elf to .uf2 and upload to the board.
 
 After flashing, open the KB2040 USB serial port to view joystick and button
-state logs. For example, on Linux you can use `screen`:
+state logs. For example, on Linux you can use `screen` in a separate terminal:
 - Install `screen`: `sudo apt install screen`
 - Open the serial port: `screen /dev/ttyACM0 115200`
 - Press the gamepad buttons and observe the logs
