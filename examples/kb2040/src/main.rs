@@ -120,15 +120,15 @@ fn log_state(serial: &mut SerialPort<UsbBus>, state: MiniI2cGamepadQtState) {
     let buttons = state.buttons;
     let _ = writeln!(
         UsbSerial(serial),
-        "x={} y={} a={} b={} x_btn={} y_btn={} select={} start={}\r",
+        "x_axis={:04} y_axis={:04} A={} B={} X={} Y={} Select={} Start={}\r",
         state.x,
         state.y,
-        buttons.a,
-        buttons.b,
-        buttons.x,
-        buttons.y,
-        buttons.select,
-        buttons.start
+        buttons.a as u8,
+        buttons.b as u8,
+        buttons.x as u8,
+        buttons.y as u8,
+        buttons.select as u8,
+        buttons.start as u8
     );
 }
 
