@@ -5,6 +5,7 @@ use embedded_hal::{
 };
 
 const DELAY_TIME: u32 = 125;
+const MAX_REGISTER_WRITE_LEN: usize = 32;
 
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Debug)]
@@ -174,7 +175,13 @@ impl<T: Driver> DriverExt for T {
         bytes: &[u8],
         delay: u32,
     ) -> Result<(), Self::Error> {
-        self.transaction(addr, &mut [Operation::Write(reg), Operation::Write(bytes)])?;
+        assert!(reg.len() + bytes.len() <= MAX_REGISTER_WRITE_LEN);
+
+        let mut buffer = [0u8; MAX_REGISTER_WRITE_LEN];
+        buffer[..reg.len()].copy_from_slice(reg);
+        buffer[reg.len()..reg.len() + bytes.len()].copy_from_slice(bytes);
+
+        self.write(addr, &buffer[..reg.len() + bytes.len()])?;
         self.delay_us(delay);
         Ok(())
     }
