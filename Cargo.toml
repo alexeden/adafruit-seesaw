@@ -19,6 +19,7 @@ rustdoc-args = ["--generate-link-to-definition"]
 [features]
 default = [
     "device_arcade_button_1x4",
+    "device_mini_i2c_gamepad_qt",
     "device_neokey_1x4",
     "device_neorotary4",
     "device_neoslider",
@@ -47,6 +48,7 @@ nightly = [
 
 # devices only depend on the modules which they absolutely need for the basics to work
 device_arcade_button_1x4 = ["module_gpio", "module_timer"]
+device_mini_i2c_gamepad_qt = ["module_adc", "module_gpio"]
 device_neokey_1x4 = ["module_gpio"]
 device_neorotary4 = ["module_gpio", "module_encoder"]
 device_neoslider = ["module_adc", "module_gpio"]
