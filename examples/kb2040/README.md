@@ -24,7 +24,10 @@ while you hold down the boot button. From this directory, run
 to convert .elf to .uf2 and upload to the board.
 
 After flashing, open the KB2040 USB serial port to view joystick and button
-state logs. For example, on Linux you can use `screen` in a separate terminal:
+state logs. For example, on Linux you can use `cat /dev/ttyACM0` (this 
+assumes that `ttyACM0` is the correct device; sometimes you have to check with
+`ls /dev/ttyACM*`. Also, the port baudrate must be set to the default, 115200).
+You can also use a Serial Monitor like `screen`:
 - Install `screen`: `sudo apt install screen`
 - Open the serial port: `screen /dev/ttyACM0 115200`
 - Press the gamepad buttons and observe the logs
