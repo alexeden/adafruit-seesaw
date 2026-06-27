@@ -11,7 +11,7 @@ state over USB serial.
 Connect the gamepad to the KB2040 STEMMA QT connector. The example uses the
 default gamepad I2C address, `0x50`.
 
-## Setup
+### Setup
 Install the RP2040 toolchain: 
 ```bash
 rustup target add thumbv6m-none-eabi 
@@ -32,6 +32,3 @@ You can also use a Serial Monitor like `screen`:
 - Open the serial port: `screen /dev/ttyACM0 115200`
 - Press the gamepad buttons and observe the logs
 - Exit with `Ctrl+A` then `K` then `Y`
-
-## References
-[The Rusty Bits: Embedded Rust Setup Explained](https://www.youtube.com/watch?v=TOAynddiu5M)
