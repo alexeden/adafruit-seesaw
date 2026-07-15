@@ -1,2 +1,3 @@
 /target
 Cargo.lock
+/examples/kb2040/target

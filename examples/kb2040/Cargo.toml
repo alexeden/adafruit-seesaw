@@ -1,0 +1,52 @@
+[package]
+name = "kb2040"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "mini_i2c_gamepad_qt"
+path = "src/mini_i2c_gamepad_qt.rs"
+
+[dependencies]
+adafruit-seesaw = { path = "../..", default-features = false, features = ["device_mini_i2c_gamepad_qt"] }
+cortex-m-rt = { version = "0.7.3", optional = true }
+embedded-hal = "1.0.0"
+rp2040-boot2 = { version = "0.3.0", optional = true }
+rp2040-hal = "0.10.0"
+adafruit-kb2040 = "0.8.0"
+panic-halt = "0.2.0"
+usb-device = "0.3"
+usbd-serial = "0.2.1"
+
+[features]
+# This is the set of features we enable by default
+default = ["boot2", "rt", "critical-section-impl", "rom-func-cache"]
+
+# critical section that is safe for multicore use
+critical-section-impl = ["rp2040-hal/critical-section-impl"]
+
+# 2nd stage bootloaders for rp2040
+boot2 = ["rp2040-boot2"]
+
+# Minimal startup / runtime for Cortex-M microcontrollers
+rt = ["cortex-m-rt","rp2040-hal/rt"]
+
+# This enables a fix for USB errata 5: USB device fails to exit RESET state on busy USB bus.
+# Only required for RP2040 B0 and RP2040 B1, but it doesn't hurt to enable it
+rp2040-e5 = ["rp2040-hal/rp2040-e5"]
+
+# Memoize(cache) ROM function pointers on first use to improve performance
+rom-func-cache = ["rp2040-hal/rom-func-cache"]
+
+# Disable automatic mapping of language features (like floating point math) to ROM functions
+disable-intrinsics = ["rp2040-hal/disable-intrinsics"]
+
+# This enables ROM functions for f64 math that were not present in the earliest RP2040s
+rom-v2-intrinsics = ["rp2040-hal/rom-v2-intrinsics"]
+
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

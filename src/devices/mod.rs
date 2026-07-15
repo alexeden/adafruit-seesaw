@@ -2,6 +2,8 @@
 mod arcade_button_1x4;
 mod generic_device;
 pub mod macros;
+#[cfg(feature = "device_mini_i2c_gamepad_qt")]
+mod mini_i2c_gamepad_qt;
 #[cfg(feature = "device_neokey_1x4")]
 mod neokey_1x4;
 #[cfg(feature = "device_neorotary4")]
@@ -21,6 +23,8 @@ use crate::{
 #[cfg(feature = "device_arcade_button_1x4")]
 pub use arcade_button_1x4::*;
 pub use generic_device::*;
+#[cfg(feature = "device_mini_i2c_gamepad_qt")]
+pub use mini_i2c_gamepad_qt::*;
 #[cfg(feature = "device_neokey_1x4")]
 pub use neokey_1x4::*;
 #[cfg(feature = "device_neorotary4")]
